@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { supabaseConfigured } from "./lib/supabaseClient.js";
+import { getCachedPasscode, setCachedPasscode, verifyPasscode } from "./lib/familyPasscode.js";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -1632,8 +1634,16 @@ function Chart({ cards, unlockedFams, audio, onReset }) {
           </div>
           <div className="note" style={{ marginTop: 8, fontSize: 11.5 }}>
             {audio.scope === "all"
-              ? "New recordings go to shared storage — anyone who opens this app will hear them, and they can overwrite them. Use this when you're recording for the family."
+              ? "New recordings go to shared storage — anyone who opens this app will hear them, and they can overwrite them (you'll be asked to confirm first). Use this when you're recording for the family."
               : "New recordings stay on your account only. Nobody else sees them. Everyone gets their own progress either way."}
+          </div>
+          <div className="note" style={{ marginTop: 10, fontSize: 11, borderTop: "1px solid var(--line)", paddingTop: 9 }}>
+            Nothing here asks for your name, email, or any account info — progress and clips are tied to
+            the app, not to you. Your own progress and "Just me" recordings never leave this device — no
+            analytics, nothing sent anywhere else. "Everyone" recordings sync to a shared server so the
+            rest of the family can hear them, and writing to it needs the family passcode so a stranger
+            with just the link can't overwrite or spam it. Anything you record, you can remove again with
+            the ✕ next to it.
           </div>
         </div>
       )}
@@ -1841,11 +1851,61 @@ async function putClip(f, o, url, scope) {
   return idx;
 }
 
+// Anyone should be able to pull back something they recorded — including
+// by mistake, or a clip they no longer want other family members hearing.
+async function deleteClip(f, o, scope) {
+  const m = await readMap(f, scope);
+  delete m[o];
+  await window.storage.set("aud:f" + f, JSON.stringify(m), scope === "all");
+  audCache.delete(`${scope}:${f}.${o}`);
+  const idx = await loadAudIndex();
+  idx.delete(`${f}.${o}`);
+  await window.storage.set(
+    IDX_KEY[scope],
+    JSON.stringify([...idx].filter(([, v]) => v === scope).map(([k]) => k)),
+    scope === "all"
+  );
+  return idx;
+}
+
 function Voice({ fam, order, have, scope, onSaved }) {
   const [st, setSt] = useState("idle"); // idle | rec | busy
   const [err, setErr] = useState(null);
+  const [confirmOver, setConfirmOver] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
+  const [needsPasscode, setNeedsPasscode] = useState(false);
+  const [passInput, setPassInput] = useState("");
+  const [passErr, setPassErr] = useState(null);
+  const [checking, setChecking] = useState(false);
   const mr = useRef(null);
   const fileRef = useRef(null);
+  const pendingUrl = useRef(null);
+  const pendingAction = useRef(null);
+
+  // Writing to the shared "Everyone" scope needs the family passcode —
+  // reads (play) never do. Cached in this browser after the server
+  // verifies it once, so this only interrupts the first shared write.
+  const gate = (action) => {
+    if (scope !== "all" || !supabaseConfigured || getCachedPasscode()) return true;
+    pendingAction.current = action;
+    setPassErr(null);
+    setNeedsPasscode(true);
+    return false;
+  };
+
+  const submitPasscode = async () => {
+    if (!passInput) return;
+    setChecking(true);
+    const res = await verifyPasscode(passInput);
+    setChecking(false);
+    if (!res.ok) return setPassErr(res.error || "Wrong passcode.");
+    setCachedPasscode(passInput);
+    setPassInput("");
+    setNeedsPasscode(false);
+    const action = pendingAction.current;
+    pendingAction.current = null;
+    if (action) action();
+  };
 
   const play = async () => {
     const url = (await getClip(fam, order, have || "me")) || (await getClip(fam, order, "all"));
@@ -1857,11 +1917,7 @@ function Voice({ fam, order, have, scope, onSaved }) {
     }
   };
 
-  const save = async (url) => {
-    if (url.length > 700000) {
-      setSt("idle");
-      return setErr("That clip is too long. Aim for about a second.");
-    }
+  const commit = async (url) => {
     setSt("busy");
     try {
       const idx = await putClip(fam, order, url, scope);
@@ -1871,9 +1927,28 @@ function Voice({ fam, order, have, scope, onSaved }) {
       setErr("Couldn't save that clip.");
     }
     setSt("idle");
+    setConfirmOver(false);
+    pendingUrl.current = null;
+  };
+
+  const save = (url) => {
+    if (url.length > 700000) {
+      setSt("idle");
+      return setErr("That clip is too long. Aim for about a second.");
+    }
+    // Overwriting your own scope is your business. Overwriting the shared
+    // family copy replaces what everyone else hears, silently, unless we ask.
+    if (scope === "all" && have === "all") {
+      pendingUrl.current = url;
+      setSt("idle");
+      setConfirmOver(true);
+      return;
+    }
+    commit(url);
   };
 
   const start = async () => {
+    if (!gate(start)) return;
     setErr(null);
     if (!navigator.mediaDevices || !window.MediaRecorder) {
       return setErr("Mic isn't reachable here. Use the upload button instead.");
@@ -1904,11 +1979,94 @@ function Voice({ fam, order, have, scope, onSaved }) {
 
   const upload = (e) => {
     const f = e.target.files && e.target.files[0];
+    e.target.value = "";
     if (!f) return;
-    const fr = new FileReader();
-    fr.onload = () => save(fr.result);
-    fr.readAsDataURL(f);
+    const proceed = () => {
+      const fr = new FileReader();
+      fr.onload = () => save(fr.result);
+      fr.readAsDataURL(f);
+    };
+    if (!gate(proceed)) return;
+    proceed();
   };
+
+  const del = async () => {
+    if (!confirmDel) return setConfirmDel(true);
+    if (!gate(del)) return;
+    setSt("busy");
+    try {
+      const idx = await deleteClip(fam, order, have || scope);
+      onSaved(idx);
+      setErr(null);
+    } catch (e) {
+      setErr("Couldn't remove that clip.");
+    }
+    setSt("idle");
+    setConfirmDel(false);
+  };
+
+  if (needsPasscode) {
+    return (
+      <div>
+        <div className="note" style={{ color: "var(--bone)", marginBottom: 8, fontSize: 12.5 }}>
+          Recording for the family needs the shared passcode. Ask whoever set this app up if you don't
+          have it.
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input
+            type="password"
+            inputMode="text"
+            autoComplete="off"
+            value={passInput}
+            onChange={(e) => setPassInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submitPasscode()}
+            placeholder="family passcode"
+            style={{
+              flex: 1, minWidth: 140, background: "var(--ink)", border: "1px solid var(--line)",
+              borderRadius: 20, padding: "6px 14px", color: "var(--bone)", fontSize: 12,
+            }}
+          />
+          <button
+            className="speaker"
+            style={{ borderColor: "var(--rubric)", color: "var(--rubric)" }}
+            disabled={checking || !passInput}
+            onClick={submitPasscode}
+          >
+            {checking ? "checking…" : "unlock"}
+          </button>
+          <button
+            className="speaker"
+            onClick={() => { setNeedsPasscode(false); setPassInput(""); pendingAction.current = null; }}
+          >
+            cancel
+          </button>
+        </div>
+        {passErr && <div className="note" style={{ color: "var(--rubric)", marginTop: 6, fontSize: 11.5 }}>{passErr}</div>}
+      </div>
+    );
+  }
+
+  if (confirmOver) {
+    return (
+      <div>
+        <div className="note" style={{ color: "var(--gold)", marginBottom: 8, fontSize: 12.5 }}>
+          This replaces the clip everyone in the family currently hears for this letter. Keep going?
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="speaker" onClick={() => { setConfirmOver(false); pendingUrl.current = null; }}>
+            cancel
+          </button>
+          <button
+            className="speaker"
+            style={{ borderColor: "var(--rubric)", color: "var(--rubric)" }}
+            onClick={() => commit(pendingUrl.current)}
+          >
+            replace it
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -1931,7 +2089,21 @@ function Voice({ fam, order, have, scope, onSaved }) {
           ⤒ upload
         </button>
         <input ref={fileRef} type="file" accept="audio/*" onChange={upload} style={{ display: "none" }} />
+        {have && (
+          <button
+            className="speaker"
+            style={confirmDel ? { borderColor: "var(--rubric)", color: "var(--rubric)" } : { color: "var(--dim)" }}
+            onClick={del}
+          >
+            {confirmDel ? "tap again to remove" : "✕ remove"}
+          </button>
+        )}
       </div>
+      {have === "all" && !confirmDel && (
+        <div className="note" style={{ marginTop: 6, fontSize: 11 }}>
+          This clip is shared — anyone using the app can hear it and re-record over it.
+        </div>
+      )}
       {err && <div className="note" style={{ color: "var(--rubric)", marginTop: 6, fontSize: 11.5 }}>{err}</div>}
     </div>
   );

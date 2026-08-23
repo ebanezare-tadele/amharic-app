@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Ethiopic:wght@400;700&display=block');
+  html, body { margin: 0; padding: 0; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script>
+    const p = new URLSearchParams(location.search);
+    const size = Number(p.get('size') || 512);
+    const padFrac = Number(p.get('pad') || 0.18);
+    const bg = p.get('bg') || '#10162A';
+    const fg = p.get('fg') || '#CE452C';
+    const FONT = "'Noto Serif Ethiopic','Kefa','Noto Sans Ethiopic','Abyssinica SIL','Nyala',serif";
+    const GLYPH = 'ፊ';
+
+    // Measure the glyph's actual ink bounding box at a reference size, so
+    // we can center by pixels-that-are-actually-drawn rather than by the
+    // font's em-box (which this font doesn't center the glyph within).
+    function measure(refPx) {
+      const m = document.createElement('canvas');
+      m.width = refPx * 3;
+      m.height = refPx * 3;
+      const mx = m.getContext('2d');
+      const ox = refPx, oy = refPx * 1.5;
+      mx.font = `${refPx}px ${FONT}`;
+      mx.textAlign = 'left';
+      mx.textBaseline = 'alphabetic';
+      mx.fillStyle = '#000';
+      mx.fillText(GLYPH, ox, oy);
+      const d = mx.getImageData(0, 0, m.width, m.height).data;
+      let minX = m.width, maxX = 0, minY = m.height, maxY = 0, found = false;
+      for (let y = 0; y < m.height; y++) {
+        for (let x = 0; x < m.width; x++) {
+          if (d[(y * m.width + x) * 4 + 3] > 10) {
+            found = true;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+      if (!found) throw new Error('font did not render — check network access to fonts.googleapis.com');
+      return { ox, oy, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2, w: maxX - minX, h: maxY - minY };
+    }
+
+    async function draw() {
+      await document.fonts.load(`400 100px ${FONT}`);
+      await document.fonts.ready;
+
+      const refPx = 1000;
+      const ref = measure(refPx);
+      const safe = size * (1 - padFrac * 2);
+      const scale = safe / Math.max(ref.w, ref.h);
+      const finalPx = refPx * scale;
+
+      const c = document.getElementById('c');
+      c.width = size;
+      c.height = size;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, size, size);
+      ctx.font = `${finalPx}px ${FONT}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = fg;
+      const offX = (ref.cx - ref.ox) * scale;
+      const offY = (ref.cy - ref.oy) * scale;
+      ctx.fillText(GLYPH, size / 2 - offX, size / 2 - offY);
+      document.title = 'ready';
+    }
+    draw();
+  </script>
+</body>
+</html>
