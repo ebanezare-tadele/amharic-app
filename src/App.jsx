@@ -1640,10 +1640,11 @@ function Chart({ cards, unlockedFams, audio, onReset }) {
           <div className="note" style={{ marginTop: 10, fontSize: 11, borderTop: "1px solid var(--line)", paddingTop: 9 }}>
             Nothing here asks for your name, email, or any account info — progress and clips are tied to
             the app, not to you. Your own progress and "Just me" recordings never leave this device — no
-            analytics, nothing sent anywhere else. "Everyone" recordings sync to a shared server so the
-            rest of the family can hear them, and writing to it needs the family passcode so a stranger
-            with just the link can't overwrite or spam it. Anything you record, you can remove again with
-            the ✕ next to it.
+            analytics, nothing sent anywhere else.{" "}
+            {supabaseConfigured
+              ? "\"Everyone\" recordings sync to a shared server so the rest of the family can hear them, and writing to it needs the family passcode so a stranger with just the link can't overwrite or spam it."
+              : "\"Everyone\" recordings currently stay on this device too, same as \"Just me\" — shared sync across family devices isn't turned on yet."}{" "}
+            Anything you record, you can remove again with the ✕ next to it.
           </div>
         </div>
       )}

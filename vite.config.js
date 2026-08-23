@@ -2,8 +2,15 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// GitHub Pages serves a project repo (not a *.github.io repo itself) from
+// a subpath — https://<user>.github.io/amharic-app/ — so every asset URL
+// needs that prefix. If you later move this to a custom domain or a
+// user/org root site, change this back to '/'.
+const BASE = '/amharic-app/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: BASE,
   plugins: [
     react(),
     VitePWA({
@@ -13,16 +20,18 @@ export default defineConfig({
         name: 'ፊደል — Amharic Fidel',
         short_name: 'ፊደል',
         description: 'Learn the Amharic fidel — 34 consonant families across 7 vowel orders.',
-        start_url: '/',
-        scope: '/',
+        // Relative, not "/..." — vite-plugin-pwa resolves these against
+        // `base` above, so they still work under the /amharic-app/ subpath.
+        start_url: '.',
+        scope: '.',
         display: 'standalone',
         background_color: '#10162A',
         theme_color: '#10162A',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: '/icons/maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-          { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
