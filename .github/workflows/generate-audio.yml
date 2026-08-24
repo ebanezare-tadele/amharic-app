@@ -19,6 +19,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -36,9 +39,19 @@ jobs:
       - name: Install ffmpeg (provides both ffmpeg and ffprobe)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Generate + verify audio clips
+        id: generate
         env:
           ADDIS_API_KEY: ${{ secrets.ADDIS_API_KEY }}
           SMOKE_TEST: ${{ inputs.smoke_test && '1' || '' }}
+        # The script exits 1 whenever ANY job never verifies, even though a
+        # partial batch (e.g. 278/286 clips) is still a good result worth
+        # shipping — the app already falls back gracefully per-clip via
+        # manifest.json. continue-on-error so the commit step below still
+        # runs and ships whatever did verify; the job's own final exit
+        # code (set from this step's outcome, further down) still reflects
+        # whether anything failed, so a genuinely broken run still shows
+        # red in the Actions tab.
+        continue-on-error: true
         run: node scripts/generate-official-audio.mjs
       - uses: actions/upload-artifact@v4
         if: always()
@@ -50,3 +63,34 @@ jobs:
           name: amharic-audio
           path: scripts/official-audio-out
           retention-days: 14
+      # Commit whatever verified clips exist straight from the runner --
+      # this runner has its own unrestricted network and push access via
+      # GITHUB_TOKEN, so there's no need to round-trip a multi-MB zip
+      # through anything else. Runs even on partial failure (see above);
+      # only skips if the script produced no manifest at all (e.g. it
+      # crashed before writing anything).
+      - name: Commit verified clips into public/audio/official
+        if: always()
+        run: |
+          set -e
+          if [ ! -f scripts/official-audio-out/manifest.json ]; then
+            echo "No manifest.json produced — nothing to commit."
+            exit 0
+          fi
+          mkdir -p public/audio/official
+          rm -f public/audio/official/*.mp3
+          cp scripts/official-audio-out/*.mp3 public/audio/official/
+          cp scripts/official-audio-out/manifest.json public/audio/official/manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/audio/official
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('scripts/official-audio-out/manifest.json')).length)")
+          git commit -m "Add official audio clips ($COUNT verified)"
+          git push
+      - name: Fail the job if any clip never verified
+        if: steps.generate.outcome == 'failure'
+        run: exit 1
