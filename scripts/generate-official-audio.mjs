@@ -226,6 +226,13 @@ async function sliceRow(audioPath, duration, syllableCount, sliceDir, slicePrefi
   const interior = allGaps.filter((g) => g.start > EDGE && g.end < duration - EDGE);
   const wantGaps = syllableCount - 1;
 
+  // Real gap positions, not just the count -- the count alone can't say
+  // whether the threshold is too strict (real pauses being missed) or
+  // something else entirely, and guessing at a fix without this was
+  // exactly the mistake made with Whisper.
+  console.error(`  silencedetect (duration=${duration.toFixed(2)}s, EDGE=${EDGE.toFixed(2)}s): ${JSON.stringify(allGaps.map((g) => [g.start.toFixed(2), g.end.toFixed(2)]))}`);
+  console.error(`  interior gaps: ${interior.length} (wanted ${wantGaps})`);
+
   let bounds, flagged = false;
   if (interior.length === wantGaps) {
     const cuts = interior.map((g) => (g.start + g.end) / 2).sort((a, b) => a - b);
