@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import {
+  generateSyncCode, getSavedSyncCode, saveSyncCode, pullBundle, pushBundle, gatherBundle, applyBundle,
+} from "./lib/progressSync.js";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -1912,6 +1915,10 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       ))}
 
       <div className="rule" />
+      <div className="eyebrow" style={{ marginBottom: 8 }}>Sync across devices</div>
+      <SyncPanel />
+
+      <div className="rule" />
       <button
         className="speaker"
         style={confirmReset ? { borderColor: "var(--rubric)", color: "var(--rubric)" } : undefined}
@@ -1922,6 +1929,131 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       {confirmReset && (
         <div className="note" style={{ marginTop: 6, fontSize: 11.5 }}>
           Wipes lessons, streak, and letter mastery. Recordings are kept.
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   SYNC
+   Optional, and off by default: personal progress and recordings
+   stay purely local (see README "Persistence") unless you set up
+   a code here. No account, no email — the code itself is the only
+   credential, generated on-device.
+   ============================================================ */
+
+function SyncPanel() {
+  const [code, setCode] = useState(() => getSavedSyncCode());
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const [msgIsError, setMsgIsError] = useState(false);
+  const [confirmLink, setConfirmLink] = useState(false);
+
+  const createCode = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const bundle = await gatherBundle();
+      const newCode = generateSyncCode();
+      await pushBundle(newCode, bundle);
+      saveSyncCode(newCode);
+      setCode(newCode);
+      setMsgIsError(false);
+      setMsg("Synced. Enter this code on your other device to bring this over.");
+    } catch (e) {
+      setMsgIsError(true);
+      setMsg(e.message || "Couldn't sync right now.");
+    }
+    setBusy(false);
+  };
+
+  const linkCode = async () => {
+    const typed = input.trim().toUpperCase();
+    if (!typed) return;
+    if (!confirmLink) {
+      setConfirmLink(true);
+      return;
+    }
+    setBusy(true);
+    setMsg(null);
+    try {
+      const bundle = await pullBundle(typed);
+      if (!bundle) {
+        setMsgIsError(true);
+        setMsg("No synced progress found for that code.");
+      } else {
+        await applyBundle(bundle);
+        saveSyncCode(typed);
+        setCode(typed);
+        setInput("");
+        setMsgIsError(false);
+        setMsg("Linked — reloading…");
+        setTimeout(() => window.location.reload(), 900);
+      }
+    } catch (e) {
+      setMsgIsError(true);
+      setMsg(e.message || "Couldn't sync right now.");
+    }
+    setConfirmLink(false);
+    setBusy(false);
+  };
+
+  const forget = () => {
+    saveSyncCode(null);
+    setCode(null);
+    setMsg(null);
+  };
+
+  return (
+    <div>
+      <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
+        Optional, and off unless you set it up. No account, no email — a random code is the only key,
+        and it's the only thing that can reach this data (see the README for how). Follow-up changes on
+        a linked device sync automatically from then on.
+      </p>
+
+      {code ? (
+        <div style={{ marginBottom: 12 }}>
+          <div className="note" style={{ fontSize: 11 }}>This device's sync code</div>
+          <div className="disp" style={{ fontSize: 22, letterSpacing: "0.06em", margin: "3px 0 8px" }}>{code}</div>
+          <button className="speaker" onClick={forget}>stop syncing on this device</button>
+        </div>
+      ) : (
+        <div style={{ marginBottom: 12 }}>
+          <button className="speaker" disabled={busy} onClick={createCode}>
+            {busy ? "working…" : "create a sync code"}
+          </button>
+        </div>
+      )}
+
+      <div className="rule" style={{ margin: "12px 0" }} />
+      <div className="note" style={{ fontSize: 11, marginBottom: 6 }}>Have a code from another device?</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input
+          value={input}
+          onChange={(e) => { setInput(e.target.value); setConfirmLink(false); }}
+          onKeyDown={(e) => e.key === "Enter" && linkCode()}
+          placeholder="enter code"
+          style={{
+            flex: 1, minWidth: 140, background: "var(--ink)", border: "1px solid var(--line)",
+            borderRadius: 20, padding: "6px 14px", color: "var(--bone)", fontSize: 12,
+          }}
+        />
+        <button
+          className="speaker"
+          style={confirmLink ? { borderColor: "var(--rubric)", color: "var(--rubric)" } : undefined}
+          disabled={busy || !input.trim()}
+          onClick={linkCode}
+        >
+          {confirmLink ? "tap again to replace this device's progress" : "load this code"}
+        </button>
+      </div>
+
+      {msg && (
+        <div className="note" style={{ marginTop: 8, color: msgIsError ? "var(--rubric)" : "var(--verd)", fontSize: 11.5 }}>
+          {msg}
         </div>
       )}
     </div>
@@ -3109,6 +3241,21 @@ export default function AmharicFidel() {
     lastSig.current = sig;
     saveState({ ...state, track, romanize }, structural);
   }, [state, track, romanize]);
+
+  // Once a device is linked (SyncPanel, on the Chart tab), push whatever
+  // changed — progress or a new/removed recording — up automatically, so
+  // the other device sees it on its next open. No-op, silently, if this
+  // device was never linked or the request fails; sync is best-effort by
+  // design, not something a lesson should ever block on.
+  useEffect(() => {
+    if (!state) return;
+    const code = getSavedSyncCode();
+    if (!code) return;
+    const t = setTimeout(() => {
+      gatherBundle().then((bundle) => pushBundle(code, bundle)).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [state, haveAudio]);
 
   // phones background apps without warning; get it to disk before that happens
   useEffect(() => {

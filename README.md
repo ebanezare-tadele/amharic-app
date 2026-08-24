@@ -30,16 +30,50 @@ account with anyone.
 ## Persistence
 
 Everything — `xp`, `cards`, streaks, and any letter/word/phrase you record
-yourself — lives in this device's own `localStorage`, via
+yourself — lives in this device's own `localStorage` by default, via
 `src/lib/windowStorage.js`, a polyfill for the artifact sandbox's
 `window.storage.get/set/delete` API. Single-device, no account, nothing
-sent anywhere else. There's no shared/cross-device recording feature —
-recording your own voice is personal to the phone or browser you recorded
-it on.
+sent anywhere else, unless you turn on sync (below).
 
 Audio clips you record are capped at ~700KB client-side — fine for a
 one-second pronunciation clip, but keep that in mind if you ever want
 longer audio.
+
+## Syncing progress across devices (optional)
+
+Off by default. Turned on from the Chart tab ("Sync across devices," near
+"start over"): tap **create a sync code** on one device, then enter that
+same code on another to bring your progress and recordings over. From
+then on, changes on a linked device push automatically — no further
+action needed on that device.
+
+**No account, no email — the code is the only credential.** It's a
+random 10-character string generated on-device
+(`generateSyncCode()` in `src/lib/progressSync.js`), and it's genuinely
+the only way in: the actual security lives in Postgres, not the app.
+The `progress` table (in its own dedicated Supabase project — separate
+from any other project on the account, specifically so this can't ever
+touch unrelated data) has row-level security enabled with **no
+policies at all**, which blocks all direct table access — no listing,
+no enumeration, nothing readable without the exact code. The only way
+to read or write is through two `SECURITY DEFINER` SQL functions,
+`get_progress(code)` / `put_progress(code, state)`, each scoped to the
+one row matching that exact code. That schema was applied directly to
+the Supabase project via its migration tooling rather than living as a
+file in this repo — nothing in this app's own source needs to define it.
+
+The client talks to Supabase's REST endpoint with a plain `fetch()` — no
+`@supabase/supabase-js` dependency — since the app only ever needs two
+RPC calls, and the full SDK (auth/realtime/storage clients included)
+would have added ~200KB to the bundle for that. The project URL and
+publishable/anon key are hardcoded in `src/lib/progressSync.js`; that's
+intentional, not an oversight — Supabase's anon key is designed to be
+public, with RLS doing the actual access control, so there's nothing
+to keep secret and no environment variable or build secret needed.
+
+This is best-effort, last-write-wins sync — fine for one person's
+progress across a couple of devices, not built for simultaneous editing
+on two devices at once.
 
 ## Installing as an app (PWA)
 
@@ -147,13 +181,11 @@ a nice-to-have — it rules out anything with an unavoidable per-use cost
 (most cloud TTS APIs) or steers toward the free tier of a paid platform
 rather than a plan that costs money from day one. Flagged per item below.
 
-- **Cross-device personal progress** — right now `xp`/streak/mastery (and
-  any recording you make) live in one device's `localStorage`; using the
-  app on a second device starts fresh. Syncing that needs real accounts
-  and a database — e.g. a Supabase project, still free tier at family
-  scale — a meaningfully bigger lift than it sounds, since it means
-  identifying individual people, not just storing data somewhere.
-  *Cost: likely free* at this scale.
+- ~~Cross-device personal progress~~ — built; see "Syncing progress
+  across devices" above. Turned out not to need real accounts after
+  all — a random per-device code plus database-level access control
+  (no policies on the table itself, only two narrow functions) covers
+  it without identifying anyone.
 - **Push notifications** (e.g. "come back for today's lesson") — Web Push
   needs a server to hold subscriptions and trigger sends. *Cost: free* —
   a small serverless function on a cron trigger (Supabase Edge Functions,
@@ -336,6 +368,8 @@ deploy boundary — if it ever seems to lag, force-quitting and reopening
 - `src/App.jsx` — the entire app.
 - `src/lib/windowStorage.js` — `window.storage` polyfill, routing
   everything to this device's own `localStorage`.
+- `src/lib/progressSync.js` — the optional cross-device sync client (see
+  "Syncing progress across devices" above).
 - `public/audio/official/` — the baked-in pronunciation clips (see
   "Hearing pronunciation" above).
 - `scripts/generate-official-audio.mjs` — the one-time generation script
