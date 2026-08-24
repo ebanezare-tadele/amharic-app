@@ -113,11 +113,25 @@ RAW.forEach((fam, famIdx) => {
     });
   });
 });
+// Reports of wrong audio weren't limited to single letters — anchor
+// words came back as a longer, sometimes-coherent phrase padded around
+// the target word (e.g. "ልጅ" / child came back as "this child"), or as
+// an outright incoherent longer utterance. That's consistent with the
+// same root cause as the bare-glyph case: an isolated word, with no
+// sentence shape, giving the model room to pad or hallucinate around
+// it. Every anchor word gets the same trailing-full-stop treatment.
 ANCHORS.forEach((word, i) => {
-  jobs.push({ id: `anchor_${i}`, filename: `anchor-${i}.mp3`, text: word, reqId: randomUUID() });
+  jobs.push({ id: `anchor_${i}`, filename: `anchor-${i}.mp3`, text: `${word}።`, reqId: randomUUID() });
 });
+
+// Phrases are already real sentences, but none of them carried ending
+// punctuation either. Most are statements/greetings (full stop); a
+// handful are genuine questions and get a question mark instead —
+// using a period there would be grammatically wrong, not just stylistically off.
+const QUESTION_PHRASES = new Set([2, 3, 5, 6, 12]); // indices into PHRASES below
 PHRASES.forEach((phrase, i) => {
-  jobs.push({ id: `phrase_${i}`, filename: `phrase-${i}.mp3`, text: phrase, reqId: randomUUID() });
+  const mark = QUESTION_PHRASES.has(i) ? "?" : "።";
+  jobs.push({ id: `phrase_${i}`, filename: `phrase-${i}.mp3`, text: `${phrase}${mark}`, reqId: randomUUID() });
 });
 
 console.log(`${jobs.length} clips to generate (${RAW.length * 7} letters, ${ANCHORS.length} anchor words, ${PHRASES.length} phrases).`);
