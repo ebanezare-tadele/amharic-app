@@ -999,7 +999,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
           You already have this rhythm. Chant it once so the shape gets filed under a sound you know.
           The six marks come later.
         </p>
-        <Chant fam={F.id} compact />
+        <Chant fam={F.id} audio={audio} compact />
       </div>
       <div className="verdict">
         <button className="btn" onClick={onNext}>
@@ -1810,7 +1810,7 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
             <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{ARTIC[sel.f]}</div>
           )}
           <div className="rule" style={{ margin: "12px 0" }} />
-          <Chant fam={sel.f} />
+          <Chant fam={sel.f} audio={audio} />
           <div className="rule" style={{ margin: "12px 0" }} />
           <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
           <Callout id="cb-voice" seenIntro={seenIntro} onSeen={onSeen}>
@@ -2260,20 +2260,27 @@ function Voice({ fam, order, have, scope, onSaved }) {
    and the one thing you already have.
    ============================================================ */
 
-function Chant({ fam, compact }) {
+function Chant({ fam, audio, compact }) {
   const F = FAMS[fam];
   const [i, setI] = useState(-1);
   const [tempo, setTempo] = useState(620);
   const timer = useRef(null);
+  // Bumped on every play() / playSound() / fam change / unmount, so an
+  // in-flight playSound() loop (each step awaits real audio, unlike the
+  // fixed-interval visual version) can tell its own run is stale and
+  // stop touching state instead of racing a newer one.
+  const playToken = useRef(0);
 
-  useEffect(() => () => clearInterval(timer.current), []);
+  useEffect(() => () => { clearInterval(timer.current); playToken.current++; }, []);
   useEffect(() => {
     setI(-1);
     clearInterval(timer.current);
+    playToken.current++;
   }, [fam]);
 
   const play = () => {
     clearInterval(timer.current);
+    playToken.current++;
     let n = 0;
     setI(0);
     timer.current = setInterval(() => {
@@ -2285,6 +2292,33 @@ function Chant({ fam, compact }) {
       }
       setI(n);
     }, tempo);
+  };
+
+  // The visual chant above is timing-only — no sound. This actually
+  // plays the row, one order at a time: your own recording if there is
+  // one, otherwise the baked-in official clip (see officialAudioUrl),
+  // same priority HearButton uses. Sequenced off each clip's own
+  // "ended" event rather than a fixed interval, since clip lengths vary.
+  const playSound = async () => {
+    clearInterval(timer.current);
+    const token = ++playToken.current;
+    for (let o = 0; o < 7; o++) {
+      if (playToken.current !== token) return;
+      setI(o);
+      const have = audio && audio.have.get(`${fam}.${o}`);
+      const recorded = have
+        ? (await getClip(fam, o, have)) || (await getClip(fam, o, "all"))
+        : null;
+      const url = recorded || officialAudioUrl(fam, o);
+      if (playToken.current !== token) return;
+      await new Promise((resolve) => {
+        const el = new Audio(url);
+        el.addEventListener("ended", resolve);
+        el.addEventListener("error", resolve);
+        el.play().catch(resolve);
+      });
+    }
+    if (playToken.current === token) setI(-1);
   };
 
   return (
@@ -2300,16 +2334,18 @@ function Chant({ fam, compact }) {
         </span>
       </div>
       {!compact && (
-        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8 }}>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8, flexWrap: "wrap" }}>
           <button className="speaker" onClick={play}>► chant the row</button>
+          <button className="speaker" onClick={playSound}>► hear it</button>
           <button className="speaker" onClick={() => setTempo(tempo === 620 ? 900 : tempo === 900 ? 400 : 620)}>
             {tempo === 620 ? "steady" : tempo === 900 ? "slow" : "fast"}
           </button>
         </div>
       )}
       {compact && (
-        <div style={{ textAlign: "center", marginTop: 8 }}>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8 }}>
           <button className="speaker" onClick={play}>► chant the row</button>
+          <button className="speaker" onClick={playSound}>► hear it</button>
         </div>
       )}
     </div>
