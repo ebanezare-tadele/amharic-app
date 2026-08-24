@@ -25,86 +25,21 @@ npm run preview  # serve that build locally
 ```
 
 The app runs fully with zero setup below — nothing here requires an
-account with anyone. Shared "Everyone" recordings currently stay local to
-whichever browser records them (see next section for why, and how to
-change that later if you want to).
+account with anyone.
 
 ## Persistence
 
-Two different scopes, two different backends — and right now, deliberately,
-both are local:
+Everything — `xp`, `cards`, streaks, and any letter/word/phrase you record
+yourself — lives in this device's own `localStorage`, via
+`src/lib/windowStorage.js`, a polyfill for the artifact sandbox's
+`window.storage.get/set/delete` API. Single-device, no account, nothing
+sent anywhere else. There's no shared/cross-device recording feature —
+recording your own voice is personal to the phone or browser you recorded
+it on.
 
-- **Personal progress** (`xp`, `cards`, streaks, "Just me" recordings) —
-  `localStorage`, via `src/lib/windowStorage.js`, a polyfill for the
-  artifact sandbox's `window.storage.get/set/delete` API. Single-device is
-  the right place for this regardless; no further work needed.
-
-- **Shared "Everyone" recordings** — meant to eventually sync a family
-  member's voice to every device everyone uses. Making that real needs
-  *some* backend (localStorage is per-browser, it fundamentally can't sync
-  across devices), and — per your call — this app isn't wired to one yet.
-  Right now "Everyone" behaves exactly like "Just me": it stays on
-  whichever device recorded it. The app's own copy on the Chart screen
-  says this plainly rather than implying it syncs when it doesn't.
-
-  **The code for real sync already exists and is dormant, not deleted** —
-  `src/lib/sharedAudioStore.js` talks to Supabase (Postgres table +
-  Storage bucket + a passcode-gated Edge Function, so a stranger with just
-  the URL can't overwrite or spam the shared recordings) whenever
-  `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` are set. Leave them unset
-  (as they are now) and everything silently falls back to local-only
-  storage, which is what's deployed today. Turn shared sync on later by
-  following the steps below — no code changes needed, just environment
-  variables plus a Supabase project.
-
-  **Why Supabase, if/when you want this:** free at this scale, no server
-  to run yourself, and Postgres + Storage + Edge Functions cover exactly
-  the three things this feature needs (an index, blob storage, a gated
-  write path). The alternative worth naming is a tiny always-on server you
-  host yourself — more control, but more to run and pay for, for a feature
-  this small. This isn't the only option, just the one already wired up;
-  say the word if you'd rather explore something else (Cloudflare
-  Workers + KV/R2, Firebase, etc.) when you're ready for real sync.
-
-### Setting up Supabase later (optional — not needed to run or deploy today)
-
-1. Create a free project at [supabase.com](https://supabase.com).
-2. Run `supabase/migrations/0001_shared_recordings.sql` against it — paste
-   it into the SQL Editor in the dashboard, or if you have the
-   [Supabase CLI](https://supabase.com/docs/guides/cli): `supabase link`
-   then `supabase db push`.
-3. Deploy the Edge Function:
-   ```bash
-   supabase functions deploy shared-audio
-   ```
-4. Set the family passcode (pick your own — this repo never contains a
-   real one):
-   ```bash
-   supabase secrets set FAMILY_PASSCODE='choose-something-your-family-will-remember'
-   ```
-   (`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are already available
-   to Edge Functions automatically — nothing to set for those.)
-5. From **Project Settings → API**, copy the Project URL and the `anon`
-   public key into a `.env.local` file (gitignored) for local dev, and
-   into your hosting provider's environment variables for the deployed
-   site:
-   ```bash
-   VITE_SUPABASE_URL=https://xxxxx.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJ...
-   ```
-6. Restart `npm run dev` (or redeploy). The first time anyone records to
-   "Everyone", the app will ask for the family passcode and remember it
-   in that browser afterward.
-
-**Security note:** the passcode is cached in plaintext in `localStorage`
-after the server verifies it once. That's deliberate, not an oversight —
-see the comment in `src/lib/familyPasscode.js`. It's a family-scale
-deterrent against a stranger with just the URL, not a substitute for real
-auth; don't put anything more sensitive than short voice clips behind it.
-
-Also worth knowing: audio clips are capped at ~700KB client-side (~1MB
-enforced again server-side in the Edge Function) — fine for a one-second
-pronunciation clip, but keep that in mind if you ever want longer audio.
+Audio clips you record are capped at ~700KB client-side — fine for a
+one-second pronunciation clip, but keep that in mind if you ever want
+longer audio.
 
 ## Installing as an app (PWA)
 
@@ -182,12 +117,9 @@ worth automating anyway):
    live URL: `https://ebanezare-tadele.github.io/amharic-app/`. That's
    what you text people.
 
-No environment variables needed for this deploy — shared recordings stay
-in local-fallback mode (see Persistence above) until you decide to wire up
-Supabase, at which point you'd add `VITE_SUPABASE_URL` /
-`VITE_SUPABASE_ANON_KEY` as **Repository → Settings → Secrets and
-variables → Actions → Variables**, then reference them in the workflow's
-build step.
+No environment variables needed for this deploy (the `ADDIS_API_KEY` repo
+secret is only used by the separate, manually-triggered audio-generation
+workflow — see "Hearing pronunciation" below).
 
 Because the repo isn't named `<username>.github.io`, GitHub Pages serves
 it from a subpath rather than the domain root — `vite.config.js` sets
@@ -213,27 +145,20 @@ revisit if/when one of them actually matters to you.
 free or as close to it as possible. That's a real design constraint, not
 a nice-to-have — it rules out anything with an unavoidable per-use cost
 (most cloud TTS APIs) or steers toward the free tier of a paid platform
-(Supabase, Cloudflare) rather than a plan that costs money from day one.
-Flagged per item below.
+rather than a plan that costs money from day one. Flagged per item below.
 
-- **Real cross-device shared recordings** — the one already scoped and
-  coded, just dormant. Needs a Supabase project. *Cost: free* — everything
-  this feature uses (Postgres, Storage, one Edge Function) fits inside
-  Supabase's free tier at family scale (34-ish short audio clips, low
-  request volume). See "Persistence" above.
-- **Cross-device personal progress** — right now `xp`/streak/mastery live
-  in one device's `localStorage`; using the app on a second device starts
-  fresh. Syncing that needs real accounts (some auth, not just a
-  passcode) plus a database — a meaningfully bigger lift than the
-  passcode-gated shared recordings, since it means identifying individual
-  people, not just gating one shared write path. *Cost: likely free* —
-  same Supabase project (it includes auth), still free tier at this
-  scale.
+- **Cross-device personal progress** — right now `xp`/streak/mastery (and
+  any recording you make) live in one device's `localStorage`; using the
+  app on a second device starts fresh. Syncing that needs real accounts
+  and a database — e.g. a Supabase project, still free tier at family
+  scale — a meaningfully bigger lift than it sounds, since it means
+  identifying individual people, not just storing data somewhere.
+  *Cost: likely free* at this scale.
 - **Push notifications** (e.g. "come back for today's lesson") — Web Push
   needs a server to hold subscriptions and trigger sends. *Cost: free* —
-  a Supabase Edge Function on a cron trigger (or Cloudflare's free
-  Workers + Cron Triggers) covers this at zero cost for family-scale
-  usage; no separate push-notification SaaS needed.
+  a small serverless function on a cron trigger (Supabase Edge Functions,
+  Cloudflare Workers + Cron Triggers, etc.) covers this at zero cost for
+  personal-scale usage; no separate push-notification SaaS needed.
 - **A custom domain** — not a new *platform* exactly, but a domain
   registrar account and DNS changes, if `github.io` ever feels wrong for
   texting to people. *Cost: not free* — domain registration is roughly
@@ -241,24 +166,10 @@ Flagged per item below.
   of "your own domain name." Skippable — the `github.io` URL costs
   nothing and already works.
 
-Worth naming the one tension up front, cost aside: several of these
-(accounts, push) cut against the "no analytics, nothing sent anywhere
-else" story the app currently tells about personal data (see below). Not a
-blocker, just something to weigh deliberately per feature rather than let
-creep in.
-
-## The one copy change
-
-Everything in `src/App.jsx` is unchanged from the original artifact except
-one paragraph in the Chart screen's privacy note, which claimed "no audio
-or progress ever leaves this storage." That's still true exactly as
-deployed today (Supabase isn't configured, so nothing does leave the
-device) — but the note now says so conditionally rather than
-unconditionally, since the sentence would otherwise go stale the moment
-someone configures Supabase without also remembering to update this copy.
-Worth reading over in `src/App.jsx`'s `Chart` component in case you'd
-rather word either branch differently — it's the only place I touched
-copy on my own judgment rather than at your instruction.
+Worth naming the one tension up front, cost aside: both of the first two
+cut against the "no analytics, nothing sent anywhere else" story the app
+currently tells about personal data. Not a blocker, just something to
+weigh deliberately per feature rather than let creep in.
 
 ## Onboarding: the first-launch tour
 
@@ -271,9 +182,9 @@ persistence plumbing, just a use for a field that was already there.
 
 Alongside it, a few small in-place tips (`Callout`) point out things that
 aren't otherwise explained where they'd actually matter: what "level" and
-the streak actually track (Home), and what recording to "Everyone" means
-before you do it (Chart). Each shows once, dismissible, same
-`seenIntro` tracking.
+the streak actually track (Home), and how recording your own voice
+overrides the built-in pronunciation (Chart). Each shows once,
+dismissible, same `seenIntro` tracking.
 
 Neither touches the app's curriculum or lesson logic — this is
 onboarding for the app itself, layered on top.
@@ -336,14 +247,13 @@ a one-time generation, not something that happens every time someone taps
 a button.
 
 The priority every "hear it" button (`HearButton` in `src/App.jsx`) now
-follows: **your own recording → the family's shared recording → the
-baked-in official clip → the device's own Amharic voice**, in that order,
-falling through only if a step genuinely isn't there. In practice the
-official clip covers everything, so a device voice is only ever needed as
-a defensive last resort. Recording your own voice (`Voice`, unchanged) is
-still there and still takes priority — it's just optional now, for
-learning from someone you actually know rather than a requirement to get
-any audio at all.
+follows: **your own recording → the baked-in official clip → the
+device's own Amharic voice**, in that order, falling through only if a
+step genuinely isn't there. In practice the official clip covers
+everything, so a device voice is only ever needed as a defensive last
+resort. Recording your own voice (`Voice`) is still there and still takes
+priority — it's just optional now, for learning from someone you actually
+know rather than a requirement to get any audio at all.
 
 **Regenerating the clips**, if the letter/word/phrase content ever
 changes: `.github/workflows/generate-audio.yml` is a manually-triggered
@@ -423,23 +333,19 @@ deploy boundary — if it ever seems to lag, force-quitting and reopening
 
 ## Structure
 
-- `src/App.jsx` — the entire app (curriculum/lesson logic untouched; the
-  Voice component gained a passcode prompt, and the privacy note above
-  is now aware of whether Supabase is configured).
-- `src/lib/windowStorage.js` — `window.storage` polyfill; routes personal
-  scope to `localStorage` and shared scope to Supabase when configured,
-  local fallback otherwise (the current deployed state).
-- `src/lib/supabaseClient.js` — Supabase client, `null` if unconfigured.
-- `src/lib/sharedAudioStore.js` — shared-scope get/set/delete, translated
-  into Supabase table reads and passcode-gated Edge Function writes.
-  Dormant until Supabase env vars are set.
-- `src/lib/familyPasscode.js` — passcode caching + server-side verification.
-- `supabase/migrations/0001_shared_recordings.sql` — table + RLS + bucket,
-  for whenever you turn shared sync on.
-- `supabase/functions/shared-audio/index.ts` — the passcode-gated writer.
+- `src/App.jsx` — the entire app.
+- `src/lib/windowStorage.js` — `window.storage` polyfill, routing
+  everything to this device's own `localStorage`.
+- `public/audio/official/` — the baked-in pronunciation clips (see
+  "Hearing pronunciation" above).
+- `scripts/generate-official-audio.mjs` — the one-time generation script
+  behind those clips; see "Hearing pronunciation" above for how to re-run it.
 - `scripts/gen-icons.mjs` + `scripts/icon-template.html` — icon generator.
 - `.github/workflows/deploy.yml` — builds and publishes to GitHub Pages
   on every push to this branch.
+- `.github/workflows/generate-audio.yml` — the manually-triggered
+  audio-generation workflow.
 - `vite.config.js` — `base` for the GitHub Pages subpath, PWA plugin
   config (manifest contents, service worker caching strategy, including
-  runtime caching for the Google Fonts the app's own injected CSS loads).
+  runtime caching for the Google Fonts the app's own injected CSS loads
+  and for the official audio clips).

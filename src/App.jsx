@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { supabaseConfigured } from "./lib/supabaseClient.js";
-import { getCachedPasscode, setCachedPasscode, verifyPasscode } from "./lib/familyPasscode.js";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -156,13 +154,13 @@ const WORDS = [
   ["አሥር", "asir", "ten"],
 ];
 
-// The family recording system (Voice, below) is keyed by (fam, order) —
-// a real consonant family id (0-33) plus a vowel order (0-6). Words
-// aren't either of those, but the storage layer never actually validates
-// that fam is a real family — it's just a string key. So words reuse the
-// exact same storage, passcode gate, and Supabase sync unchanged, filed
-// under pseudo-family ids safely outside the real 0-33 range: "order" is
-// then just the word's index in its own list (ANCHORS or PHRASES).
+// The recording system (Voice, below) is keyed by (fam, order) — a real
+// consonant family id (0-33) plus a vowel order (0-6). Words aren't
+// either of those, but the storage layer never actually validates that
+// fam is a real family — it's just a string key. So words reuse the
+// exact same storage unchanged, filed under pseudo-family ids safely
+// outside the real 0-33 range: "order" is then just the word's index in
+// its own list (ANCHORS or PHRASES).
 const WORD_FAM = { anchor: 900, phrase: 901 };
 
 // Real recordings from Addis AI (Voice 2, am-hamen) for every letter, anchor
@@ -402,10 +400,14 @@ const SENTENCES = [
   { c: "news", w: [["ወሬ", "weré", "word going around"]] },
 ];
 
+// [glyph, value, romanized reading] — the reading is the plain Amharic
+// number word, the same way FAMS' "rom" gives each letter a reading.
 const GEEZ_NUM = [
-  ["፩", 1], ["፪", 2], ["፫", 3], ["፬", 4], ["፭", 5],
-  ["፮", 6], ["፯", 7], ["፰", 8], ["፱", 9], ["፲", 10],
-  ["፳", 20], ["፴", 30], ["፵", 40], ["፶", 50], ["፻", 100],
+  ["፩", 1, "and"], ["፪", 2, "hulet"], ["፫", 3, "sost"], ["፬", 4, "arat"], ["፭", 5, "amist"],
+  ["፮", 6, "sidist"], ["፯", 7, "sebat"], ["፰", 8, "simint"], ["፱", 9, "zeteñ"], ["፲", 10, "asir"],
+  ["፳", 20, "haya"], ["፴", 30, "selasa"], ["፵", 40, "arba"], ["፶", 50, "hamsa"],
+  ["፷", 60, "silsa"], ["፸", 70, "seba"], ["፹", 80, "semanya"], ["፺", 90, "zetena"],
+  ["፻", 100, "meto"],
 ];
 
 /* ============================================================
@@ -633,9 +635,6 @@ const CSS = `
 
 /* ---- chart ---- */
 .chart { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
-.chart table { border-collapse: collapse; }
-.chart th { font-size: 9px; letter-spacing: .1em; color: var(--dim); font-weight: 600; padding: 4px 0 8px; text-transform: uppercase; }
-.chart td { padding: 0; }
 .cc {
   font-family: var(--fidel); font-size: 19px; width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center; border-radius: 8px;
@@ -961,7 +960,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
         {audio && (
           <div style={{ marginTop: 14 }}>
             <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
-            <Voice fam={F.id} order={0} have={audio.have.get(`${F.id}.0`)} scope={audio.scope} onSaved={audio.onSaved} />
+            <Voice fam={F.id} order={0} have={audio.have.has(`${F.id}.0`)} onSaved={audio.onSaved} />
           </div>
         )}
 
@@ -978,8 +977,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
                 <Voice
                   fam={WORD_FAM.anchor}
                   order={F.id}
-                  have={audio.have.get(`${WORD_FAM.anchor}.${F.id}`)}
-                  scope={audio.scope}
+                  have={audio.have.has(`${WORD_FAM.anchor}.${F.id}`)}
                   onSaved={audio.onSaved}
                 />
               </div>
@@ -1125,7 +1123,7 @@ function HearButton({ fam, order, audio, text }) {
     } catch (e) {}
   }, []);
 
-  const have = audio && audio.have.get(`${fam}.${order}`);
+  const have = audio && audio.have.has(`${fam}.${order}`);
 
   const speakFallback = () => {
     const t = text || (FAMS[fam] ? FAMS[fam].chars[order] : "");
@@ -1138,9 +1136,7 @@ function HearButton({ fam, order, audio, text }) {
   };
 
   const play = async () => {
-    const recorded = have
-      ? (await getClip(fam, order, have)) || (await getClip(fam, order, "all"))
-      : null;
+    const recorded = have ? await getClip(fam, order) : null;
     const url = recorded || officialAudioUrl(fam, order);
     const el = new Audio(url);
     el.addEventListener("error", speakFallback);
@@ -1671,8 +1667,7 @@ function WordEntry({ text, rom, gloss, fam, order, audio }) {
           <Voice
             fam={fam}
             order={order}
-            have={audio.have.get(`${fam}.${order}`)}
-            scope={audio.scope}
+            have={audio.have.has(`${fam}.${order}`)}
             onSaved={audio.onSaved}
           />
         )}
@@ -1689,10 +1684,10 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const [sel, setSel] = useState(null);
   // audio.have covers letters and, now, words (WORD_FAM) in the same
-  // map — filtered here so the "record the sounds yourself" card still
+  // set — filtered here so the "record the sounds yourself" card still
   // counts letters specifically, not words recorded further down.
   const letterAudioCount = audio
-    ? [...audio.have.keys()].filter((k) => Number(k.split(".")[0]) < WORD_FAM.anchor).length
+    ? [...audio.have].filter((k) => Number(k.split(".")[0]) < WORD_FAM.anchor).length
     : 0;
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
@@ -1706,143 +1701,124 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       </p>
 
       {audio && (
-        <div className="card" style={{ borderColor: letterAudioCount ? "var(--verd)" : "var(--gold)" }}>
-          <div className="row-sp">
-            <span className="card-title" style={{ fontSize: 17 }}>Record the sounds yourself</span>
-            <span className="pill">{letterAudioCount} saved</span>
-          </div>
-          <div className="card-blurb" style={{ marginTop: 4 }}>
-            Every "hear it" button already plays a real pronunciation — no Amharic voice needed on your
-            phone. Recording your own is optional: tap any letter below and add yours, or better, a
-            relative's. It plays back everywhere that letter shows up, taking priority over the built-in
-            clip, which is the nice part of learning from someone you actually know. Anchor words and
-            phrases further down the page can be recorded the same way.
-          </div>
-          <div style={{ display: "flex", gap: 6, marginTop: 12, background: "var(--ink)", padding: 4, borderRadius: 10 }}>
-            {[["me", "Just me"], ["all", "Everyone"]].map(([id, label]) => (
-              <button
-                key={id}
-                onClick={(e) => { e.stopPropagation(); audio.setScope(id); }}
-                style={{
-                  flex: 1, padding: "7px 6px", borderRadius: 7, fontSize: 12, fontWeight: 600,
-                  background: audio.scope === id ? "var(--rubric)" : "transparent",
-                  color: audio.scope === id ? "#fff" : "var(--dim)",
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="note" style={{ marginTop: 8, fontSize: 11.5 }}>
-            {audio.scope === "all"
-              ? "New recordings go to shared storage — anyone who opens this app will hear them, and they can overwrite them (you'll be asked to confirm first). Use this when you're recording for the family."
-              : "New recordings stay on your account only. Nobody else sees them. Everyone gets their own progress either way."}
-          </div>
-          <div className="note" style={{ marginTop: 10, fontSize: 11, borderTop: "1px solid var(--line)", paddingTop: 9 }}>
-            Nothing here asks for your name, email, or any account info — progress and clips are tied to
-            the app, not to you. Your own progress and "Just me" recordings never leave this device — no
-            analytics, nothing sent anywhere else.{" "}
-            {supabaseConfigured
-              ? "\"Everyone\" recordings sync to a shared server so the rest of the family can hear them, and writing to it needs the family passcode so a stranger with just the link can't overwrite or spam it."
-              : "\"Everyone\" recordings currently stay on this device too, same as \"Just me\" — shared sync across family devices isn't turned on yet."}{" "}
-            Anything you record, you can remove again with the ✕ next to it.
-          </div>
+        <div className="note" style={{ marginBottom: 14, fontSize: 11.5 }}>
+          Every "hear it" already plays a real pronunciation. Tap any letter (or an anchor word/phrase
+          further down) to record your own or a relative's instead — it stays on this device and takes
+          priority once saved.
+          {letterAudioCount > 0 && (
+            <span style={{ color: "var(--verd)" }}> {letterAudioCount} letter{letterAudioCount === 1 ? "" : "s"} recorded.</span>
+          )}
         </div>
       )}
 
-      <div className="chart">
-        <table>
-          <thead>
-            <tr>
-              <th style={{ width: 44 }} />
-              {ORDERS.map((o) => (
-                <th key={o.n}>
-                  <span className="gz" style={{ fontSize: 10, display: "block", color: "var(--dim)" }}>{o.am}</span>
-                  {o.v}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {FAMS.map((f) => (
-              <tr key={f.id} style={{ opacity: unlockedFams.has(f.id) ? 1 : 0.3 }}>
-                <td>
-                  <div style={{ fontSize: 11, color: "var(--dim)", width: 44, fontWeight: 600 }}>
-                    {f.cons === "'" ? "—" : f.cons}
-                  </div>
-                </td>
-                {f.chars.map((c, o) => {
-                  const lvl = (cards[key(f.id, o)] || {}).lvl || 0;
-                  const cl = lvl >= 5 ? "l4" : lvl >= 3 ? "l3" : lvl >= 1 ? "l2" : unlockedFams.has(f.id) ? "l1" : "";
-                  return (
-                    <td key={o}>
-                      <button className={"cc " + cl} onClick={() => setSel({ f: f.id, o })}>
-                        {c}
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {sel && (
-        <div className="card" style={{ marginTop: 18, borderColor: "var(--rubric)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span className="gz" style={{ fontSize: 52, color: "var(--rubric)" }}>
-              {FAMS[sel.f].chars[sel.o]}
-            </span>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 600 }}>{FAMS[sel.f].rom[sel.o]}</div>
-              <div className="note">
-                {ORDERS[sel.o].am} · order {sel.o + 1} · {ORDERS[sel.o].say}
-              </div>
+      {/* Plain flex rows, not a <table> — that's what lets the detail
+          panel below drop in directly under the row you tapped, as just
+          another block in normal flow, instead of being pinned to the
+          bottom of one giant table no matter which row you picked. */}
+      <div className="chart" style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex" }}>
+          <div style={{ width: 44, flexShrink: 0 }} />
+          {ORDERS.map((o) => (
+            <div
+              key={o.n}
+              style={{
+                width: 40, flexShrink: 0, textAlign: "center", fontSize: 9, letterSpacing: ".1em",
+                color: "var(--dim)", fontWeight: 600, padding: "4px 0 8px", textTransform: "uppercase",
+              }}
+            >
+              <span className="gz" style={{ fontSize: 10, display: "block", color: "var(--dim)" }}>{o.am}</span>
+              {o.v}
             </div>
-          </div>
-          <div className="rule" style={{ margin: "12px 0" }} />
-          <div className="note">{ORDERS[sel.o].hint}.</div>
-          {FAMS[sel.f].note && (
-            <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{FAMS[sel.f].note}</div>
-          )}
-          {ARTIC[sel.f] && (
-            <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{ARTIC[sel.f]}</div>
-          )}
-          <div className="rule" style={{ margin: "12px 0" }} />
-          <Chant fam={sel.f} audio={audio} />
-          <div className="rule" style={{ margin: "12px 0" }} />
-          <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
-          <Callout id="cb-voice" seenIntro={seenIntro} onSeen={onSeen}>
-            Record here — your voice, or a relative's — and it plays back everywhere this letter shows
-            up. "Everyone" shares it with the family; "Just me" keeps it private to your device.
-          </Callout>
-          {audio && (
-            <Voice
-              fam={sel.f}
-              order={sel.o}
-              have={audio.have.get(`${sel.f}.${sel.o}`)}
-              scope={audio.scope}
-              onSaved={audio.onSaved}
-            />
-          )}
-          <div style={{ marginTop: 8 }}>
-            <HearButton fam={sel.f} order={sel.o} audio={audio} />
-          </div>
+          ))}
         </div>
-      )}
+
+        {FAMS.map((f) => (
+          <div key={f.id}>
+            <div style={{ display: "flex", alignItems: "center", opacity: unlockedFams.has(f.id) ? 1 : 0.3 }}>
+              <div style={{ fontSize: 11, color: "var(--dim)", width: 44, flexShrink: 0, fontWeight: 600 }}>
+                {f.cons === "'" ? "—" : f.cons}
+              </div>
+              {f.chars.map((c, o) => {
+                const lvl = (cards[key(f.id, o)] || {}).lvl || 0;
+                const cl = lvl >= 5 ? "l4" : lvl >= 3 ? "l3" : lvl >= 1 ? "l2" : unlockedFams.has(f.id) ? "l1" : "";
+                const isSel = sel && sel.f === f.id && sel.o === o;
+                return (
+                  <button
+                    key={o}
+                    className={"cc " + cl}
+                    style={{ flexShrink: 0 }}
+                    onClick={() => setSel(isSel ? null : { f: f.id, o })}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+
+            {sel && sel.f === f.id && (
+              <div className="card" style={{ margin: "8px 0 12px", borderColor: "var(--rubric)" }}>
+                <div className="row-sp" style={{ alignItems: "flex-start" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <span className="gz" style={{ fontSize: 52, color: "var(--rubric)" }}>
+                      {FAMS[sel.f].chars[sel.o]}
+                    </span>
+                    <div>
+                      <div style={{ fontSize: 22, fontWeight: 600 }}>{FAMS[sel.f].rom[sel.o]}</div>
+                      <div className="note">
+                        {ORDERS[sel.o].am} · order {sel.o + 1} · {ORDERS[sel.o].say}
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => setSel(null)} style={{ color: "var(--dim)", fontSize: 18, padding: 4 }}>
+                    ✕
+                  </button>
+                </div>
+                <div className="rule" style={{ margin: "12px 0" }} />
+                <div className="note">{ORDERS[sel.o].hint}.</div>
+                {FAMS[sel.f].note && (
+                  <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{FAMS[sel.f].note}</div>
+                )}
+                {ARTIC[sel.f] && (
+                  <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{ARTIC[sel.f]}</div>
+                )}
+                <div className="rule" style={{ margin: "12px 0" }} />
+                <Chant fam={sel.f} audio={audio} />
+                <div className="rule" style={{ margin: "12px 0" }} />
+                <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
+                <Callout id="cb-voice" seenIntro={seenIntro} onSeen={onSeen}>
+                  Record here — your voice, or a relative's — and it plays back everywhere this letter shows
+                  up, ahead of the built-in clip.
+                </Callout>
+                {audio && (
+                  <Voice
+                    fam={sel.f}
+                    order={sel.o}
+                    have={audio.have.has(`${sel.f}.${sel.o}`)}
+                    onSaved={audio.onSaved}
+                  />
+                )}
+                <div style={{ marginTop: 8 }}>
+                  <HearButton fam={sel.f} order={sel.o} audio={audio} />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
 
       <div className="rule" />
       <div className="eyebrow" style={{ marginBottom: 8 }}>Ge'ez numerals</div>
       <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
         Still used on clock faces, church calendars, and chapter headings. Everyday writing uses 1 2 3.
         Likely adapted from Greek and Coptic letter-numerals — the same trick Roman numerals play with
-        Latin letters.
+        Latin letters. Bigger numbers just line these up left to right: 23 is ፳፫ (haya sost, "twenty
+        three"), 155 is ፻፶፭ (meto hamsa amist, "one hundred fifty five").
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {GEEZ_NUM.map(([g, n]) => (
-          <div key={n} style={{ background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9, padding: "7px 10px", textAlign: "center", minWidth: 48 }}>
+        {GEEZ_NUM.map(([g, n, r]) => (
+          <div key={n} style={{ background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9, padding: "7px 10px", textAlign: "center", minWidth: 52 }}>
             <div className="gz" style={{ fontSize: 20 }}>{g}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--bone)" }}>{r}</div>
             <div className="note" style={{ fontSize: 10 }}>{n}</div>
           </div>
         ))}
@@ -1877,12 +1853,23 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
         Ge'ez: the first four letters in its own traditional order, አ ቡ ጊ ዳ (ə-bu-gi-da), the same way
         "alphabet" comes from the Greek alpha-beta.
       </div>
-      <div className="note">
+      <div className="note" style={{ marginBottom: 6 }}>
         Amharic split off from Ge'ez's spoken form by around the 13th century, keeping the script but
         bending it to different sounds — which is exactly why five letters on this chart (ሐ ኀ ሠ ዐ ፀ) spell
         distinctions Ge'ez once made and Amharic no longer does; tap any of them above for what they used
         to sound like. Ge'ez itself stopped being anyone's native language centuries ago, but never really
         left — it's still the language of the Ethiopian Orthodox Church's liturgy today.
+      </div>
+      <div className="note">
+        Amharic didn't just inherit Ge'ez's alphabet as-is, either — it needed sounds Ge'ez's Semitic
+        phonology never had, partly from contact with the Cushitic languages already spoken in the
+        region. Rather than invent new shapes from nothing, scribes extended existing Ge'ez letters:
+        add a stroke to ሰ (se) and it becomes ሸ (she); the same move turns ተ (te) into ቸ (che), ነ (ne)
+        into ኘ (nye). That family-resemblance you can still see between rows on this chart — ስ/ሽ, ት/ች,
+        ን/ኝ — is that history, not coincidence. It's how the system grew from Ge'ez's own roughly 26
+        consonant shapes to the 33-34 Amharic uses today. The newest layer is more recent still: ቨ (v)
+        and ፐ (p) were added specifically to spell foreign names and loanwords — sounds that don't occur
+        natively in Amharic at all.
       </div>
 
       <div className="rule" />
@@ -1950,110 +1937,68 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
    ============================================================ */
 
 const audCache = new Map();
-const IDX_KEY = { me: "aud:index", all: "aud:shared-index" };
+const AUD_IDX_KEY = "aud:index";
 
-// have = Map of "fam.order" -> "me" | "all". Personal wins over shared.
+// have = Set of "fam.order" strings with a personal recording saved.
 async function loadAudIndex() {
-  const out = new Map();
-  for (const scope of ["all", "me"]) {
-    try {
-      const r = await window.storage.get(IDX_KEY[scope], scope === "all");
-      JSON.parse(r.value).forEach((k) => out.set(k, scope));
-    } catch (e) {}
+  try {
+    const r = await window.storage.get(AUD_IDX_KEY);
+    return new Set(JSON.parse(r.value));
+  } catch (e) {
+    return new Set();
   }
-  return out;
 }
 
-async function readMap(f, scope) {
+async function readMap(f) {
   try {
-    const r = await window.storage.get("aud:f" + f, scope === "all");
+    const r = await window.storage.get("aud:f" + f);
     return JSON.parse(r.value) || {};
   } catch (e) {
     return {};
   }
 }
 
-async function getClip(f, o, scope) {
-  const ck = `${scope}:${f}.${o}`;
+async function getClip(f, o) {
+  const ck = `${f}.${o}`;
   if (audCache.has(ck)) return audCache.get(ck);
-  const m = await readMap(f, scope);
-  Object.entries(m).forEach(([oo, v]) => audCache.set(`${scope}:${f}.${oo}`, v));
+  const m = await readMap(f);
+  Object.entries(m).forEach(([oo, v]) => audCache.set(`${f}.${oo}`, v));
   return m[o] || null;
 }
 
-async function putClip(f, o, url, scope) {
-  const m = await readMap(f, scope);
+async function putClip(f, o, url) {
+  const m = await readMap(f);
   m[o] = url;
-  await window.storage.set("aud:f" + f, JSON.stringify(m), scope === "all");
-  audCache.set(`${scope}:${f}.${o}`, url);
+  await window.storage.set("aud:f" + f, JSON.stringify(m));
+  audCache.set(`${f}.${o}`, url);
   const idx = await loadAudIndex();
-  idx.set(`${f}.${o}`, scope);
-  await window.storage.set(
-    IDX_KEY[scope],
-    JSON.stringify([...idx].filter(([, v]) => v === scope).map(([k]) => k)),
-    scope === "all"
-  );
+  idx.add(`${f}.${o}`);
+  await window.storage.set(AUD_IDX_KEY, JSON.stringify([...idx]));
   return idx;
 }
 
-// Anyone should be able to pull back something they recorded — including
-// by mistake, or a clip they no longer want other family members hearing.
-async function deleteClip(f, o, scope) {
-  const m = await readMap(f, scope);
+// Anyone should be able to pull back something they recorded — including by
+// mistake, or a clip they've decided they don't want anymore.
+async function deleteClip(f, o) {
+  const m = await readMap(f);
   delete m[o];
-  await window.storage.set("aud:f" + f, JSON.stringify(m), scope === "all");
-  audCache.delete(`${scope}:${f}.${o}`);
+  await window.storage.set("aud:f" + f, JSON.stringify(m));
+  audCache.delete(`${f}.${o}`);
   const idx = await loadAudIndex();
   idx.delete(`${f}.${o}`);
-  await window.storage.set(
-    IDX_KEY[scope],
-    JSON.stringify([...idx].filter(([, v]) => v === scope).map(([k]) => k)),
-    scope === "all"
-  );
+  await window.storage.set(AUD_IDX_KEY, JSON.stringify([...idx]));
   return idx;
 }
 
-function Voice({ fam, order, have, scope, onSaved }) {
+function Voice({ fam, order, have, onSaved }) {
   const [st, setSt] = useState("idle"); // idle | rec | busy
   const [err, setErr] = useState(null);
-  const [confirmOver, setConfirmOver] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
-  const [needsPasscode, setNeedsPasscode] = useState(false);
-  const [passInput, setPassInput] = useState("");
-  const [passErr, setPassErr] = useState(null);
-  const [checking, setChecking] = useState(false);
   const mr = useRef(null);
   const fileRef = useRef(null);
-  const pendingUrl = useRef(null);
-  const pendingAction = useRef(null);
-
-  // Writing to the shared "Everyone" scope needs the family passcode —
-  // reads (play) never do. Cached in this browser after the server
-  // verifies it once, so this only interrupts the first shared write.
-  const gate = (action) => {
-    if (scope !== "all" || !supabaseConfigured || getCachedPasscode()) return true;
-    pendingAction.current = action;
-    setPassErr(null);
-    setNeedsPasscode(true);
-    return false;
-  };
-
-  const submitPasscode = async () => {
-    if (!passInput) return;
-    setChecking(true);
-    const res = await verifyPasscode(passInput);
-    setChecking(false);
-    if (!res.ok) return setPassErr(res.error || "Wrong passcode.");
-    setCachedPasscode(passInput);
-    setPassInput("");
-    setNeedsPasscode(false);
-    const action = pendingAction.current;
-    pendingAction.current = null;
-    if (action) action();
-  };
 
   const play = async () => {
-    const url = (await getClip(fam, order, have || "me")) || (await getClip(fam, order, "all"));
+    const url = await getClip(fam, order);
     if (!url) return setErr("Nothing recorded for this letter yet.");
     try {
       await new Audio(url).play();
@@ -2065,15 +2010,13 @@ function Voice({ fam, order, have, scope, onSaved }) {
   const commit = async (url) => {
     setSt("busy");
     try {
-      const idx = await putClip(fam, order, url, scope);
+      const idx = await putClip(fam, order, url);
       onSaved(idx);
       setErr(null);
     } catch (e) {
       setErr("Couldn't save that clip.");
     }
     setSt("idle");
-    setConfirmOver(false);
-    pendingUrl.current = null;
   };
 
   const save = (url) => {
@@ -2081,19 +2024,10 @@ function Voice({ fam, order, have, scope, onSaved }) {
       setSt("idle");
       return setErr("That clip is too long. Aim for about a second.");
     }
-    // Overwriting your own scope is your business. Overwriting the shared
-    // family copy replaces what everyone else hears, silently, unless we ask.
-    if (scope === "all" && have === "all") {
-      pendingUrl.current = url;
-      setSt("idle");
-      setConfirmOver(true);
-      return;
-    }
     commit(url);
   };
 
   const start = async () => {
-    if (!gate(start)) return;
     setErr(null);
     if (!navigator.mediaDevices || !window.MediaRecorder) {
       return setErr("Mic isn't reachable here. Use the upload button instead.");
@@ -2126,21 +2060,16 @@ function Voice({ fam, order, have, scope, onSaved }) {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";
     if (!f) return;
-    const proceed = () => {
-      const fr = new FileReader();
-      fr.onload = () => save(fr.result);
-      fr.readAsDataURL(f);
-    };
-    if (!gate(proceed)) return;
-    proceed();
+    const fr = new FileReader();
+    fr.onload = () => save(fr.result);
+    fr.readAsDataURL(f);
   };
 
   const del = async () => {
     if (!confirmDel) return setConfirmDel(true);
-    if (!gate(del)) return;
     setSt("busy");
     try {
-      const idx = await deleteClip(fam, order, have || scope);
+      const idx = await deleteClip(fam, order);
       onSaved(idx);
       setErr(null);
     } catch (e) {
@@ -2149,69 +2078,6 @@ function Voice({ fam, order, have, scope, onSaved }) {
     setSt("idle");
     setConfirmDel(false);
   };
-
-  if (needsPasscode) {
-    return (
-      <div>
-        <div className="note" style={{ color: "var(--bone)", marginBottom: 8, fontSize: 12.5 }}>
-          Recording for the family needs the shared passcode. Ask whoever set this app up if you don't
-          have it.
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <input
-            type="password"
-            inputMode="text"
-            autoComplete="off"
-            value={passInput}
-            onChange={(e) => setPassInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submitPasscode()}
-            placeholder="family passcode"
-            style={{
-              flex: 1, minWidth: 140, background: "var(--ink)", border: "1px solid var(--line)",
-              borderRadius: 20, padding: "6px 14px", color: "var(--bone)", fontSize: 12,
-            }}
-          />
-          <button
-            className="speaker"
-            style={{ borderColor: "var(--rubric)", color: "var(--rubric)" }}
-            disabled={checking || !passInput}
-            onClick={submitPasscode}
-          >
-            {checking ? "checking…" : "unlock"}
-          </button>
-          <button
-            className="speaker"
-            onClick={() => { setNeedsPasscode(false); setPassInput(""); pendingAction.current = null; }}
-          >
-            cancel
-          </button>
-        </div>
-        {passErr && <div className="note" style={{ color: "var(--rubric)", marginTop: 6, fontSize: 11.5 }}>{passErr}</div>}
-      </div>
-    );
-  }
-
-  if (confirmOver) {
-    return (
-      <div>
-        <div className="note" style={{ color: "var(--gold)", marginBottom: 8, fontSize: 12.5 }}>
-          This replaces the clip everyone in the family currently hears for this letter. Keep going?
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="speaker" onClick={() => { setConfirmOver(false); pendingUrl.current = null; }}>
-            cancel
-          </button>
-          <button
-            className="speaker"
-            style={{ borderColor: "var(--rubric)", color: "var(--rubric)" }}
-            onClick={() => commit(pendingUrl.current)}
-          >
-            replace it
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -2244,11 +2110,6 @@ function Voice({ fam, order, have, scope, onSaved }) {
           </button>
         )}
       </div>
-      {have === "all" && !confirmDel && (
-        <div className="note" style={{ marginTop: 6, fontSize: 11 }}>
-          This clip is shared — anyone using the app can hear it and re-record over it.
-        </div>
-      )}
       {err && <div className="note" style={{ color: "var(--rubric)", marginTop: 6, fontSize: 11.5 }}>{err}</div>}
     </div>
   );
@@ -2305,10 +2166,8 @@ function Chant({ fam, audio, compact }) {
     for (let o = 0; o < 7; o++) {
       if (playToken.current !== token) return;
       setI(o);
-      const have = audio && audio.have.get(`${fam}.${o}`);
-      const recorded = have
-        ? (await getClip(fam, o, have)) || (await getClip(fam, o, "all"))
-        : null;
+      const have = audio && audio.have.has(`${fam}.${o}`);
+      const recorded = have ? await getClip(fam, o) : null;
       const url = recorded || officialAudioUrl(fam, o);
       if (playToken.current !== token) return;
       await new Promise((resolve) => {
@@ -2746,13 +2605,13 @@ function Reader({ known, romanize, audio }) {
                   {FAMS[CHAR_MAP[tap.c].fam].chars[0]} + {ORDERS[CHAR_MAP[tap.c].order].v} mark ·{" "}
                   {ORDERS[CHAR_MAP[tap.c].order].am}
                 </div>
-                {audio && audio.have.get(`${CHAR_MAP[tap.c].fam}.${CHAR_MAP[tap.c].order}`) && (
+                {audio && audio.have.has(`${CHAR_MAP[tap.c].fam}.${CHAR_MAP[tap.c].order}`) && (
                   <button
                     className="speaker"
                     style={{ marginTop: 6, borderColor: "var(--verd)", color: "#8FD9B4" }}
                     onClick={async () => {
                       const f = CHAR_MAP[tap.c].fam, o = CHAR_MAP[tap.c].order;
-                      const u = (await getClip(f, o, audio.have.get(`${f}.${o}`) || "me")) || (await getClip(f, o, "all"));
+                      const u = await getClip(f, o);
                       if (u) new Audio(u).play().catch(() => {});
                     }}
                   >
@@ -2902,7 +2761,7 @@ const TOUR_STEPS = [
   {
     glyph: "ፊ",
     title: "Chart",
-    body: "The whole fidel at a glance — tap any letter for its detail. And since no phone speaks Amharic, this is also where you, or a relative, record real pronunciations — kept \"Just me\" or shared with \"Everyone\" using the app.",
+    body: "The whole fidel at a glance — tap any letter for its detail, and \"hear it\" for a real pronunciation. Want it in your own voice, or a relative's, instead? Record it right there.",
   },
   {
     glyph: "ቃ ጽ",
@@ -3216,8 +3075,7 @@ export default function AmharicFidel() {
   const [tab, setTab] = useState("learn");
   const [track, setTrack] = useState("bases");
   const [romanize, setRomanize] = useState(true);
-  const [haveAudio, setHaveAudio] = useState(new Map());
-  const [audScope, setAudScope] = useState("me");
+  const [haveAudio, setHaveAudio] = useState(new Set());
   const [wordTab, setWordTab] = useState("read");
   const [lesson, setLesson] = useState(null);
 
@@ -3327,9 +3185,7 @@ export default function AmharicFidel() {
   const addXp = (n) => setState((s) => ({ ...s, xp: s.xp + n }));
   const audio = {
     have: haveAudio,
-    scope: audScope,
-    setScope: setAudScope,
-    onSaved: (idx) => setHaveAudio(new Map(idx)),
+    onSaved: (idx) => setHaveAudio(new Set(idx)),
   };
 
   const resetAll = () => {

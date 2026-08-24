@@ -27,9 +27,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-        # No VITE_SUPABASE_* secrets set here on purpose — shared "Everyone"
-        # recordings fall back to local-only storage until/unless that's
-        # configured later (see README). Nothing else needs a build secret.
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
