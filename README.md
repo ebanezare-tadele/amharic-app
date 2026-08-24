@@ -202,6 +202,40 @@ dashboard. `vercel.json` in this repo already sets
 `Cache-Control: no-cache` on `sw.js`/`manifest.webmanifest` for that path,
 if you go that route later.
 
+## Ideas that would need a platform (parked, not built)
+
+Everything shipped so far runs on GitHub alone — no other account. These
+would each genuinely need something more, so they're written down here
+rather than half-built. None of this is planned; it's a list to revisit
+if/when one of them actually matters to you.
+
+- **Real cross-device shared recordings** — the one already scoped and
+  coded, just dormant. Needs a Supabase project (or similar). See
+  "Persistence" above.
+- **Cross-device personal progress** — right now `xp`/streak/mastery live
+  in one device's `localStorage`; using the app on a second device starts
+  fresh. Syncing that needs real accounts (some auth, not just a
+  passcode) plus a database — a meaningfully bigger lift than the
+  passcode-gated shared recordings, since it means identifying individual
+  people, not just gating one shared write path.
+- **Real Amharic text-to-speech** — the app's own "hear it" button already
+  says plainly that no phone ships an Amharic voice and it can't reach a
+  cloud one; that's why family recordings exist at all. A cloud TTS API
+  would need a paid platform account and a small server-side proxy (never
+  put an API key in client-side code).
+- **Push notifications** (e.g. "come back for today's lesson") — Web Push
+  needs a server to hold subscriptions and trigger sends; another
+  platform account either way.
+- **A custom domain** — not a new *platform* exactly, but a domain
+  registrar account and DNS changes, if `github.io` ever feels wrong for
+  texting to people.
+
+Worth naming the one tension up front: several of these (accounts,
+push, TTS-with-a-key) cut against the "no analytics, nothing sent
+anywhere else" story the app currently tells about personal data (see
+below). Not a blocker, just something to weigh deliberately per feature
+rather than let creep in.
+
 ## The one copy change
 
 Everything in `src/App.jsx` is unchanged from the original artifact except
