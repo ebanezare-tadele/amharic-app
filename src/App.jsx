@@ -50,11 +50,11 @@ const RAW = [
   ["ኸኹኺኻኼኽኾ", "kh", "khä", "Softer k, breathed out."],
   ["ቨቩቪቫቬቭቮ", "v", "vä", "Only in borrowed words."],
   ["ጰጱጲጳጴጵጶ", "p'", "p'ä", "Ejective p. Rare."],
-  ["ሐሑሒሓሔሕሖ", "h", "hä", "Sounds identical to ሀ today. Kept apart in spelling only."],
-  ["ኀኁኂኃኄኅኆ", "h", "hä", "A third h. Same sound as ሀ and ሐ."],
-  ["ሠሡሢሣሤሥሦ", "s", "sä", "Sounds identical to ሰ. Spelling-only distinction."],
-  ["ዐዑዒዓዔዕዖ", "'", "ä", "Sounds identical to አ."],
-  ["ፀፁፂፃፄፅፆ", "ts'", "ts'ä", "Sounds identical to ጸ."],
+  ["ሐሑሒሓሔሕሖ", "h", "hä", "Sounds identical to ሀ today. Kept apart in spelling only — in Ge'ez this was a tighter, pharyngeal sound, closer to the h in Arabic ح."],
+  ["ኀኁኂኃኄኅኆ", "h", "hä", "A third h. Same sound as ሀ and ሐ today — in Ge'ez this one was pronounced further back, closer to the ch in German Bach."],
+  ["ሠሡሢሣሤሥሦ", "s", "sä", "Sounds identical to ሰ. Spelling-only distinction — in Ge'ez it likely carried a distinct hissing sound, somewhere between s and sh, since merged away."],
+  ["ዐዑዒዓዔዕዖ", "'", "ä", "Sounds identical to አ. In Ge'ez this was a voiced pharyngeal sound with no real English equivalent, close to Arabic ع — leveled down to the same glottal stop as አ."],
+  ["ፀፁፂፃፄፅፆ", "ts'", "ts'ä", "Sounds identical to ጸ. Ge'ez may have told these two ejectives apart too, though exactly how is less settled than the other silent twins."],
 ];
 
 const FAMS = RAW.map(([chars, cons, name, note], i) => ({
@@ -1735,6 +1735,8 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       <div className="eyebrow" style={{ marginBottom: 8 }}>Ge'ez numerals</div>
       <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
         Still used on clock faces, church calendars, and chapter headings. Everyday writing uses 1 2 3.
+        Likely adapted from Greek and Coptic letter-numerals — the same trick Roman numerals play with
+        Latin letters.
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {GEEZ_NUM.map(([g, n]) => (
@@ -1751,6 +1753,35 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
         <span className="gz" style={{ fontSize: 20, color: "var(--bone)" }}>።</span>{"  "}full stop ·{" "}
         <span className="gz" style={{ fontSize: 20, color: "var(--bone)" }}>፣</span>{"  "}comma ·{" "}
         <span className="gz" style={{ fontSize: 20, color: "var(--bone)" }}>፡</span>{"  "}the old word divider, now replaced by a plain space
+      </div>
+
+      <div className="rule" />
+      <div className="eyebrow" style={{ marginBottom: 8 }}>Where this comes from</div>
+      <div className="note" style={{ marginBottom: 6 }}>
+        Ge'ez — the script every letter on this chart is built from — descended from the Ancient South
+        Arabian alphabet, carried across the Red Sea into the Kingdom of Aksum, in what's now northern
+        Ethiopia and Eritrea. Like its ancestor, it started as an abjad: consonants only, vowels left to
+        guesswork.
+      </div>
+      <div className="note" style={{ marginBottom: 6 }}>
+        Sometime around the 4th century, Ge'ez did something no other Semitic script had: it started
+        bending each consonant into seven shapes, one per vowel, instead of leaving the vowel unwritten —
+        centuries before Hebrew did the same with its own vowel points. One of the most famous early
+        examples still stands: King Ezana's stone stele at Aksum, the same inscription carved three times
+        over in Ge'ez, Sabaean, and Greek, announcing his conversion to Christianity. The system on this
+        chart descends directly from that one.
+      </div>
+      <div className="note" style={{ marginBottom: 6 }}>
+        There's a name for a script that works this way — abugida — and it's borrowed straight from
+        Ge'ez: the first four letters in its own traditional order, አ ቡ ጊ ዳ (ə-bu-gi-da), the same way
+        "alphabet" comes from the Greek alpha-beta.
+      </div>
+      <div className="note">
+        Amharic split off from Ge'ez's spoken form by around the 13th century, keeping the script but
+        bending it to different sounds — which is exactly why five letters on this chart (ሐ ኀ ሠ ዐ ፀ) spell
+        distinctions Ge'ez once made and Amharic no longer does; tap any of them above for what they used
+        to sound like. Ge'ez itself stopped being anyone's native language centuries ago, but never really
+        left — it's still the language of the Ethiopian Orthodox Church's liturgy today.
       </div>
 
       <div className="rule" />
@@ -2794,7 +2825,72 @@ function Callout({ id, seenIntro, onSeen, children }) {
   );
 }
 
-function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, romanize, setRomanize, seenIntro, onSeen }) {
+/* ============================================================
+   BADGES
+   Milestones computed straight from state that already exists —
+   no separate "earned" list to persist, so there's nothing to get
+   out of sync. Tap one to see what it takes.
+   ============================================================ */
+
+const BADGES = [
+  { id: "first", glyph: "1", label: "First step", hint: "Learn your first letter.", need: (c) => c.known.size >= 1 },
+  { id: "bases", glyph: "34", label: "The 34", hint: "All 34 base shapes learned.", need: (c) => c.allBases },
+  { id: "full", glyph: "238", label: "Full fidel", hint: `Every letter, every vowel — all ${ALL.length}, both tracks converge here.`, need: (c) => c.known.size >= ALL.length },
+  { id: "lvl5", glyph: "5", label: "Level 5", hint: "Reach level 5 — 1,000 XP from drills, review, words, writing, or the speed round.", need: (c) => c.level >= 5 },
+  { id: "mastered", glyph: "10", label: "Ten mastered", hint: "Ten letters at full brightness on the chart (level 5 or higher).", need: (c) => c.masteredCount >= 10 },
+  { id: "streak", glyph: "7", label: "Week streak", hint: "Open the app seven days running.", need: (c) => c.state.streakDays >= 7 },
+  { id: "speed", glyph: "15", label: "Quick draw", hint: "Score 15 or higher in the speed round.", need: (c) => c.state.bestSpeed >= 15 },
+  { id: "voice", glyph: "●", label: "Family voice", hint: "Record your first letter — yours, or a relative's.", need: (c) => c.audioCount >= 1 },
+];
+
+function Badges({ state, known, level, allBases, audioCount }) {
+  const [sel, setSel] = useState(null);
+  const masteredCount = useMemo(
+    () => Object.values(state.cards).filter((c) => (c.lvl || 0) >= 5).length,
+    [state.cards]
+  );
+  const ctx = { known, level, allBases, masteredCount, state, audioCount };
+  const selBadge = BADGES.find((b) => b.id === sel);
+  return (
+    <div>
+      <div className="eyebrow" style={{ margin: "18px 0 10px" }}>Badges</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {BADGES.map((b) => {
+          const earned = b.need(ctx);
+          return (
+            <button
+              key={b.id}
+              onClick={() => setSel(sel === b.id ? null : b.id)}
+              style={{
+                background: earned ? "rgba(217,169,60,.12)" : "var(--ink2)",
+                border: "1px solid " + (earned ? "var(--gold)" : "var(--line)"),
+                borderRadius: 9, padding: "7px 10px", textAlign: "center", minWidth: 56,
+              }}
+            >
+              <div className="disp" style={{ fontSize: 18, color: earned ? "var(--gold)" : "var(--dim)" }}>
+                {b.glyph}
+              </div>
+              <div className="note" style={{ fontSize: 9.5, marginTop: 2, color: earned ? "var(--bone)" : "var(--dim)" }}>
+                {b.label}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {selBadge && (
+        <div className="note" style={{ marginTop: 10, fontSize: 11.5 }}>
+          <b style={{ color: "var(--bone)" }}>{selBadge.label}</b>
+          <span style={{ color: selBadge.need(ctx) ? "var(--gold)" : "var(--dim)" }}>
+            {selBadge.need(ctx) ? " — earned. " : " — locked. "}
+          </span>
+          {selBadge.hint}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, romanize, setRomanize, seenIntro, onSeen, audioCount }) {
   const bDone = new Set(state.basesDone || []);
   const sDone = new Set(state.sweepsDone || []);
   const uDone = new Set(state.unitsDone || []);
@@ -2955,6 +3051,8 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
           Sixty seconds, no hints. This is what turns recognition into reflex.
         </div>
       </button>
+
+      <Badges state={state} known={known} level={level} allBases={allBases} audioCount={audioCount} />
 
       <p className="note" style={{ marginTop: 14, textAlign: "center", fontSize: 11.5 }}>
         Both tracks feed the same chart, the same review queue, and the same writing practice. Switching
@@ -3164,6 +3262,7 @@ export default function AmharicFidel() {
             onReview={() => setLesson({ kind: "review", id: "rev", fams: [], orders: [], doneLabel: "Review done" })}
             seenIntro={state.seenIntro}
             onSeen={markSeen}
+            audioCount={haveAudio.size}
           />
         )}
         {tab === "chart" && (

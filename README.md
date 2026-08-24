@@ -287,6 +287,37 @@ before you do it (Chart). Each shows once, dismissible, same
 Neither touches the app's curriculum or lesson logic — this is
 onboarding for the app itself, layered on top.
 
+## Script history and badges
+
+Also new, also layered on top rather than editing what was there:
+
+- **"Where this comes from"** (Chart tab, after the numerals/punctuation
+  reference material) — a short, researched history of the Ge'ez script:
+  its descent from the Ancient South Arabian abjad, the 4th-century shift
+  to an abugida (vowel-marking system) tied to King Ezana's Aksum stele,
+  where the word "abugida" itself comes from, and Amharic's 13th-century
+  split from Ge'ez. Every claim here was checked against multiple sources
+  before going in — historical content read by learners as fact doesn't
+  get to be a guess. The five "silent twin" letters' notes (`FAMS` in
+  `src/App.jsx`) got the same treatment: each now says what sound Ge'ez
+  actually distinguished before Amharic merged it away, not just that a
+  merger happened.
+- **Badges** (`Badges` component, bottom of Home) — eight milestones
+  (first letter, all 34 bases, the full 238-cell fidel, level 5, ten
+  letters at full mastery, a week streak, a speed-round score, a first
+  family recording), each computed live from state that already existed
+  — nothing new to persist, nothing that can drift out of sync with the
+  data it's based on. Tap one to see what it takes.
+
+Sourcing for the history content, if you want to check it yourself or
+extend it:
+
+- [Ge'ez script — Wikipedia](https://en.wikipedia.org/wiki/Ge%CA%BDez_script)
+- [Ezana of Axum — Wikipedia](https://en.wikipedia.org/wiki/Ezana_of_Axum)
+- [Abugida — Wikipedia](https://en.wikipedia.org/wiki/Abugida)
+- [Ge'ez (Ethiopic) script — Omniglot](https://www.omniglot.com/writing/ethiopic.htm)
+- [The Amharic Alphabet — EveryAlphabet](https://www.everyalphabet.com/amharic)
+
 ## Structure
 
 - `src/App.jsx` — the entire app (curriculum/lesson logic untouched; the
