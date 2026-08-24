@@ -1,42 +1,62 @@
 #!/usr/bin/env node
-// One-time generation job: turns every letter/word/phrase in the app into a
-// real, verified Amharic audio clip via the Addis AI Voice 2 API, and zips
+// One-time generation job: turns every letter row/word/phrase in the app
+// into a real Amharic audio clip via the Addis AI Voice 2 API, and zips
 // the result into amharic-audio.zip next to this script.
 //
 // This is meant to run as a GitHub Actions job (see
 // .github/workflows/generate-audio.yml), triggered manually from the
 // Actions tab, with the API key supplied as the ADDIS_API_KEY repo secret.
-// It also runs fine locally if you'd rather do that:
+// It also runs fine locally if you'd rather do that (needs ffmpeg/ffprobe
+// on PATH, which most systems already have):
 //   ADDIS_API_KEY=sk_... node scripts/generate-official-audio.mjs
 //
-// Requires Node.js 18+ (built-in fetch) and Python 3 with faster-whisper
-// installed (pip install faster-whisper) for the verification step — see
-// scripts/whisper_worker.py for why and how.
+// Requires Node.js 18+ (built-in fetch) and ffmpeg/ffprobe on PATH. No
+// npm install, and — as of this version — no Python/ML dependency either;
+// see the long comment below for why that was tried and reverted.
 //
-// ---- Why this version looks different from the first one ----
+// ---- The actual history here, because it explains every design choice ----
 //
-// The original approach asked the TTS model to read one isolated Ge'ez
-// glyph per clip. That turned out to be the actual root cause of the
-// wrong/garbled-audio reports (not a bug to patch, a shape of input the
-// model wasn't built for): a bare single syllable has no sentence for a
-// sentence-level TTS model to anchor to, and it would sometimes pad or
-// hallucinate a short isolated input into a longer, unrelated utterance.
-// Measured directly: ~1 in 5 letter/word clips came back 5-13s long for
-// input that should produce under 2s of speech, even after adding
-// trailing punctuation per the vendor's own guidance.
-//
-// This version never asks for an isolated glyph at all. A family's 7
-// letters are generated as ONE natural recitation of the whole row (e.g.
+// v1 asked the TTS model to read one isolated Ge'ez glyph per clip. Root
+// cause of the "wrong/garbled audio" reports: a bare single syllable has
+// no sentence for a sentence-level TTS model to anchor to, and it would
+// sometimes pad or hallucinate a short isolated input into a longer,
+// unrelated utterance (measured: ~1 in 5 letter/word clips came back
+// 5-13s long for input that should be under 2s). Fixed by generating a
+// whole family's 7 letters as ONE natural recitation of the row (e.g.
 // "ለ፣ ሉ፣ ሊ፣ ላ፣ ሌ፣ ል፣ ሎ።") — literally how the fidel is traditionally
-// chanted aloud, not an isolated syllable — and then
-// scripts/whisper_worker.py uses real speech recognition (word-level
-// timestamps) to find exactly where each syllable falls and slices the
-// row into the 7 per-letter clips the app actually plays. Anchor words
-// and phrases were already natural-shaped input, so they're unchanged in
-// content, but every clip in every category now gets checked against
-// what was actually said (via Whisper) rather than just how long the
-// file is — a wrong-word clip at a normal duration would have passed the
-// old check silently.
+// chanted, not an isolated syllable — instead of one glyph at a time.
+// That part of the fix is real and is still here.
+//
+// v2 tried adding content verification on top: transcribe every clip
+// with faster-whisper (real open-source speech recognition) and check
+// it against the expected text, instead of just checking duration. This
+// was a bad idea in practice, not because verifying content is wrong in
+// principle, but because faster-whisper's available checkpoints turned
+// out to have no meaningful Amharic support: real smoke tests against
+// real clips produced transcriptions in random unrelated scripts and
+// even plain English words (Telugu, Bengali, Kazakh Cyrillic, Burmese,
+// "Quit", "flix"), changing on every attempt against the *same* audio --
+// the textbook signature of a model hallucinating on input it has no
+// real grip on, not a language it's simply weak at. Worse: the clips
+// this rejected had entirely normal, in-band durations, meaning the
+// underlying TTS audio may well have been correct the whole time and
+// the verification layer was the actual thing sabotaging it. That
+// approach (and the faster-whisper/Python dependency it needed) is gone.
+//
+// This version verifies using signals that don't require any model to
+// understand Amharic at all:
+//   - ffprobe's actual measured duration against a per-category sane
+//     band (this is what v1 approximated with file size; ffmpeg is
+//     already on the runner, so measuring it directly is free and more
+//     accurate than a size-based proxy).
+//   - For row clips specifically: ffmpeg's silencedetect filter finds
+//     the pauses between the 7 comma-separated syllables (a real
+//     acoustic signal — commas produce audible pauses in TTS output —
+//     not a claim about what was said), and slices the row into the 7
+//     per-letter files the app plays using those gap boundaries.
+// Neither of these can hallucinate a wrong language, because neither
+// one is trying to understand what was said — only how long it took
+// and where the pauses are.
 
 const ADDIS_API_KEY = process.env.ADDIS_API_KEY;
 if (!ADDIS_API_KEY) {
@@ -44,11 +64,10 @@ if (!ADDIS_API_KEY) {
   process.exit(1);
 }
 
-import { mkdir, writeFile, readdir, stat, readFile, rename, unlink } from "node:fs/promises";
+import { mkdir, writeFile, readdir, readFile, rename, unlink, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
-import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -61,10 +80,9 @@ const ENDPOINT = "https://api.addisassistant.com/api/v1/voice/generations";
 
 // SMOKE_TEST=1 (or the workflow's "smoke_test" input) runs just a
 // handful of jobs — one row, one anchor, one phrase — so a change to
-// this script or the whisper worker can be sanity-checked for a few
-// dollars of API usage and a couple of minutes, instead of finding out
-// something's wrong only after the full ~82-job batch (and its retries)
-// have already run.
+// this script can be sanity-checked for a few cents and a minute or two
+// instead of finding out something's wrong only after the full ~82-job
+// batch (and its retries) have already run.
 const SMOKE_TEST = process.env.SMOKE_TEST === "1";
 
 // ---- Content: same data as src/App.jsx's RAW / ANCHORS / PHRASES ----
@@ -120,10 +138,6 @@ const PHRASES = [
 ];
 
 // ---- Build the full job list ----
-//
-// reqId is what actually goes in the API's client_request_id field —
-// random and fresh per attempt (see generateOne below), so a retry can
-// never accidentally replay a previous attempt's result.
 
 let jobs = [];
 RAW.forEach((fam, famIdx) => {
@@ -133,19 +147,20 @@ RAW.forEach((fam, famIdx) => {
     category: "row",
     // Ethiopic comma between syllables, full stop at the end — read as
     // one natural recitation of the row, the way the alphabet is
-    // actually chanted, not as 7 isolated glyphs.
+    // actually chanted, not as 7 isolated glyphs. The commas are also
+    // what silenceSliceRow() below relies on for pauses to cut at.
     text: chars.join("፣ ") + "።",
-    expected: { syllables: chars },
+    syllableCount: chars.length,
     slicePrefix: `letter-${famIdx}`,
   });
 });
 ANCHORS.forEach((word, i) => {
-  jobs.push({ id: `anchor_${i}`, category: "anchor", text: `${word}።`, expected: { text: word }, filename: `anchor-${i}.mp3` });
+  jobs.push({ id: `anchor_${i}`, category: "anchor", text: `${word}።`, filename: `anchor-${i}.mp3` });
 });
 const QUESTION_PHRASES = new Set([2, 3, 5, 6, 12]); // indices into PHRASES: genuine questions get "?" not "።"
 PHRASES.forEach((phrase, i) => {
   const mark = QUESTION_PHRASES.has(i) ? "?" : "።";
-  jobs.push({ id: `phrase_${i}`, category: "phrase", text: `${phrase}${mark}`, expected: { text: phrase }, filename: `phrase-${i}.mp3` });
+  jobs.push({ id: `phrase_${i}`, category: "phrase", text: `${phrase}${mark}`, filename: `phrase-${i}.mp3` });
 });
 
 if (SMOKE_TEST) {
@@ -155,60 +170,108 @@ if (SMOKE_TEST) {
 
 console.log(`${jobs.length} generation jobs (${RAW.length} letter rows covering ${RAW.length * 7} letters, ${ANCHORS.length} anchor words, ${PHRASES.length} phrases).`);
 
-// ---- Whisper verification worker (see scripts/whisper_worker.py) ----
-// A single long-lived Python process, talked to over stdin/stdout with
-// one JSON object per line each way — loading the model is the
-// expensive part, so it happens once for the whole run, not once per
-// clip.
+// ---- ffmpeg/ffprobe helpers — signal-based checks, no language model ----
 
-class WhisperWorker {
-  constructor() {
-    this.proc = spawn("python3", [path.join(__dirname, "whisper_worker.py")], { stdio: ["pipe", "pipe", "inherit"] });
-    this.rl = createInterface({ input: this.proc.stdout });
-    this.pending = new Map();
-    this.nextId = 0;
-    this.rl.on("line", (line) => {
-      let msg;
-      try {
-        msg = JSON.parse(line);
-      } catch {
-        return;
-      }
-      const resolve = this.pending.get(msg.id);
-      if (resolve) {
-        this.pending.delete(msg.id);
-        resolve(msg);
-      }
-    });
-    this.proc.on("exit", (code) => {
-      for (const resolve of this.pending.values()) resolve({ verified: false, reason: `whisper worker exited unexpectedly (code ${code})` });
-      this.pending.clear();
-    });
-  }
-  check(req) {
-    const id = String(this.nextId++);
-    return new Promise((resolve) => {
-      this.pending.set(id, resolve);
-      this.proc.stdin.write(JSON.stringify({ ...req, id }) + "\n");
-    });
-  }
-  close() {
-    this.proc.stdin.end();
-  }
+function run(cmd, args) {
+  return new Promise((resolve, reject) => {
+    const p = spawn(cmd, args);
+    let stdout = "", stderr = "";
+    p.stdout.on("data", (d) => (stdout += d));
+    p.stderr.on("data", (d) => (stderr += d));
+    p.on("close", (code) => resolve({ code, stdout, stderr }));
+    p.on("error", reject);
+  });
 }
 
-// ---- Generate one clip ----
+async function probeDuration(audioPath) {
+  const { code, stdout, stderr } = await run("ffprobe", [
+    "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", audioPath,
+  ]);
+  const dur = parseFloat(stdout.trim());
+  if (code !== 0 || !Number.isFinite(dur)) throw new Error(`ffprobe failed: ${stderr.slice(0, 200) || `exit ${code}`}`);
+  return dur;
+}
+
+// Pauses in the audio, found purely from loudness — no understanding of
+// what's being said, so nothing here can mistake Amharic for Telugu.
+// noise/d chosen generously (quieter+shorter than typical inter-word
+// TTS pacing) so real pauses are found without needing per-clip tuning.
+async function detectSilences(audioPath) {
+  const { stderr } = await run("ffmpeg", [
+    "-i", audioPath, "-af", "silencedetect=noise=-30dB:d=0.12", "-f", "null", "-",
+  ]);
+  const starts = [...stderr.matchAll(/silence_start:\s*([\d.]+)/g)].map((m) => parseFloat(m[1]));
+  const ends = [...stderr.matchAll(/silence_end:\s*([\d.]+)/g)].map((m) => parseFloat(m[1]));
+  return starts.map((s, i) => ({ start: s, end: ends[i] })).filter((g) => Number.isFinite(g.end) && g.end > g.start);
+}
+
+async function cutSegment(audioPath, start, end, outPath) {
+  let { code } = await run("ffmpeg", ["-y", "-loglevel", "error", "-i", audioPath, "-ss", start.toFixed(3), "-to", end.toFixed(3), "-c", "copy", outPath]);
+  if (code !== 0) {
+    // -c copy can miss precise mp3 frame boundaries; re-encode this one slice if so.
+    ({ code } = await run("ffmpeg", ["-y", "-loglevel", "error", "-i", audioPath, "-ss", start.toFixed(3), "-to", end.toFixed(3), "-acodec", "libmp3lame", "-q:a", "4", outPath]));
+  }
+  return code === 0;
+}
+
+// Slices a row clip into its 7 syllables using the pauses between them.
+// Interior gaps only (near-start/near-end silence is lead-in/lead-out,
+// not a separator) — expects syllableCount-1 of them for a clean cut;
+// tolerates being off by one (a syllable's own onset/release sometimes
+// reads as a "gap") by falling back to an even split across the actual
+// spoken span, flagged as lower-confidence rather than rejected outright.
+async function sliceRow(audioPath, duration, syllableCount, sliceDir, slicePrefix) {
+  const allGaps = await detectSilences(audioPath);
+  const EDGE = 0.05 * duration;
+  const interior = allGaps.filter((g) => g.start > EDGE && g.end < duration - EDGE);
+  const wantGaps = syllableCount - 1;
+
+  let bounds, flagged = false;
+  if (interior.length === wantGaps) {
+    const cuts = interior.map((g) => (g.start + g.end) / 2).sort((a, b) => a - b);
+    const points = [0, ...cuts, duration];
+    bounds = points.slice(0, -1).map((s, i) => [s, points[i + 1]]);
+  } else if (Math.abs(interior.length - wantGaps) === 1) {
+    // Gap count off by one (a syllable's own onset/release sometimes
+    // reads as a spurious extra gap, or two short syllables blend
+    // together into one) -- fall back to an even split across the
+    // whole clip rather than trusting gap positions we're not sure of.
+    const step = duration / syllableCount;
+    bounds = Array.from({ length: syllableCount }, (_, i) => [i * step, (i + 1) * step]);
+    flagged = true;
+  } else {
+    return { ok: false, reason: `found ${interior.length} inter-syllable gap(s), expected ${wantGaps}` };
+  }
+
+  const PAD = 0.06;
+  const names = [];
+  for (let i = 0; i < bounds.length; i++) {
+    const [s, e] = bounds[i];
+    const outName = `${slicePrefix}-${i}.mp3`;
+    const ok = await cutSegment(audioPath, Math.max(0, s - PAD), Math.min(duration, e + PAD), path.join(sliceDir, outName));
+    if (!ok) return { ok: false, reason: `ffmpeg failed to cut segment ${i}` };
+    names.push(outName);
+  }
+  return { ok: true, names, flagged };
+}
+
+// Per-category sane duration bands, in seconds. Min guards against a
+// truncated/near-silent clip; max catches the hallucination-into-a-
+// longer-utterance failure mode measured in v1.
+const DURATION_LIMITS = {
+  row: { min: 1.0, max: 14.0 },      // 7 short syllables, comma-paced
+  anchor: { min: 0.25, max: 4.5 },   // one word
+  phrase: { min: 0.25, max: 7.0 },   // a short sentence
+};
+
+// ---- Addis AI generation ----
 //
 // Addis AI allows only one voice generation in flight per account at a
 // time (HTTP 429 CONCURRENT_GENERATION_LIMIT if you overlap requests), on
 // top of a plain rate limit (429 RATE_LIMITED). Jobs run strictly one at
 // a time and a 429 gets a real wait — honoring Retry-After when the API
-// sends one, otherwise backing off hard. Capped at MAX_RETRY_WAIT_MS so
-// one pathological Retry-After value can't stall a single attempt for
-// an unbounded stretch — a smoke test on 2026-08-24 sat with zero output
-// for 7+ minutes on one job with no way to tell "still legitimately
-// backing off" from "hung" apart from cancelling the run, which is
-// exactly the failure mode this cap and the logging below fix.
+// sends one, capped so one pathological value can't stall a single
+// attempt indefinitely.
 const MAX_ATTEMPTS = 6;
 const MAX_RETRY_WAIT_MS = 60_000;
 
@@ -254,17 +317,15 @@ async function generateOnce(jobId, text, reqId) {
 }
 
 // Quality retries: a FRESH client_request_id every attempt (reusing one
-// here would just replay the same result Whisper already rejected), up
-// to this many tries. Unlike the old size-heuristic version, a clip that
-// never verifies is NOT shipped as a last resort — the app already
-// falls back gracefully (personal recording -> device voice -> hidden)
-// for anything missing, and shipping audio Whisper flagged as wrong
-// defeats the entire point of checking.
+// would just replay the same result), up to this many tries. A clip
+// that never verifies is NOT shipped as a last resort — the app falls
+// back gracefully (personal recording -> device voice -> hidden) for
+// anything missing.
 const QUALITY_ATTEMPTS = 4;
 
 async function alreadyDone(job) {
   if (job.category === "row") {
-    for (let o = 0; o < 7; o++) {
+    for (let o = 0; o < job.syllableCount; o++) {
       try {
         const s = await stat(path.join(OUT_DIR, `${job.slicePrefix}-${o}.mp3`));
         if (s.size === 0) return false;
@@ -282,8 +343,9 @@ async function alreadyDone(job) {
   }
 }
 
-async function generateOne(job, worker) {
+async function generateOne(job) {
   if (await alreadyDone(job)) return { job, skipped: true };
+  const limit = DURATION_LIMITS[job.category];
 
   let lastReason;
   for (let qAttempt = 1; qAttempt <= QUALITY_ATTEMPTS; qAttempt++) {
@@ -292,25 +354,38 @@ async function generateOne(job, worker) {
     const tmpPath = path.join(OUT_DIR, `.tmp-${job.id}-${qAttempt}.mp3`);
     await writeFile(tmpPath, bytes);
 
-    const req = { audio: tmpPath, category: job.category, expected: job.expected };
-    if (job.category === "row") {
-      req.sliceDir = OUT_DIR;
-      req.slicePrefix = job.slicePrefix;
+    let duration;
+    try {
+      duration = await probeDuration(tmpPath);
+    } catch (e) {
+      lastReason = `ffprobe failed: ${e.message}`;
+      console.error(`[${job.id}] quality attempt ${qAttempt}: ${lastReason}`);
+      await unlink(tmpPath).catch(() => {});
+      continue;
     }
-    console.error(`[${job.id}] quality attempt ${qAttempt}: verifying with Whisper...`);
-    const result = await worker.check(req);
-    console.error(`[${job.id}] quality attempt ${qAttempt}: verified=${result.verified} duration=${result.duration} reason=${result.reason || "(none)"}`);
+    console.error(`[${job.id}] quality attempt ${qAttempt}: duration=${duration.toFixed(2)}s`);
+    if (duration < limit.min || duration > limit.max) {
+      lastReason = `duration ${duration.toFixed(2)}s outside [${limit.min}, ${limit.max}]s for category ${job.category}`;
+      console.error(`[${job.id}] quality attempt ${qAttempt}: rejected — ${lastReason}`);
+      await unlink(tmpPath).catch(() => {});
+      continue;
+    }
 
-    if (result.verified) {
-      if (job.category === "row") {
-        await unlink(tmpPath).catch(() => {});
-        return { job, ok: true, requality: qAttempt > 1, flagged: !!result.flagged, note: result.reason, files: result.sliced };
+    if (job.category === "row") {
+      const result = await sliceRow(tmpPath, duration, job.syllableCount, OUT_DIR, job.slicePrefix);
+      await unlink(tmpPath).catch(() => {});
+      if (!result.ok) {
+        lastReason = result.reason;
+        console.error(`[${job.id}] quality attempt ${qAttempt}: slicing rejected — ${lastReason}`);
+        continue;
       }
-      await rename(tmpPath, path.join(OUT_DIR, job.filename));
-      return { job, ok: true, requality: qAttempt > 1, flagged: !!result.flagged, note: result.reason, files: [job.filename] };
+      console.error(`[${job.id}] quality attempt ${qAttempt}: sliced OK${result.flagged ? " (flagged: gap count off by one, even-split fallback)" : ""}`);
+      return { job, ok: true, requality: qAttempt > 1, flagged: result.flagged, files: result.names };
     }
-    lastReason = result.reason;
-    await unlink(tmpPath).catch(() => {});
+
+    await rename(tmpPath, path.join(OUT_DIR, job.filename));
+    console.error(`[${job.id}] quality attempt ${qAttempt}: accepted`);
+    return { job, ok: true, requality: qAttempt > 1, flagged: false, files: [job.filename] };
   }
   return { job, error: `never verified after ${QUALITY_ATTEMPTS} attempts — last reason: ${lastReason}` };
 }
@@ -408,7 +483,6 @@ async function buildZip(files) {
 
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
-  const worker = new WhisperWorker();
 
   let done = 0, skipped = 0, requalified = 0, failed = [], flagged = [];
   const shipped = []; // filenames of every verified clip, for manifest.json
@@ -418,15 +492,15 @@ async function main() {
   const PACING_MS = 700;
 
   for (const job of jobs) {
-    const result = await generateOne(job, worker);
+    const result = await generateOne(job);
     if (result.skipped) {
       skipped++;
-      if (job.category === "row") for (let o = 0; o < 7; o++) shipped.push(`${job.slicePrefix}-${o}.mp3`);
+      if (job.category === "row") for (let o = 0; o < job.syllableCount; o++) shipped.push(`${job.slicePrefix}-${o}.mp3`);
       else shipped.push(job.filename);
     } else if (result.ok) {
       done++;
       if (result.requality) requalified++;
-      if (result.flagged) flagged.push({ job, note: result.note });
+      if (result.flagged) flagged.push({ job, note: "gap count off by one, even-split fallback" });
       shipped.push(...result.files);
     } else {
       failed.push(result);
@@ -435,17 +509,16 @@ async function main() {
     process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} requalified=${requalified} flagged=${flagged.length} failed=${failed.length}   `);
     if (!result.skipped) await new Promise((r) => setTimeout(r, PACING_MS));
   }
-  worker.close();
   console.log("\n");
 
   if (failed.length) {
-    console.log(`${failed.length} job(s) never produced a Whisper-verified clip (not shipped — the app falls back to a personal recording or device voice for these):`);
+    console.log(`${failed.length} job(s) never produced a verified clip (not shipped — the app falls back to a personal recording or device voice for these):`);
     failed.forEach((f) => console.log(`  ${f.job.id} (${JSON.stringify(f.job.text)}): ${f.error}`));
     console.log("");
   }
 
   if (flagged.length) {
-    console.log(`${flagged.length} clip(s) verified but with a caveat worth a manual listen (see whisper_worker.py's "flagged" reasons):`);
+    console.log(`${flagged.length} clip(s) verified but with a caveat worth a manual listen:`);
     flagged.forEach((f) => console.log(`  ${f.job.id}: ${f.note}`));
     console.log("");
   }

@@ -3,10 +3,11 @@ name: Generate official audio (one-time)
 # Manually triggered from the Actions tab — this is not part of the normal
 # deploy pipeline. It calls the Addis AI Voice 2 API to render every
 # letter row/word/phrase in the app to a real Amharic mp3, verifies each
-# one against a real transcription (faster-whisper — see
-# scripts/whisper_worker.py for why this exists and how it works), and
-# hands the result back as a downloadable build artifact (not committed
-# to the repo) along with a manifest.json of what actually passed.
+# one with ffprobe/ffmpeg (duration + inter-syllable silence gaps — see
+# the long comment atop scripts/generate-official-audio.mjs for why it's
+# built this way, not a speech-recognition model), and hands the result
+# back as a downloadable build artifact (not committed to the repo) along
+# with a manifest.json of what actually passed.
 #
 # Requires a repo secret named ADDIS_API_KEY (Settings -> Secrets and
 # variables -> Actions -> New repository secret) holding the Addis AI key.
@@ -26,22 +27,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install faster-whisper (ffmpeg ships preinstalled on this runner image)
-        run: pip install faster-whisper
-      # The "medium" Whisper model is a ~6-7 minute cold download from
-      # Hugging Face unauthenticated (measured directly). It never
-      # changes between runs, so cache it rather than re-downloading it
-      # every single run of what's already a manually-triggered,
-      # iterate-a-few-times workflow -- a cache hit brings that down to
-      # seconds.
-      - name: Cache Whisper model
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/huggingface
-          key: whisper-medium-int8-v1
+      # ffmpeg/ffprobe ship preinstalled on this runner image -- no
+      # install step needed, and (as of this version) no Python/ML
+      # dependency either.
       - name: Generate + verify audio clips
         env:
           ADDIS_API_KEY: ${{ secrets.ADDIS_API_KEY }}

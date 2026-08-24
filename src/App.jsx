@@ -166,14 +166,16 @@ const WORDS = [
 // its own list (ANCHORS or PHRASES).
 const WORD_FAM = { anchor: 900, phrase: 901 };
 
-// Real, Whisper-verified recordings from Addis AI (Voice 2, am-hamen),
-// generated once (scripts/generate-official-audio.mjs) and baked in as
-// static files under public/audio/official/, filed under the same
-// (fam, order) addressing the recording system already uses. Not every
-// letter/word/phrase necessarily has one — only what actually passed
-// verification ships — so the app checks manifest.json rather than
-// assuming a file exists (see officialAudioKey / the manifest fetch in
-// AmharicFidel).
+// Real recordings from Addis AI (Voice 2, am-hamen), generated once
+// (scripts/generate-official-audio.mjs) and baked in as static files
+// under public/audio/official/, filed under the same (fam, order)
+// addressing the recording system already uses. Verified with ffprobe
+// duration + ffmpeg silence-gap checks (no speech-recognition model
+// involved — see the comment atop generate-official-audio.mjs for why).
+// Not every letter/word/phrase necessarily has one — only what actually
+// passed verification ships — so the app checks manifest.json rather
+// than assuming a file exists (see officialAudioKey / the manifest
+// fetch in AmharicFidel).
 function officialAudioUrl(fam, order) {
   const base = `${import.meta.env.BASE_URL}audio/official/`;
   if (fam === WORD_FAM.anchor) return `${base}anchor-${order}.mp3`;
@@ -3291,7 +3293,7 @@ export default function AmharicFidel() {
   // unparseable manifest just leaves this empty rather than throwing,
   // same graceful-degradation behavior as everything else audio-related:
   // "hear it" simply won't offer that tier for anyone until a real,
-  // Whisper-verified batch has actually been generated and deployed.
+  // verified batch has actually been generated and deployed.
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}audio/official/manifest.json`)
       .then((r) => (r.ok ? r.json() : []))

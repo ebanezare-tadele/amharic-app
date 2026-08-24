@@ -279,8 +279,9 @@ under 2 seconds of speech. A file-size-based QA pass caught only the most
 extreme cases, because it could only measure duration, not content — a
 wrong word at a plausible length sailed straight through it.
 
-**`scripts/generate-official-audio.mjs` + `scripts/whisper_worker.py`
-fix that architecturally, not with another heuristic:**
+**`scripts/generate-official-audio.mjs` fixes that architecturally, and
+verifies with signals that don't require any model to understand
+Amharic at all:**
 
 1. **Never ask for an isolated glyph.** A family's 7 letters are
    generated as one clip: the whole row recited naturally, e.g.
@@ -289,59 +290,66 @@ fix that architecturally, not with another heuristic:**
    completely normal, in-distribution utterance for the model. Anchor
    words and phrases were already natural-shaped input and are
    unchanged.
-2. **Verify against what was actually said, not how long the file is.**
-   Every clip — rows, anchor words, phrases — gets transcribed with
-   [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (the
-   `medium` model — `small` was tried to cut load time and turned out to
-   not meaningfully support Amharic at all, transcribing every clip into
-   Hebrew script regardless of input; see `whisper_worker.py`'s comment
-   — real open-source speech recognition, run right there in the Actions
-   job) and compared to what it was supposed to say. A
-   row clip has to transcribe to ~7 recognizable words in the right
-   order; an anchor/phrase clip's transcription has to reasonably match
-   the expected text. A duration check still runs too, but it's now one
-   signal among several, not the only one. Anything that doesn't verify
-   gets regenerated with a fresh idempotency key (up to 4 attempts) and,
-   if it still never passes, simply isn't shipped — the app already
-   falls back gracefully for anything missing, so an unverified clip is
-   excluded rather than shipped with a caveat.
-3. **Isolate letters mechanically, from real evidence, after the fact.**
-   Once a row clip verifies, Whisper's own word-level timestamps say
-   exactly where each of the 7 syllables falls in the recording.
-   `scripts/whisper_worker.py` uses those timestamps to cut the row into
-   the 7 individual `letter-{fam}-{order}.mp3` files the app actually
-   plays, via `ffmpeg`. The model is always doing the thing it's good at
-   (reading a natural utterance); the isolation happens afterward,
-   mechanically, from where the syllables actually were spoken — not by
-   asking the model to say one in a vacuum.
+2. **A real, measured duration check, not a file-size proxy.** Every
+   clip gets its exact duration measured with `ffprobe` (already on the
+   Actions runner — no install needed) and checked against a per-category
+   sane band. Out-of-band clips get discarded and regenerated with a
+   fresh idempotency key (up to 4 attempts); if one never lands in band,
+   it simply isn't shipped rather than shipped with a caveat.
+   
+   A content-verification layer (transcribing every clip with
+   [faster-whisper](https://github.com/SYSTRAN/faster-whisper) and
+   comparing it to the expected text) was tried here and reverted — not
+   because verifying content is a bad idea in principle, but because
+   faster-whisper's available checkpoints turned out to have no real
+   Amharic support: real smoke tests produced transcriptions in random
+   unrelated scripts (Telugu, Bengali, Kazakh Cyrillic, Burmese) and even
+   plain English words ("Quit", "flix"), changing on every attempt
+   against the *same* audio — the signature of a model hallucinating on
+   input it has no grip on, not a language it's merely weak at. The
+   clips it rejected all had normal, in-band durations, meaning the
+   underlying audio was plausibly fine the whole time and the
+   verification layer was the thing sabotaging it. If this gets
+   revisited, it needs a speech-recognition model with real Amharic
+   training data behind it, not just a bigger generic multilingual
+   checkpoint (bigger made it slower without making it more correct).
+3. **Isolate letters mechanically, from a real acoustic signal.** Once a
+   row clip's duration checks out, `ffmpeg`'s `silencedetect` filter
+   finds the pauses between the 7 comma-separated syllables — a real,
+   measurable signal (commas produce audible pauses in TTS output), not
+   a claim about what was said — and slices the row into the 7
+   individual `letter-{fam}-{order}.mp3` files the app actually plays.
+   If the gap count doesn't roughly match what's expected, that row is
+   rejected and regenerated rather than sliced on a guess. Nothing here
+   requires understanding Amharic, so nothing here can hallucinate a
+   wrong language.
 
 **What ships, and what the app trusts:** the generation run writes
 `manifest.json` alongside the clips, listing only what actually passed
 verification. The app fetches that manifest once on load and only offers
 the official-clip tier for entries actually listed in it (see
 `officialKeyFromFilename` / the manifest fetch in `AmharicFidel` in
-`src/App.jsx`) — a clip Whisper couldn't verify is simply absent, not
-shipped with a shrug. `public/audio/official/` isn't committed to the
-repo; it's produced by the workflow below and only lands there when
-someone downloads the artifact and copies it in after checking the run's
-own report (failed/flagged counts) themselves.
+`src/App.jsx`) — an unverified clip is simply absent, not shipped with a
+shrug. `public/audio/official/` isn't committed to the repo; it's
+produced by the workflow below and only lands there when someone
+downloads the artifact and copies it in after checking the run's own
+report (failed/flagged counts) themselves.
 
 **Running the generation** (`.github/workflows/generate-audio.yml`,
-**Actions → Generate official audio (one-time) → Run workflow**):
-installs Python + `faster-whisper` alongside Node (ffmpeg ships
-preinstalled on GitHub's runner image), then runs the script against the
-`ADDIS_API_KEY` repo secret. Tick **smoke_test** on the workflow's "Run
-workflow" dialog to run just 3 jobs (1 row, 1 anchor, 1 phrase) first —
-worth doing after touching either script, since it exercises the whole
-pipeline (generation, verification, slicing, manifest) for a couple of
-minutes and a few cents instead of finding a bug only after the full
-~82-job batch. The full run is much cheaper than the old one despite the
-extra verification step: 34 row clips instead of 238 isolated letters,
-plus 34 anchor words and 14 phrases — 82 generation calls total, not 286.
-Uploads the clips + `manifest.json` as a downloadable build artifact
-(`amharic-audio`), same as before — never auto-deployed; check the run's
-own failed/flagged report first, then copy `official-audio-out/*` into
-`public/audio/official/` and deploy normally.
+**Actions → Generate official audio (one-time) → Run workflow**): just
+Node + the Actions runner's preinstalled ffmpeg/ffprobe, no other
+dependency, run against the `ADDIS_API_KEY` repo secret. Tick
+**smoke_test** on the workflow's "Run workflow" dialog to run just 3 jobs
+(1 row, 1 anchor, 1 phrase) first — worth doing after touching the
+script, since it exercises the whole pipeline (generation, verification,
+slicing, manifest) for a couple of minutes and a few cents instead of
+finding a bug only after the full ~82-job batch. The full run is much
+cheaper than the original all-isolated-letters version: 34 row clips
+instead of 238 isolated letters, plus 34 anchor words and 14 phrases —
+82 generation calls total, not 286. Uploads the clips + `manifest.json`
+as a downloadable build artifact (`amharic-audio`) — never auto-deployed;
+check the run's own failed/flagged report first, then copy
+`official-audio-out/*` into `public/audio/official/` and deploy normally.
 
 ## Updates apply automatically — no re-saving to the home screen
 
@@ -400,17 +408,15 @@ deploy boundary — if it ever seems to lag, force-quitting and reopening
 - `src/lib/progressSync.js` — the optional cross-device sync client (see
   "Syncing progress across devices" above).
 - `scripts/generate-official-audio.mjs` — generates the baked-in
-  pronunciation clips (see "Hearing pronunciation" above); orchestrates
-  Addis AI generation, retries, and calls out to the verification worker.
-- `scripts/whisper_worker.py` — the Whisper-based verification/slicing
-  worker `generate-official-audio.mjs` talks to over stdin/stdout; see
-  its own docstring and "Hearing pronunciation" above for why it exists.
+  pronunciation clips (see "Hearing pronunciation" above): orchestrates
+  Addis AI generation/retries, ffprobe duration checks, and ffmpeg
+  silence-gap slicing, all in one file (no other script/dependency).
 - `scripts/gen-icons.mjs` + `scripts/icon-template.html` — icon generator.
 - `.github/workflows/deploy.yml` — builds and publishes to GitHub Pages
   on every push to this branch.
 - `.github/workflows/generate-audio.yml` — the manually-triggered
-  audio-generation workflow (installs Python/faster-whisper alongside
-  Node; see "Hearing pronunciation" above for how to run it).
+  audio-generation workflow (see "Hearing pronunciation" above for how
+  to run it).
 - `vite.config.js` — `base` for the GitHub Pages subpath, PWA plugin
   config (manifest contents, service worker caching strategy, including
   runtime caching for the Google Fonts the app's own injected CSS loads
