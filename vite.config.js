@@ -63,6 +63,20 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            // Official pronunciation clips (public/audio/official/, ~7MB for
+            // all 286 letters/words/phrases) — deliberately left out of
+            // globPatterns above so a first visit doesn't have to download
+            // all of it up front. Cached the first time each clip is
+            // actually played instead, then available offline from then on.
+            urlPattern: ({ url }) => url.pathname.includes('/audio/official/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'official-audio',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
     }),

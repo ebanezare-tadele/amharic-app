@@ -165,6 +165,19 @@ const WORDS = [
 // then just the word's index in its own list (ANCHORS or PHRASES).
 const WORD_FAM = { anchor: 900, phrase: 901 };
 
+// Real recordings from Addis AI (Voice 2, am-hamen) for every letter, anchor
+// word, and phrase in the app — generated once (scripts/generate-official-
+// audio.mjs) and baked in as static files, filed under the same (fam,
+// order) addressing the recording system already uses. This is what makes
+// "hear it" work on every device, not just ones with an Amharic voice
+// installed or a family recording saved.
+function officialAudioUrl(fam, order) {
+  const base = `${import.meta.env.BASE_URL}audio/official/`;
+  if (fam === WORD_FAM.anchor) return `${base}anchor-${order}.mp3`;
+  if (fam === WORD_FAM.phrase) return `${base}phrase-${order}.mp3`;
+  return `${base}letter-${fam}-${order}.mp3`;
+}
+
 const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],
   ["ጤና ይስጥልኝ", "tena yistiliñ", "Hello, formal. Literally: may he give you health."],
@@ -710,42 +723,6 @@ function RubricRow({ fam, active, cards }) {
   );
 }
 
-function Speak({ text, status }) {
-  const [voice, setVoice] = useState(null);
-  useEffect(() => {
-    const find = () => {
-      try {
-        const v = window.speechSynthesis.getVoices().find((x) => /^am/i.test(x.lang));
-        if (v) setVoice(v);
-      } catch (e) {}
-    };
-    find();
-    try {
-      window.speechSynthesis.onvoiceschanged = find;
-    } catch (e) {}
-  }, []);
-  if (!voice)
-    return status ? (
-      <div className="note" style={{ fontSize: 11, marginTop: 4 }}>
-        No Amharic voice installed on this device — record your own below.
-      </div>
-    ) : null;
-  return (
-    <button
-      className="speaker"
-      onClick={() => {
-        const u = new SpeechSynthesisUtterance(text);
-        u.voice = voice;
-        u.lang = voice.lang;
-        u.rate = 0.85;
-        window.speechSynthesis.speak(u);
-      }}
-    >
-      ► hear it
-    </button>
-  );
-}
-
 /* ============================================================
    QUESTION ENGINE
    ============================================================ */
@@ -972,7 +949,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
         </div>
         <div className="disp" style={{ fontSize: 40, textAlign: "center" }}>{F.rom[0]}</div>
         <div className="note" style={{ textAlign: "center", marginTop: 2 }}>{ORDERS[0].say}</div>
-        <div style={{ textAlign: "center", marginTop: 12 }}><Speak text={F.chars[0]} /></div>
+        <div style={{ textAlign: "center", marginTop: 12 }}><HearButton fam={F.id} order={0} audio={audio} /></div>
 
         {ARTIC[F.id] && (
           <div className="card" style={{ marginTop: 16, borderColor: "var(--gold)" }}>
@@ -995,7 +972,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
             <div className="eyebrow" style={{ marginBottom: 8 }}>Where you'll meet it</div>
             <div className="gz" style={{ fontSize: 34 }}>{A[0]}</div>
             <div className="note"><b style={{ color: "var(--bone)" }}>{A[1]}</b> — {A[2]}</div>
-            <div style={{ marginTop: 8 }}><Speak text={A[0]} /></div>
+            <div style={{ marginTop: 8 }}><HearButton fam={WORD_FAM.anchor} order={F.id} audio={audio} text={A[0]} /></div>
             {audio && (
               <div style={{ marginTop: 10 }}>
                 <Voice
@@ -1083,7 +1060,7 @@ function SweepIntro({ order, onNext, onBack }) {
   );
 }
 
-function FamilyIntro({ fams, i, onNext, onBack }) {
+function FamilyIntro({ fams, i, audio, onNext, onBack }) {
   const F = FAMS[fams[i]];
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
@@ -1101,7 +1078,7 @@ function FamilyIntro({ fams, i, onNext, onBack }) {
         <div style={{ textAlign: "center", margin: "20px 0 6px" }}>
           <span className="gz" style={{ fontSize: 76, color: "var(--rubric)" }}>{F.chars[0]}</span>
         </div>
-        <div style={{ textAlign: "center", marginBottom: 18 }}><Speak text={F.chars[0]} /></div>
+        <div style={{ textAlign: "center", marginBottom: 18 }}><HearButton fam={F.id} order={0} audio={audio} /></div>
         {ORDERS.map((o, k) => (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 14, padding: "9px 0", borderTop: "1px solid var(--line)" }}>
             <span className="gz" style={{ fontSize: 30, width: 42, textAlign: "center" }}>{F.chars[k]}</span>
@@ -1121,16 +1098,19 @@ function FamilyIntro({ fams, i, onNext, onBack }) {
 
 /* ============================================================
    HEAR BUTTON
-   Drill questions never got audio, and that's deliberate — most
-   question kinds ask "what does this sound like," so playing the
-   sound before answering would just hand over the answer. This
-   only ever appears after you've answered, when the correct
-   letter is already revealed: tries a family recording first,
-   falls back to the device voice if there's no clip and one
-   exists, and renders nothing at all if neither is available.
+   The single "hear it" affordance used everywhere in the app —
+   letters, anchor words, phrases, and post-answer drill review.
+   Priority: your own recording, then the family's shared one,
+   then the baked-in Addis AI clip (see officialAudioUrl — this
+   covers every letter/word/phrase, so it's always available),
+   then the device's own Amharic voice if somehow none of those
+   loads. Drill questions themselves never get this button — only
+   the review screen after you've already answered, since most
+   question kinds ask "what does this sound like," and playing
+   the sound first would just hand over the answer.
    ============================================================ */
 
-function HearButton({ fam, order, audio }) {
+function HearButton({ fam, order, audio, text }) {
   const [voice, setVoice] = useState(null);
   useEffect(() => {
     const find = () => {
@@ -1146,30 +1126,28 @@ function HearButton({ fam, order, audio }) {
   }, []);
 
   const have = audio && audio.have.get(`${fam}.${order}`);
-  if (!have && !voice) {
-    return (
-      <div className="note" style={{ fontSize: 11, color: "var(--dim)" }}>
-        No recording for this letter yet — add one from the Chart tab.
-      </div>
-    );
-  }
+
+  const speakFallback = () => {
+    const t = text || (FAMS[fam] ? FAMS[fam].chars[order] : "");
+    if (!voice || !t) return;
+    const u = new SpeechSynthesisUtterance(t);
+    u.voice = voice;
+    u.lang = voice.lang;
+    u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  };
 
   const play = async () => {
-    const url = have
+    const recorded = have
       ? (await getClip(fam, order, have)) || (await getClip(fam, order, "all"))
       : null;
-    if (url) {
-      try {
-        await new Audio(url).play();
-      } catch (e) {}
-      return;
-    }
-    if (voice) {
-      const u = new SpeechSynthesisUtterance(FAMS[fam].chars[order]);
-      u.voice = voice;
-      u.lang = voice.lang;
-      u.rate = 0.85;
-      window.speechSynthesis.speak(u);
+    const url = recorded || officialAudioUrl(fam, order);
+    const el = new Audio(url);
+    el.addEventListener("error", speakFallback);
+    try {
+      await el.play();
+    } catch (e) {
+      speakFallback();
     }
   };
 
@@ -1220,7 +1198,7 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
     };
     if (kind === "sweep") return <SweepIntro order={orders[0]} onNext={next} onBack={onExit} />;
     if (kind === "base") return <BaseIntro fams={fams} i={introI} audio={audio} onNext={next} onBack={onExit} />;
-    return <FamilyIntro fams={fams} i={introI} onNext={next} onBack={onExit} />;
+    return <FamilyIntro fams={fams} i={introI} audio={audio} onNext={next} onBack={onExit} />;
   }
 
   if (phase === "done") {
@@ -1675,10 +1653,9 @@ function Speed({ pool, best, romanize, onEnd }) {
 /* ============================================================
    WORD ENTRY
    One anchor word or phrase, with the same two ways to hear it
-   that letters get: an on-the-spot attempt at the device's own
-   voice (Speak — silently unavailable on most phones, same as
-   for letters), and a family recording (Voice) that actually
-   works everywhere, filed under a pseudo-family id (WORD_FAM).
+   that letters get: the baked-in official pronunciation
+   (HearButton) and a family recording (Voice) — both filed under
+   a pseudo-family id (WORD_FAM) in the same addressing letters use.
    ============================================================ */
 
 function WordEntry({ text, rom, gloss, fam, order, audio }) {
@@ -1689,7 +1666,7 @@ function WordEntry({ text, rom, gloss, fam, order, audio }) {
         <b style={{ color: "var(--bone)" }}>{rom}</b> — {gloss}
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
-        <Speak text={text} />
+        <HearButton fam={fam} order={order} audio={audio} text={text} />
         {audio && (
           <Voice
             fam={fam}
@@ -1735,12 +1712,11 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
             <span className="pill">{letterAudioCount} saved</span>
           </div>
           <div className="card-blurb" style={{ marginTop: 4 }}>
-            No phone ships an Amharic voice, and this app can't reach a cloud one — the "hear it" button
-            below tries anyway and quietly does nothing if there's no Amharic voice on this device. So tap
-            any letter below and record it — yours, or better, a relative's. Thirty-four base letters is
-            about ten minutes of someone's time, and it beats any synthetic voice you'd get. Clips play
-            back everywhere that letter shows up. Anchor words and phrases further down the page can be
-            recorded the same way.
+            Every "hear it" button already plays a real pronunciation — no Amharic voice needed on your
+            phone. Recording your own is optional: tap any letter below and add yours, or better, a
+            relative's. It plays back everywhere that letter shows up, taking priority over the built-in
+            clip, which is the nice part of learning from someone you actually know. Anchor words and
+            phrases further down the page can be recorded the same way.
           </div>
           <div style={{ display: "flex", gap: 6, marginTop: 12, background: "var(--ink)", padding: 4, borderRadius: 10 }}>
             {[["me", "Just me"], ["all", "Everyone"]].map(([id, label]) => (
@@ -1851,7 +1827,7 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
             />
           )}
           <div style={{ marginTop: 8 }}>
-            <Speak text={FAMS[sel.f].chars[sel.o]} status />
+            <HearButton fam={sel.f} order={sel.o} audio={audio} />
           </div>
         </div>
       )}
@@ -1967,9 +1943,10 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
 
 /* ============================================================
    VOICE
-   No phone ships an Amharic voice and the sandbox can't call a
-   cloud one, so the audio here is yours. Record a letter once
-   and it plays back everywhere that letter appears.
+   Optional, on top of the built-in official pronunciation: record
+   a letter (or word) once — yours, or a relative's — and it plays
+   back everywhere that letter appears, taking priority over the
+   baked-in clip.
    ============================================================ */
 
 const audCache = new Map();

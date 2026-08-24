@@ -229,15 +229,6 @@ Flagged per item below.
   people, not just gating one shared write path. *Cost: likely free* —
   same Supabase project (it includes auth), still free tier at this
   scale.
-- **Real Amharic text-to-speech** — the app's own "hear it" button already
-  says plainly that no phone ships an Amharic voice and it can't reach a
-  cloud one; that's why family recordings exist at all. *Cost: not free*
-  — this is the one idea here that doesn't have a real no-cost option.
-  Cloud TTS APIs (Google, Azure, ElevenLabs, etc.) charge per character
-  past a small free monthly quota, plus it'd need a small server-side
-  proxy to keep the API key off the client. Given the constraint above,
-  this one's a "probably not" unless the family recordings turn out to
-  not be enough.
 - **Push notifications** (e.g. "come back for today's lesson") — Web Push
   needs a server to hold subscriptions and trigger sends. *Cost: free* —
   a Supabase Edge Function on a cron trigger (or Cloudflare's free
@@ -251,10 +242,10 @@ Flagged per item below.
   nothing and already works.
 
 Worth naming the one tension up front, cost aside: several of these
-(accounts, push, TTS-with-a-key) cut against the "no analytics, nothing
-sent anywhere else" story the app currently tells about personal data
-(see below). Not a blocker, just something to weigh deliberately per
-feature rather than let creep in.
+(accounts, push) cut against the "no analytics, nothing sent anywhere
+else" story the app currently tells about personal data (see below). Not a
+blocker, just something to weigh deliberately per feature rather than let
+creep in.
 
 ## The one copy change
 
@@ -318,81 +309,68 @@ extend it:
 - [Ge'ez (Ethiopic) script — Omniglot](https://www.omniglot.com/writing/ethiopic.htm)
 - [The Amharic Alphabet — EveryAlphabet](https://www.everyalphabet.com/amharic)
 
-## Hearing words, not just letters
+## Hearing pronunciation — real audio for every letter, word, and phrase
 
-Two ways to hear pronunciation, extended from letters (which already had
-both) to the 34 anchor words and 14 phrases on the Chart tab:
+Every "► hear it" button in the app — letters, the 34 anchor words, the 14
+phrases, and the post-answer drill review — now plays a real Amharic voice
+by default, on every device, with no setup and no per-use cost. This
+replaced an earlier two-tier system (device text-to-speech, then a family
+recording) that turned out to have a real hole in it: most phones don't
+ship an Amharic voice at all (iOS Safari never does), so on a fresh
+install where nobody had recorded anything yet, every audio control in
+the app was either silently absent or explicitly said "no recording yet."
+That was accurate, but it meant the feature didn't actually work out of
+the box for the person it mattered most for — someone with no family
+recording session behind them yet.
 
-- **"► hear it"** (`Speak`, already existed for letters) — tries the
-  device's own text-to-speech in Amharic. Free, but only works on the
-  rare device that ships an Amharic voice, which is why it silently shows
-  nothing rather than an error when there isn't one — same as it already
-  did for letters. Also added next to the anchor word shown mid-lesson
-  (`BaseIntro`), so it's there without needing to visit Chart.
-- **Family recording** (`Voice`, already existed for letters) — actually
-  reliable, at the cost of someone recording it once. Words now reuse
-  this completely unchanged: nothing new was added to the storage layer,
-  the Supabase schema, the passcode gate, or the Edge Function. They're
-  just filed under a pseudo-family id (`WORD_FAM` in `src/App.jsx`) safely
-  outside the real 0-33 range, since the storage layer was never actually
-  validating that a "family" was a real letter family — the same
-  `(fam, order)` key just gets reused to mean "this word, no vowel order"
-  instead.
+**How it's real now:** every clip — 238 letters (34 families × 7 vowel
+orders) + 34 anchor words + 14 phrases, 286 total — was generated once
+through [Addis AI](https://www.addisassistant.com/)'s Voice 2 API (the
+`am-hamen` voice) and is baked into the app as static files under
+`public/audio/official/`, addressed by the same `(fam, order)` scheme the
+recording system already used (`letter-{fam}-{order}.mp3`,
+`anchor-{i}.mp3`, `phrase-{i}.mp3` — see `officialAudioUrl()` in
+`src/App.jsx`). Nothing calls Addis AI at runtime; the API key never
+ships to the browser, and there's no per-use cost, because the "use" was
+a one-time generation, not something that happens every time someone taps
+a button.
 
-Scoped to anchor words and phrases only, not the larger sentence bank on
-the Read tab — recording all of that is a lot more to ask of one family
-sitting, and it wasn't in what was asked for.
+The priority every "hear it" button (`HearButton` in `src/App.jsx`) now
+follows: **your own recording → the family's shared recording → the
+baked-in official clip → the device's own Amharic voice**, in that order,
+falling through only if a step genuinely isn't there. In practice the
+official clip covers everything, so a device voice is only ever needed as
+a defensive last resort. Recording your own voice (`Voice`, unchanged) is
+still there and still takes priority — it's just optional now, for
+learning from someone you actually know rather than a requirement to get
+any audio at all.
 
-### The gap that actually mattered: drill screens had none
+**Regenerating the clips**, if the letter/word/phrase content ever
+changes: `.github/workflows/generate-audio.yml` is a manually-triggered
+GitHub Actions workflow (**Actions → Generate official audio (one-time) →
+Run workflow**) that runs `scripts/generate-official-audio.mjs` on
+GitHub's own runners — no local Node install needed — and uploads the
+result as a downloadable build artifact. It needs an `ADDIS_API_KEY` repo
+secret (**Settings → Secrets and variables → Actions**); the key is never
+committed or embedded anywhere in the repo. One real gotcha worth knowing
+if you ever touch this script: Addis AI's API allows only **one voice
+generation in flight per account at a time** — a 429
+`CONCURRENT_GENERATION_LIMIT`/`RATE_LIMITED` response otherwise — so the
+script deliberately runs strictly sequential requests with pacing and
+real backoff on 429s, not concurrent ones. That's slow (all 286 clips
+takes ~45 minutes) but it's a one-time run, so that trade is fine.
 
-Chart's reference view and the lesson intro screens (`BaseIntro`,
-`FamilyIntro`, `SweepIntro`) had letter audio from the start. The actual
-quiz screens — where a letter shows up over and over while being tested,
-which is most of the time actually spent in the app — never did. That
-wasn't an oversight: most question kinds show a letter and ask what it
-sounds like, so playing the sound *before* answering would just hand over
-the answer.
+**Not precached, cached on first play instead:** `public/audio/official/`
+is about 7MB total, which is too much to force into everyone's initial
+install. `vite.config.js`'s `globPatterns` (the PWA's install-time
+precache) deliberately excludes `.mp3`; a separate `runtimeCaching` rule
+(`CacheFirst`, same pattern already used for Google Fonts) caches each
+clip the first time it's actually played, so it's available offline from
+then on without bloating the first visit.
 
-The fix (`HearButton` in `src/App.jsx`) only ever appears after a
-question is answered, once the correct letter is already on screen either
-way — tries a family recording first, falls back to the device voice.
-Verified by recording a clip for one letter, running an actual drill
-queue, and confirming the button shows up exactly when — and only when —
-that specific letter comes up.
-
-### On a phone with no Amharic voice and nothing recorded yet, the whole feature was invisible
-
-The gap underneath the gap: every one of these audio buttons is
-conditional — they render nothing at all rather than a disabled/empty
-state when there's neither a device voice nor a family recording to play.
-On iOS specifically, Safari never ships an Amharic voice, so on an iPhone
-where nobody's recorded anything yet, *every* audio control in the app —
-Chart, lesson intros, drills — was simply absent. Not broken, just
-invisible, which reads the same as "this feature doesn't exist" from the
-outside.
-
-Two fixes for the two spots that had literally nothing to fall back on:
-
-- `HearButton` (drill verdict) now shows "No recording for this letter
-  yet — add one from the Chart tab" instead of rendering nothing, so the
-  feature's existence is never in question even before anyone's recorded
-  a single clip.
-- `BaseIntro`'s anchor word only ever had the device-voice attempt
-  (`Speak`), with no way to record it — unlike the letter above it on the
-  same screen, which always had both. It now has a `Voice` control too,
-  matching Chart's "Anchor words" section (same `WORD_FAM.anchor` key),
-  so a word can be recorded right from the lesson it's taught in instead
-  of needing a separate trip to Chart.
-
-Chart's own controls (`Voice`'s record/upload buttons, on letters, anchor
-words, and phrases alike) were never conditional — they always show
-"record it"/"upload" regardless of whether a clip exists yet. That's
-still the actual starting point for turning any of this on: **Chart tab
-→ tap a letter (or scroll to Anchor words / Phrases) → record it or
-upload a clip.** Nothing plays anywhere until something's been recorded
-somewhere — there's no synthetic Amharic voice this app can fall back on,
-which is the whole reason the recording feature exists in the first
-place.
+Scoped to anchor words and phrases, not the larger sentence bank on the
+Read tab — that's a lot more content to generate and it wasn't part of
+what was asked for.
 
 ## Updates apply automatically — no re-saving to the home screen
 
