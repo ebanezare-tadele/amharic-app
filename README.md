@@ -151,9 +151,9 @@ worth automating anyway):
    live URL: `https://ebanezare-tadele.github.io/amharic-app/`. That's
    what you text people.
 
-No environment variables needed for this deploy (the `ADDIS_API_KEY` repo
-secret is only used by the separate, manually-triggered audio-generation
-workflow — see "Hearing pronunciation" below).
+No environment variables needed for this deploy. (An `ADDIS_API_KEY` repo
+secret may still exist from the abandoned audio-generation experiment —
+see "Hearing pronunciation" below — it's safe to remove.)
 
 Because the repo isn't named `<username>.github.io`, GitHub Pages serves
 it from a subpath rather than the domain root — `vite.config.js` sets
@@ -252,67 +252,55 @@ extend it:
 - [Ge'ez (Ethiopic) script — Omniglot](https://www.omniglot.com/writing/ethiopic.htm)
 - [The Amharic Alphabet — EveryAlphabet](https://www.everyalphabet.com/amharic)
 
-## Hearing pronunciation — real audio for every letter, word, and phrase
+## Hearing pronunciation
 
-Every "► hear it" button in the app — letters, the 34 anchor words, the 14
-phrases, and the post-answer drill review — now plays a real Amharic voice
-by default, on every device, with no setup and no per-use cost. This
-replaced an earlier two-tier system (device text-to-speech, then a family
-recording) that turned out to have a real hole in it: most phones don't
-ship an Amharic voice at all (iOS Safari never does), so on a fresh
-install where nobody had recorded anything yet, every audio control in
-the app was either silently absent or explicitly said "no recording yet."
-That was accurate, but it meant the feature didn't actually work out of
-the box for the person it mattered most for — someone with no family
-recording session behind them yet.
+"► hear it" buttons play **your own recording** if you've made one
+(`Voice` — yours, or a relative's, saved locally on-device), else the
+**device's own Amharic voice** if the browser happens to ship one (rare —
+iOS Safari never does). If neither is available, the button doesn't
+render at all rather than playing something that might be wrong.
 
-**How it's real now:** every clip — 238 letters (34 families × 7 vowel
-orders) + 34 anchor words + 14 phrases, 286 total — was generated once
-through [Addis AI](https://www.addisassistant.com/)'s Voice 2 API (the
-`am-hamen` voice) and is baked into the app as static files under
-`public/audio/official/`, addressed by the same `(fam, order)` scheme the
-recording system already used (`letter-{fam}-{order}.mp3`,
-`anchor-{i}.mp3`, `phrase-{i}.mp3` — see `officialAudioUrl()` in
-`src/App.jsx`). Nothing calls Addis AI at runtime; the API key never
-ships to the browser, and there's no per-use cost, because the "use" was
-a one-time generation, not something that happens every time someone taps
-a button.
+**There used to be a third tier: a cloud-generated clip baked into the
+app at build time, for every letter/word/phrase, so audio worked
+out of the box with no recording required.** It was pulled after
+repeated real failures, not one bad batch — worth documenting so nobody
+re-tries the same approach expecting a different result:
 
-The priority every "hear it" button (`HearButton` in `src/App.jsx`) now
-follows: **your own recording → the baked-in official clip → the
-device's own Amharic voice**, in that order, falling through only if a
-step genuinely isn't there. In practice the official clip covers
-everything, so a device voice is only ever needed as a defensive last
-resort. Recording your own voice (`Voice`) is still there and still takes
-priority — it's just optional now, for learning from someone you actually
-know rather than a requirement to get any audio at all.
+- Cloud text-to-speech APIs (tried: [Addis AI](https://www.addisassistant.com/)'s
+  Voice 2, `am-hamen` voice) are trained on continuous sentences, not
+  isolated syllables. A single fidel glyph or short word, fed in alone,
+  is out-of-distribution input for that kind of model — there's no
+  linguistic context to anchor pronunciation to. Wrapping every input in
+  a trailing Ethiopic full stop (`።`) — the vendor's own documented
+  mitigation — helped, but didn't fix it.
+- Measured directly with `ffprobe` across a full generation batch: even
+  after that fix, roughly **1 in 5** letter/word clips still came back
+  5–13 seconds long for input that should produce under 2 seconds of
+  speech — the model padding or hallucinating a short prompt into an
+  unrelated full sentence. That's what "child" coming back as "this
+  child," or a single letter coming back as gibberish, actually was.
+- A second, independent bug (reusing the same idempotency key across
+  generation runs, so a bad result could get replayed instead of
+  regenerated) was found and fixed along the way, and helped — but
+  didn't touch the hallucination rate above, which is a property of the
+  model being asked to do something it isn't built for.
+- Automatic per-clip QA (file-size banding as a proxy for duration, since
+  output is constant-bitrate, with automatic regeneration on an outlier)
+  was added on top of both fixes and still couldn't guarantee every clip
+  converged to a normal length, let alone that a normal-length clip said
+  the right word with the right accent.
 
-**Regenerating the clips**, if the letter/word/phrase content ever
-changes: `.github/workflows/generate-audio.yml` is a manually-triggered
-GitHub Actions workflow (**Actions → Generate official audio (one-time) →
-Run workflow**) that runs `scripts/generate-official-audio.mjs` on
-GitHub's own runners — no local Node install needed — and uploads the
-result as a downloadable build artifact. It needs an `ADDIS_API_KEY` repo
-secret (**Settings → Secrets and variables → Actions**); the key is never
-committed or embedded anywhere in the repo. One real gotcha worth knowing
-if you ever touch this script: Addis AI's API allows only **one voice
-generation in flight per account at a time** — a 429
-`CONCURRENT_GENERATION_LIMIT`/`RATE_LIMITED` response otherwise — so the
-script deliberately runs strictly sequential requests with pacing and
-real backoff on 429s, not concurrent ones. That's slow (all 286 clips
-takes ~45 minutes) but it's a one-time run, so that trade is fine.
-
-**Not precached, cached on first play instead:** `public/audio/official/`
-is about 7MB total, which is too much to force into everyone's initial
-install. `vite.config.js`'s `globPatterns` (the PWA's install-time
-precache) deliberately excludes `.mp3`; a separate `runtimeCaching` rule
-(`CacheFirst`, same pattern already used for Google Fonts) caches each
-clip the first time it's actually played, so it's available offline from
-then on without bloating the first visit.
-
-Scoped to anchor words and phrases, not the larger sentence bank on the
-Read tab — that's a lot more content to generate and it wasn't part of
-what was asked for.
+None of that is a sign the code was wrong — each fix addressed a real,
+separately-measured bug. It's a sign the tool doesn't match the job:
+general-purpose sentence-level TTS isn't built to read a single isolated
+syllabogram, and no amount of prompt engineering around that reliably
+closes the gap without a human listening to every clip. Given that, and
+that there's no way to QA 286 clips by ear at scale, the honest choice
+was to stop shipping audio nobody had verified rather than keep
+iterating on mitigations for a mismatch that isn't going to fully close.
+If this gets revisited, a phoneme/letter-name-aware TTS engine (not a
+general sentence-reading one) is the thing to look for — or a proper,
+paid, human-recorded reference set.
 
 ## Updates apply automatically — no re-saving to the home screen
 
@@ -370,16 +358,14 @@ deploy boundary — if it ever seems to lag, force-quitting and reopening
   everything to this device's own `localStorage`.
 - `src/lib/progressSync.js` — the optional cross-device sync client (see
   "Syncing progress across devices" above).
-- `public/audio/official/` — the baked-in pronunciation clips (see
-  "Hearing pronunciation" above).
-- `scripts/generate-official-audio.mjs` — the one-time generation script
-  behind those clips; see "Hearing pronunciation" above for how to re-run it.
+- `scripts/generate-official-audio.mjs` + `.github/workflows/generate-audio.yml`
+  — the cloud-TTS generation script and its manually-triggered workflow
+  from the abandoned baked-audio experiment (see "Hearing pronunciation"
+  above). Left in place as a reference for what was tried and measured,
+  not wired into the app or the build.
 - `scripts/gen-icons.mjs` + `scripts/icon-template.html` — icon generator.
 - `.github/workflows/deploy.yml` — builds and publishes to GitHub Pages
   on every push to this branch.
-- `.github/workflows/generate-audio.yml` — the manually-triggered
-  audio-generation workflow.
 - `vite.config.js` — `base` for the GitHub Pages subpath, PWA plugin
   config (manifest contents, service worker caching strategy, including
-  runtime caching for the Google Fonts the app's own injected CSS loads
-  and for the official audio clips).
+  runtime caching for the Google Fonts the app's own injected CSS loads).

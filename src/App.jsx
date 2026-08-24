@@ -166,19 +166,6 @@ const WORDS = [
 // its own list (ANCHORS or PHRASES).
 const WORD_FAM = { anchor: 900, phrase: 901 };
 
-// Real recordings from Addis AI (Voice 2, am-hamen) for every letter, anchor
-// word, and phrase in the app — generated once (scripts/generate-official-
-// audio.mjs) and baked in as static files, filed under the same (fam,
-// order) addressing the recording system already uses. This is what makes
-// "hear it" work on every device, not just ones with an Amharic voice
-// installed or a family recording saved.
-function officialAudioUrl(fam, order) {
-  const base = `${import.meta.env.BASE_URL}audio/official/`;
-  if (fam === WORD_FAM.anchor) return `${base}anchor-${order}.mp3`;
-  if (fam === WORD_FAM.phrase) return `${base}phrase-${order}.mp3`;
-  return `${base}letter-${fam}-${order}.mp3`;
-}
-
 const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],
   ["ጤና ይስጥልኝ", "tena yistiliñ", "Hello, formal. Literally: may he give you health."],
@@ -1101,14 +1088,21 @@ function FamilyIntro({ fams, i, audio, onNext, onBack }) {
    HEAR BUTTON
    The single "hear it" affordance used everywhere in the app —
    letters, anchor words, phrases, and post-answer drill review.
-   Priority: your own recording, then the family's shared one,
-   then the baked-in Addis AI clip (see officialAudioUrl — this
-   covers every letter/word/phrase, so it's always available),
-   then the device's own Amharic voice if somehow none of those
-   loads. Drill questions themselves never get this button — only
-   the review screen after you've already answered, since most
-   question kinds ask "what does this sound like," and playing
-   the sound first would just hand over the answer.
+   Was: your recording, then a cloud-generated clip baked in at
+   build time, then the device's own Amharic voice. The baked-in
+   clips are gone — a text-to-speech API asked to read a single
+   isolated glyph or short word (no sentence context) turned out
+   to hallucinate into unrelated full-sentence audio often enough
+   (~1 in 5, even after every mitigation short of a different
+   provider) that it couldn't be trusted unheard, and there's no
+   way to QA thousands of clips by ear ourselves. So now: your own
+   recording if you made one, else the device's own Amharic voice
+   if the browser has one installed, else this hides rather than
+   play something that might be wrong. Drill questions themselves
+   never get this button — only the review screen after you've
+   already answered, since most question kinds ask "what does this
+   sound like," and playing the sound first would hand over the
+   answer.
    ============================================================ */
 
 function HearButton({ fam, order, audio, text }) {
@@ -1127,8 +1121,18 @@ function HearButton({ fam, order, audio, text }) {
   }, []);
 
   const have = audio && audio.have.has(`${fam}.${order}`);
+  if (!have && !voice) return null;
 
-  const speakFallback = () => {
+  const play = async () => {
+    if (have) {
+      const recorded = await getClip(fam, order);
+      if (recorded) {
+        try {
+          await new Audio(recorded).play();
+          return;
+        } catch (e) {}
+      }
+    }
     const t = text || (FAMS[fam] ? FAMS[fam].chars[order] : "");
     if (!voice || !t) return;
     const u = new SpeechSynthesisUtterance(t);
@@ -1136,18 +1140,6 @@ function HearButton({ fam, order, audio, text }) {
     u.lang = voice.lang;
     u.rate = 0.85;
     window.speechSynthesis.speak(u);
-  };
-
-  const play = async () => {
-    const recorded = have ? await getClip(fam, order) : null;
-    const url = recorded || officialAudioUrl(fam, order);
-    const el = new Audio(url);
-    el.addEventListener("error", speakFallback);
-    try {
-      await el.play();
-    } catch (e) {
-      speakFallback();
-    }
   };
 
   return (
@@ -1651,10 +1643,10 @@ function Speed({ pool, best, romanize, onEnd }) {
 
 /* ============================================================
    WORD ENTRY
-   One anchor word or phrase, with the same two ways to hear it
-   that letters get: the baked-in official pronunciation
-   (HearButton) and a family recording (Voice) — both filed under
-   a pseudo-family id (WORD_FAM) in the same addressing letters use.
+   One anchor word or phrase, with the same way to hear it that
+   letters get (HearButton) and the same way to record one
+   (Voice) — both filed under a pseudo-family id (WORD_FAM) in
+   the same addressing letters use.
    ============================================================ */
 
 function WordEntry({ text, rom, gloss, fam, order, audio }) {
@@ -1705,9 +1697,8 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
 
       {audio && (
         <div className="note" style={{ marginBottom: 14, fontSize: 11.5 }}>
-          Every "hear it" already plays a real pronunciation. Tap any letter (or an anchor word/phrase
-          further down) to record your own or a relative's instead — it stays on this device and takes
-          priority once saved.
+          Tap any letter (or an anchor word/phrase further down) to record your own or a relative's
+          pronunciation — it stays on this device and is what makes its "hear it" button appear.
           {letterAudioCount > 0 && (
             <span style={{ color: "var(--verd)" }}> {letterAudioCount} letter{letterAudioCount === 1 ? "" : "s"} recorded.</span>
           )}
@@ -2062,10 +2053,8 @@ function SyncPanel() {
 
 /* ============================================================
    VOICE
-   Optional, on top of the built-in official pronunciation: record
-   a letter (or word) once — yours, or a relative's — and it plays
-   back everywhere that letter appears, taking priority over the
-   baked-in clip.
+   Record a letter (or word) once — yours, or a relative's — and
+   it plays back everywhere that letter appears (see HearButton).
    ============================================================ */
 
 const audCache = new Map();
@@ -2257,7 +2246,21 @@ function Chant({ fam, audio, compact }) {
   const F = FAMS[fam];
   const [i, setI] = useState(-1);
   const [tempo, setTempo] = useState(620);
+  const [voice, setVoice] = useState(null);
   const timer = useRef(null);
+
+  useEffect(() => {
+    const find = () => {
+      try {
+        const v = window.speechSynthesis.getVoices().find((x) => /^am/i.test(x.lang));
+        if (v) setVoice(v);
+      } catch (e) {}
+    };
+    find();
+    try {
+      window.speechSynthesis.onvoiceschanged = find;
+    } catch (e) {}
+  }, []);
   // Bumped on every play() / playSound() / fam change / unmount, so an
   // in-flight playSound() loop (each step awaits real audio, unlike the
   // fixed-interval visual version) can tell its own run is stale and
@@ -2289,9 +2292,10 @@ function Chant({ fam, audio, compact }) {
 
   // The visual chant above is timing-only — no sound. This actually
   // plays the row, one order at a time: your own recording if there is
-  // one, otherwise the baked-in official clip (see officialAudioUrl),
-  // same priority HearButton uses. Sequenced off each clip's own
-  // "ended" event rather than a fixed interval, since clip lengths vary.
+  // one, else the device's own Amharic voice, same priority HearButton
+  // uses (see its comment for why there's no cloud-generated clip in
+  // the mix). Sequenced off each clip's own "ended" event rather than
+  // a fixed interval, since clip lengths vary.
   const playSound = async () => {
     clearInterval(timer.current);
     const token = ++playToken.current;
@@ -2300,17 +2304,30 @@ function Chant({ fam, audio, compact }) {
       setI(o);
       const have = audio && audio.have.has(`${fam}.${o}`);
       const recorded = have ? await getClip(fam, o) : null;
-      const url = recorded || officialAudioUrl(fam, o);
       if (playToken.current !== token) return;
-      await new Promise((resolve) => {
-        const el = new Audio(url);
-        el.addEventListener("ended", resolve);
-        el.addEventListener("error", resolve);
-        el.play().catch(resolve);
-      });
+      if (recorded) {
+        await new Promise((resolve) => {
+          const el = new Audio(recorded);
+          el.addEventListener("ended", resolve);
+          el.addEventListener("error", resolve);
+          el.play().catch(resolve);
+        });
+      } else if (voice) {
+        await new Promise((resolve) => {
+          const u = new SpeechSynthesisUtterance(F.chars[o]);
+          u.voice = voice;
+          u.lang = voice.lang;
+          u.rate = 0.85;
+          u.onend = resolve;
+          u.onerror = resolve;
+          window.speechSynthesis.speak(u);
+        });
+      }
     }
     if (playToken.current === token) setI(-1);
   };
+
+  const canHear = voice || F.chars.some((_, o) => audio && audio.have.has(`${fam}.${o}`));
 
   return (
     <div>
@@ -2327,7 +2344,7 @@ function Chant({ fam, audio, compact }) {
       {!compact && (
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8, flexWrap: "wrap" }}>
           <button className="speaker" onClick={play}>► chant the row</button>
-          <button className="speaker" onClick={playSound}>► hear it</button>
+          {canHear && <button className="speaker" onClick={playSound}>► hear it</button>}
           <button className="speaker" onClick={() => setTempo(tempo === 620 ? 900 : tempo === 900 ? 400 : 620)}>
             {tempo === 620 ? "steady" : tempo === 900 ? "slow" : "fast"}
           </button>
@@ -2336,7 +2353,7 @@ function Chant({ fam, audio, compact }) {
       {compact && (
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8 }}>
           <button className="speaker" onClick={play}>► chant the row</button>
-          <button className="speaker" onClick={playSound}>► hear it</button>
+          {canHear && <button className="speaker" onClick={playSound}>► hear it</button>}
         </div>
       )}
     </div>
@@ -2904,7 +2921,7 @@ const TOUR_STEPS = [
   {
     glyph: "ፊ",
     title: "Chart",
-    body: "The whole fidel at a glance — tap any letter for its detail, and \"hear it\" for a real pronunciation. Want it in your own voice, or a relative's, instead? Record it right there.",
+    body: "The whole fidel at a glance — tap any letter for its detail. Record your own voice, or a relative's, right there and \"hear it\" plays it back.",
   },
   {
     glyph: "ቃ ጽ",
