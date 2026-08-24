@@ -203,13 +203,20 @@ class WhisperWorker {
 // time (HTTP 429 CONCURRENT_GENERATION_LIMIT if you overlap requests), on
 // top of a plain rate limit (429 RATE_LIMITED). Jobs run strictly one at
 // a time and a 429 gets a real wait — honoring Retry-After when the API
-// sends one, otherwise backing off hard.
+// sends one, otherwise backing off hard. Capped at MAX_RETRY_WAIT_MS so
+// one pathological Retry-After value can't stall a single attempt for
+// an unbounded stretch — a smoke test on 2026-08-24 sat with zero output
+// for 7+ minutes on one job with no way to tell "still legitimately
+// backing off" from "hung" apart from cancelling the run, which is
+// exactly the failure mode this cap and the logging below fix.
 const MAX_ATTEMPTS = 6;
+const MAX_RETRY_WAIT_MS = 60_000;
 
-async function generateOnce(text, reqId) {
+async function generateOnce(jobId, text, reqId) {
   let lastErr;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
+      console.error(`  [${jobId}] generateOnce attempt ${attempt}/${MAX_ATTEMPTS}...`);
       const genRes = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "x-api-key": ADDIS_API_KEY, "content-type": "application/json" },
@@ -219,7 +226,11 @@ async function generateOnce(text, reqId) {
         const body = await genRes.text().catch(() => "");
         if (genRes.status === 429 && attempt < MAX_ATTEMPTS) {
           const retryAfter = Number(genRes.headers.get("retry-after"));
-          const waitMs = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 4000 * attempt;
+          const waitMs = Math.min(
+            Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 4000 * attempt,
+            MAX_RETRY_WAIT_MS
+          );
+          console.error(`  [${jobId}] 429 rate-limited, waiting ${Math.round(waitMs / 1000)}s before retry ${attempt + 1}...`);
           await new Promise((r) => setTimeout(r, waitMs));
           lastErr = new Error(`generate HTTP 429: ${body.slice(0, 300)}`);
           continue;
@@ -235,6 +246,7 @@ async function generateOnce(text, reqId) {
       return new Uint8Array(await audioRes.arrayBuffer());
     } catch (e) {
       lastErr = e;
+      console.error(`  [${jobId}] attempt ${attempt} error: ${e.message}`);
       if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, 1500 * attempt));
     }
   }
@@ -275,7 +287,8 @@ async function generateOne(job, worker) {
 
   let lastReason;
   for (let qAttempt = 1; qAttempt <= QUALITY_ATTEMPTS; qAttempt++) {
-    const bytes = await generateOnce(job.text, randomUUID());
+    console.error(`[${job.id}] quality attempt ${qAttempt}/${QUALITY_ATTEMPTS}: generating "${job.text}"...`);
+    const bytes = await generateOnce(job.id, job.text, randomUUID());
     const tmpPath = path.join(OUT_DIR, `.tmp-${job.id}-${qAttempt}.mp3`);
     await writeFile(tmpPath, bytes);
 
@@ -284,7 +297,9 @@ async function generateOne(job, worker) {
       req.sliceDir = OUT_DIR;
       req.slicePrefix = job.slicePrefix;
     }
+    console.error(`[${job.id}] quality attempt ${qAttempt}: verifying with Whisper...`);
     const result = await worker.check(req);
+    console.error(`[${job.id}] quality attempt ${qAttempt}: verified=${result.verified} duration=${result.duration} reason=${result.reason || "(none)"}`);
 
     if (result.verified) {
       if (job.category === "row") {

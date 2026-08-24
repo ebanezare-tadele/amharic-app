@@ -58,15 +58,24 @@ import json
 import re
 import subprocess
 import sys
+import time
 
 from faster_whisper import WhisperModel
 
-# "medium" for real multilingual accuracy -- Amharic is a low-resource
-# language for Whisper, and the small/base/tiny models are unreliable on
-# anything but English. int8 quantization keeps CPU inference fast
-# enough for ~80 short clips in a one-time CI job. Loaded once, reused
-# for every request on stdin.
-_model = WhisperModel("medium", device="cpu", compute_type="int8")
+# "small" (~250MB int8) rather than "medium" (~800MB+) -- a smoke test on
+# 2026-08-24 measured the medium model taking ~6m43s just to download
+# (unauthenticated Hugging Face requests are rate-limited slower than
+# authenticated ones, per faster-whisper's own warning) before any actual
+# work started. Amharic is low-resource for Whisper at any size, but the
+# verification checks below are already generous/coarse (word-count
+# tolerance for rows, a fuzzy-match threshold for anchor/phrase text) to
+# accommodate transcription noise, so "small"'s lower absolute accuracy
+# is an acceptable trade for cutting the load time to a fraction of this.
+# Loaded once, reused for every request on stdin.
+print(f"[whisper_worker] loading model...", file=sys.stderr, flush=True)
+_load_start = time.monotonic()
+_model = WhisperModel("small", device="cpu", compute_type="int8")
+print(f"[whisper_worker] model loaded in {time.monotonic() - _load_start:.1f}s", file=sys.stderr, flush=True)
 
 # Duration sanity bands, in seconds -- independent of the content check
 # below, and a direct (not size-proxied) version of the check that
@@ -155,10 +164,13 @@ def handle(req):
     category = req["category"]
     expected = req["expected"]
 
+    t0 = time.monotonic()
     try:
         t = transcribe(audio)
     except Exception as e:
+        print(f"[whisper_worker] {req.get('id')}: transcription failed after {time.monotonic() - t0:.1f}s: {e}", file=sys.stderr, flush=True)
         return {"verified": False, "flagged": False, "reason": f"transcription failed: {e}", "duration": None, "sliced": None}
+    print(f"[whisper_worker] {req.get('id')}: transcribed in {time.monotonic() - t0:.1f}s, duration={t['duration']:.2f}s, words={len(t['words'])}, text={t['text']!r}", file=sys.stderr, flush=True)
 
     lo, hi = DURATION_LIMITS[category]
     if not (lo <= t["duration"] <= hi):
