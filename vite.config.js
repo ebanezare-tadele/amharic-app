@@ -42,6 +42,18 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // registerType: 'autoUpdate' above only configures the CLIENT
+        // register script (main.jsx's registerSW) to reload the page once
+        // a new service worker activates. It does nothing to make that
+        // service worker activate promptly — by default a new SW installs
+        // and then just sits in "waiting" until every tab running the old
+        // one closes, which on a phone PWA that's rarely backgrounded-to-
+        // fully-quit can be days. skipWaiting + clientsClaim are what
+        // actually make the new SW take over immediately once installed,
+        // which is what triggers that reload in the first place. Without
+        // these two, "auto update" was updating nothing automatically.
+        skipWaiting: true,
+        clientsClaim: true,
         // Precache the build output so the app opens and works offline
         // after the first visit.
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
