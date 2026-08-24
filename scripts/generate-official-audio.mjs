@@ -194,11 +194,19 @@ async function probeDuration(audioPath) {
 
 // Pauses in the audio, found purely from loudness — no understanding of
 // what's being said, so nothing here can mistake Amharic for Telugu.
-// noise/d chosen generously (quieter+shorter than typical inter-word
-// TTS pacing) so real pauses are found without needing per-clip tuning.
+// Deliberately permissive (quiet threshold, short minimum duration):
+// measured directly against a real row clip that Addis AI doesn't pace
+// its commas evenly. Of 3 real inter-syllable spans, one packed 3-4
+// syllables into 0.84s with gaps too short (<0.12s) to register at a
+// stricter setting, while the others got a full 0.2-0.3s pause. A
+// single threshold tuned to hit exactly the right count for THIS row
+// would very likely miss a different row's pacing entirely (or pick up
+// consonant-transition noise as false gaps) — see sliceRow below for
+// how the "pick the most prominent candidates" strategy this permissive
+// detection feeds into is more robust to that than an exact-count match.
 async function detectSilences(audioPath) {
   const { stderr } = await run("ffmpeg", [
-    "-i", audioPath, "-af", "silencedetect=noise=-30dB:d=0.12", "-f", "null", "-",
+    "-i", audioPath, "-af", "silencedetect=noise=-25dB:d=0.03", "-f", "null", "-",
   ]);
   const starts = [...stderr.matchAll(/silence_start:\s*([\d.]+)/g)].map((m) => parseFloat(m[1]));
   const ends = [...stderr.matchAll(/silence_end:\s*([\d.]+)/g)].map((m) => parseFloat(m[1]));
@@ -216,10 +224,14 @@ async function cutSegment(audioPath, start, end, outPath) {
 
 // Slices a row clip into its 7 syllables using the pauses between them.
 // Interior gaps only (near-start/near-end silence is lead-in/lead-out,
-// not a separator) — expects syllableCount-1 of them for a clean cut;
-// tolerates being off by one (a syllable's own onset/release sometimes
-// reads as a "gap") by falling back to an even split across the actual
-// spoken span, flagged as lower-confidence rather than rejected outright.
+// not a separator). Rather than requiring exactly syllableCount-1 gaps
+// at one fixed threshold — which measurement showed breaks down because
+// real inter-syllable pauses vary in length within the same clip — this
+// takes every candidate gap the permissive detectSilences() finds and
+// picks the syllableCount-1 LONGEST ones as the true syllable
+// boundaries. Real separating pauses should generally be more prominent
+// than incidental sub-syllable noise, so "most prominent N" is more
+// robust across 34 different rows than "exactly N at threshold X".
 async function sliceRow(audioPath, duration, syllableCount, sliceDir, slicePrefix) {
   const allGaps = await detectSilences(audioPath);
   const EDGE = 0.05 * duration;
@@ -234,20 +246,22 @@ async function sliceRow(audioPath, duration, syllableCount, sliceDir, slicePrefi
   console.error(`  interior gaps: ${interior.length} (wanted ${wantGaps})`);
 
   let bounds, flagged = false;
-  if (interior.length === wantGaps) {
-    const cuts = interior.map((g) => (g.start + g.end) / 2).sort((a, b) => a - b);
+  if (interior.length >= wantGaps) {
+    const chosen = [...interior].sort((a, b) => (b.end - b.start) - (a.end - a.start)).slice(0, wantGaps);
+    const cuts = chosen.map((g) => (g.start + g.end) / 2).sort((a, b) => a - b);
     const points = [0, ...cuts, duration];
     bounds = points.slice(0, -1).map((s, i) => [s, points[i + 1]]);
-  } else if (Math.abs(interior.length - wantGaps) === 1) {
-    // Gap count off by one (a syllable's own onset/release sometimes
-    // reads as a spurious extra gap, or two short syllables blend
-    // together into one) -- fall back to an even split across the
-    // whole clip rather than trusting gap positions we're not sure of.
+    flagged = interior.length !== wantGaps;
+  } else {
+    // Fewer candidate pauses than syllables even at a permissive
+    // threshold -- not enough real evidence to place confident cuts.
+    // Even split across the whole clip instead of rejecting: measured
+    // that regenerating the same row text gives the same pause pattern
+    // every time (Addis AI renders it near-deterministically), so
+    // discarding and retrying wouldn't change anything here.
     const step = duration / syllableCount;
     bounds = Array.from({ length: syllableCount }, (_, i) => [i * step, (i + 1) * step]);
     flagged = true;
-  } else {
-    return { ok: false, reason: `found ${interior.length} inter-syllable gap(s), expected ${wantGaps}` };
   }
 
   const PAD = 0.06;
