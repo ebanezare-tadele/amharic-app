@@ -1,0 +1,29 @@
+name: Generate official audio (one-time)
+
+# Manually triggered from the Actions tab — this is not part of the normal
+# deploy pipeline. It calls the Addis AI Voice 2 API to render every
+# letter/word/phrase in the app to a real Amharic mp3, then hands the
+# result back as a downloadable build artifact (not committed to the repo).
+#
+# Requires a repo secret named ADDIS_API_KEY (Settings -> Secrets and
+# variables -> Actions -> New repository secret) holding the Addis AI key.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Generate audio clips via Addis AI
+        env:
+          ADDIS_API_KEY: ${{ secrets.ADDIS_API_KEY }}
+        run: node scripts/generate-official-audio.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amharic-audio
+          path: scripts/amharic-audio.zip
+          retention-days: 14
