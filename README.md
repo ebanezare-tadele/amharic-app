@@ -337,9 +337,11 @@ report (failed/flagged counts) themselves.
 
 **Running the generation** (`.github/workflows/generate-audio.yml`,
 **Actions → Generate official audio (one-time) → Run workflow**): just
-Node + the Actions runner's preinstalled ffmpeg/ffprobe, no other
-dependency, run against the `ADDIS_API_KEY` repo secret. Tick
-**smoke_test** on the workflow's "Run workflow" dialog to run just 3 jobs
+Node + `apt-get install ffmpeg` for `ffmpeg`/`ffprobe` (not reliably
+preinstalled on the runner image — a real run failed with `spawn
+ffprobe ENOENT` before that step was added), no other dependency, run
+against the `ADDIS_API_KEY` repo secret. Tick **smoke_test** on the
+workflow's "Run workflow" dialog to run just 3 jobs
 (1 row, 1 anchor, 1 phrase) first — worth doing after touching the
 script, since it exercises the whole pipeline (generation, verification,
 slicing, manifest) for a couple of minutes and a few cents instead of

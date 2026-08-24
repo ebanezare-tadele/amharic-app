@@ -27,9 +27,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # ffmpeg/ffprobe ship preinstalled on this runner image -- no
-      # install step needed, and (as of this version) no Python/ML
-      # dependency either.
+      # Confirmed the hard way: this runner image does NOT reliably put
+      # ffprobe on PATH even where ffmpeg itself might be -- a real run
+      # failed every single job with "spawn ffprobe ENOENT" before ever
+      # reaching a duration check. Install both explicitly instead of
+      # trusting what's preinstalled; apt already has current packages
+      # cached on this image so this is fast.
+      - name: Install ffmpeg (provides both ffmpeg and ffprobe)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Generate + verify audio clips
         env:
           ADDIS_API_KEY: ${{ secrets.ADDIS_API_KEY }}
