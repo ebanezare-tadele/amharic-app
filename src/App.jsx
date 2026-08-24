@@ -1591,7 +1591,7 @@ function Speed({ pool, best, romanize, onEnd }) {
    CHART
    ============================================================ */
 
-function Chart({ cards, unlockedFams, audio, onReset }) {
+function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const [sel, setSel] = useState(null);
   return (
@@ -1712,6 +1712,10 @@ function Chart({ cards, unlockedFams, audio, onReset }) {
           <Chant fam={sel.f} />
           <div className="rule" style={{ margin: "12px 0" }} />
           <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
+          <Callout id="cb-voice" seenIntro={seenIntro} onSeen={onSeen}>
+            Record here — your voice, or a relative's — and it plays back everywhere this letter shows
+            up. "Everyone" shares it with the family; "Just me" keeps it private to your device.
+          </Callout>
           {audio && (
             <Voice
               fam={sel.f}
@@ -2701,7 +2705,96 @@ function LessonCard({ open, done, fidel, title, blurb, count, onClick }) {
   );
 }
 
-function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, romanize, setRomanize }) {
+/* ============================================================
+   TOUR
+   First-launch walkthrough. Same visual language as the lesson
+   intro screens (BaseIntro/SweepIntro/FamilyIntro) — this is an
+   intro to the app itself rather than to a letter.
+   ============================================================ */
+
+const TOUR_STEPS = [
+  {
+    glyph: "ፊ",
+    title: "Learn to read Amharic",
+    body: "34 base shapes, 7 vowel bends each — that's the whole alphabet. A short tour of how this app is laid out, then you're in.",
+  },
+  {
+    glyph: "ት",
+    title: "Learn",
+    body: "Short daily lessons — all 34 shapes first, then one vowel mark at a time. Answer right and a letter's mastery climbs; answer wrong and it comes back sooner. That's the review queue on the home screen — clear it and what you've learned sticks.",
+  },
+  {
+    glyph: "ፊ",
+    title: "Chart",
+    body: "The whole fidel at a glance — tap any letter for its detail. And since no phone speaks Amharic, this is also where you, or a relative, record real pronunciations — kept \"Just me\" or shared with \"Everyone\" using the app.",
+  },
+  {
+    glyph: "ቃ ጽ",
+    title: "Read & Write",
+    body: "ቃ Read real sentences and spell words with the letters you already know. ጽ Trace each shape by hand, scored against the actual glyph.",
+  },
+  {
+    glyph: "ፊደል",
+    title: "That's it",
+    body: "Fifteen minutes a day gets you decoding — sounding out any word you see — in about six months. Let's start.",
+    cta: "Start learning",
+  },
+];
+
+function Tour({ onDone }) {
+  const [i, setI] = useState(0);
+  const step = TOUR_STEPS[i];
+  const last = i === TOUR_STEPS.length - 1;
+  return (
+    <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
+      <div className="wrap grow" style={{ paddingTop: 18, display: "flex", flexDirection: "column" }}>
+        <div className="row-sp">
+          <span className="eyebrow">{i + 1} of {TOUR_STEPS.length}</span>
+          <button onClick={onDone} style={{ color: "var(--dim)", fontSize: 18 }}>Skip ✕</button>
+        </div>
+        <div className="grow" style={{ display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
+          <div className="gz" style={{ fontSize: step.glyph.length > 2 ? 48 : 96, color: "var(--rubric)", marginBottom: 22 }}>
+            {step.glyph}
+          </div>
+          <div className="disp" style={{ fontSize: 32, marginBottom: 14 }}>{step.title}</div>
+          <p className="note" style={{ fontSize: 15, lineHeight: 1.6, maxWidth: 360, margin: "0 auto" }}>{step.body}</p>
+        </div>
+      </div>
+      <div className="verdict">
+        <button className="btn" onClick={() => (last ? onDone() : setI(i + 1))}>
+          {last ? step.cta : "Next"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   CALLOUT
+   A small, dismissible, one-time tip anchored in place next to
+   the feature it explains — pointing things out as they're
+   encountered rather than all at once up front. Tracked in
+   state.seenIntro alongside the app-tour flag.
+   ============================================================ */
+
+function Callout({ id, seenIntro, onSeen, children }) {
+  if (seenIntro.includes(id)) return null;
+  return (
+    <div className="card" style={{ borderColor: "var(--gold)", padding: "12px 14px" }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <div style={{ flex: 1 }}>
+          <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Tip</div>
+          <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>{children}</div>
+        </div>
+        <button onClick={() => onSeen(id)} style={{ color: "var(--dim)", fontSize: 16, lineHeight: 1, padding: 2 }}>
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, romanize, setRomanize, seenIntro, onSeen }) {
   const bDone = new Set(state.basesDone || []);
   const sDone = new Set(state.sweepsDone || []);
   const uDone = new Set(state.unitsDone || []);
@@ -2725,6 +2818,12 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
         <div className="stat"><b>{known.size}</b><span>letters known</span></div>
         <div className="stat"><b>{state.streakDays}</b><span>day streak</span></div>
       </div>
+
+      <Callout id="cb-stats" seenIntro={seenIntro} onSeen={onSeen}>
+        Level is just total XP in disguise — 250 XP per level, earned across lessons, review, word
+        building, tracing, and the speed round. The streak counts by calendar day, from opening the
+        app — it's on the honor system, not tied to actually finishing anything.
+      </Callout>
 
       {dueCount > 0 && (
         <button className="card" style={{ borderColor: "var(--rubric)" }} onClick={onReview}>
@@ -2755,6 +2854,11 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
           ? "Learn all 34 base shapes, then sweep one vowel column at a time across every letter. If you already have the chant rhythm in your head, this is the faster road: the chant hands you the seven sounds for free, so the only new work is spotting the mark."
           : "Take one row at a time, all seven vowels together. You read real words within a day, but the vowel marks stay implicit longer."}
       </p>
+
+      <Callout id="cb-track" seenIntro={seenIntro} onSeen={onSeen}>
+        These two tracks aren't a one-time choice — switch anytime, for free. They feed the same
+        progress, the same review queue, the same chart.
+      </Callout>
 
       <button
         className="card"
@@ -2992,6 +3096,20 @@ export default function AmharicFidel() {
     saveState({ ...fresh, track, romanize }, true);
   };
 
+  // Marks a tour step / callout as seen — app-tour for the first-launch
+  // walkthrough, cb-* ids for the in-place tips (see Callout).
+  const markSeen = (id) =>
+    setState((s) => (s.seenIntro.includes(id) ? s : { ...s, seenIntro: [...s.seenIntro, id] }));
+
+  if (!state.seenIntro.includes("app-tour")) {
+    return (
+      <div className="fd">
+        <style>{CSS}</style>
+        <Tour onDone={() => markSeen("app-tour")} />
+      </div>
+    );
+  }
+
   if (lesson) {
     return (
       <div className="fd">
@@ -3044,9 +3162,20 @@ export default function AmharicFidel() {
             onStart={(spec) => setLesson(spec)}
             onSpeed={() => setTab("speed")}
             onReview={() => setLesson({ kind: "review", id: "rev", fams: [], orders: [], doneLabel: "Review done" })}
+            seenIntro={state.seenIntro}
+            onSeen={markSeen}
           />
         )}
-        {tab === "chart" && <Chart cards={state.cards} unlockedFams={unlockedFams} audio={audio} onReset={resetAll} />}
+        {tab === "chart" && (
+          <Chart
+            cards={state.cards}
+            unlockedFams={unlockedFams}
+            audio={audio}
+            onReset={resetAll}
+            seenIntro={state.seenIntro}
+            onSeen={markSeen}
+          />
+        )}
         {tab === "words" && (
           <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
             <div className="wrap" style={{ paddingTop: 12 }}>

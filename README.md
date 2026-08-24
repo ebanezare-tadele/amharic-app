@@ -269,6 +269,24 @@ Worth reading over in `src/App.jsx`'s `Chart` component in case you'd
 rather word either branch differently — it's the only place I touched
 copy on my own judgment rather than at your instruction.
 
+## Onboarding: the first-launch tour
+
+New, not part of the original artifact — a five-step walkthrough (`Tour`
+in `src/App.jsx`) shown once, before Home, on first launch: what the app
+is, then one step per tab (Learn, Chart, Read & Write), ending on "Start
+learning." Skippable at any step. Tracked in `state.seenIntro`, a field
+the original artifact already had but never used — so this needed no new
+persistence plumbing, just a use for a field that was already there.
+
+Alongside it, a few small in-place tips (`Callout`) point out things that
+aren't otherwise explained where they'd actually matter: what "level" and
+the streak actually track (Home), and what recording to "Everyone" means
+before you do it (Chart). Each shows once, dismissible, same
+`seenIntro` tracking.
+
+Neither touches the app's curriculum or lesson logic — this is
+onboarding for the app itself, layered on top.
+
 ## Structure
 
 - `src/App.jsx` — the entire app (curriculum/lesson logic untouched; the
