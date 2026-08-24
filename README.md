@@ -343,6 +343,23 @@ Scoped to anchor words and phrases only, not the larger sentence bank on
 the Read tab — recording all of that is a lot more to ask of one family
 sitting, and it wasn't in what was asked for.
 
+### The gap that actually mattered: drill screens had none
+
+Chart's reference view and the lesson intro screens (`BaseIntro`,
+`FamilyIntro`, `SweepIntro`) had letter audio from the start. The actual
+quiz screens — where a letter shows up over and over while being tested,
+which is most of the time actually spent in the app — never did. That
+wasn't an oversight: most question kinds show a letter and ask what it
+sounds like, so playing the sound *before* answering would just hand over
+the answer.
+
+The fix (`HearButton` in `src/App.jsx`) only ever appears after a
+question is answered, once the correct letter is already on screen either
+way — tries a family recording first, falls back to the device voice,
+renders nothing if neither exists. Verified by recording a clip for one
+letter, running an actual drill queue, and confirming the button shows up
+exactly when — and only when — that specific letter comes up.
+
 ## Structure
 
 - `src/App.jsx` — the entire app (curriculum/lesson logic untouched; the

@@ -1108,6 +1108,61 @@ function FamilyIntro({ fams, i, onNext, onBack }) {
   );
 }
 
+/* ============================================================
+   HEAR BUTTON
+   Drill questions never got audio, and that's deliberate — most
+   question kinds ask "what does this sound like," so playing the
+   sound before answering would just hand over the answer. This
+   only ever appears after you've answered, when the correct
+   letter is already revealed: tries a family recording first,
+   falls back to the device voice if there's no clip and one
+   exists, and renders nothing at all if neither is available.
+   ============================================================ */
+
+function HearButton({ fam, order, audio }) {
+  const [voice, setVoice] = useState(null);
+  useEffect(() => {
+    const find = () => {
+      try {
+        const v = window.speechSynthesis.getVoices().find((x) => /^am/i.test(x.lang));
+        if (v) setVoice(v);
+      } catch (e) {}
+    };
+    find();
+    try {
+      window.speechSynthesis.onvoiceschanged = find;
+    } catch (e) {}
+  }, []);
+
+  const have = audio && audio.have.get(`${fam}.${order}`);
+  if (!have && !voice) return null;
+
+  const play = async () => {
+    const url = have
+      ? (await getClip(fam, order, have)) || (await getClip(fam, order, "all"))
+      : null;
+    if (url) {
+      try {
+        await new Audio(url).play();
+      } catch (e) {}
+      return;
+    }
+    if (voice) {
+      const u = new SpeechSynthesisUtterance(FAMS[fam].chars[order]);
+      u.voice = voice;
+      u.lang = voice.lang;
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    }
+  };
+
+  return (
+    <button className="speaker" onClick={play}>
+      ► hear it
+    </button>
+  );
+}
+
 function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
   const { kind, fams, orders } = spec;
   const isReview = kind === "review";
@@ -1292,6 +1347,9 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
             {right ? "Correct" : "Not this one"}
           </div>
           <div className="vsub" style={{ marginBottom: 12 }}>{q.why}</div>
+          <div style={{ marginBottom: 12 }}>
+            <HearButton fam={q.fam} order={q.order} audio={audio} />
+          </div>
           <button className="btn" onClick={next}>Continue</button>
         </div>
       ) : (
