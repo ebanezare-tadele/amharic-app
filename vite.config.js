@@ -15,6 +15,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // The default auto-injected registration script only calls
+      // navigator.serviceWorker.register() — it never checks the new SW
+      // in, and never reloads the page once one activates. src/main.jsx
+      // does that itself via the virtual:pwa-register module instead, so
+      // updates actually apply rather than sitting installed-but-unused
+      // until some unrelated future reload.
+      injectRegister: false,
       includeAssets: ['favicon.svg'],
       manifest: {
         name: 'ፊደል — Amharic Fidel',

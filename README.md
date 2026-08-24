@@ -360,6 +360,38 @@ renders nothing if neither exists. Verified by recording a clip for one
 letter, running an actual drill queue, and confirming the button shows up
 exactly when — and only when — that specific letter comes up.
 
+## Updates apply automatically — no re-saving to the home screen
+
+`vite-plugin-pwa`'s default registration script only calls
+`navigator.serviceWorker.register()` — it never checks whether a new
+version actually took over, and never reloads the page if one does. On
+its own, a new deploy would sit installed-but-unused in the background
+indefinitely; the page you're looking at keeps running the code it
+already loaded until something else triggers a reload.
+
+`src/main.jsx` now registers through `virtual:pwa-register` instead
+(`injectRegister: false` in `vite.config.js` turns off the default
+script so there's only one registration, not two). With
+`registerType: 'autoUpdate'`, that client reloads the page itself the
+moment a new service worker actually activates — silently, no "update
+available" prompt to tap through.
+
+The other half: a browser only checks a service worker's own script for
+byte-level changes roughly once every 24 hours by default, which is
+slower than "opens this a few times a week." `main.jsx` forces that
+check on every foreground — tab focus or the app coming back from the
+background — so a change is picked up the next time it's actually
+opened, not whenever the browser's own clock gets around to it.
+
+Net effect: push a change, and the next time the installed app is
+opened, it's current. Verified end-to-end (built for production, served
+it, confirmed the service worker registers and activates cleanly with
+no console errors) — the one thing this sandbox can't confirm is the
+exact reload timing on real iOS Safari, since standalone-mode PWAs there
+have their own history of being stingier about background service
+worker activity than desktop Chrome. If it ever seems to lag, force-
+quitting and reopening (not just backgrounding) is the reliable fallback.
+
 ## Structure
 
 - `src/App.jsx` — the entire app (curriculum/lesson logic untouched; the
