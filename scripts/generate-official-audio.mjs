@@ -137,7 +137,28 @@ PHRASES.forEach((phrase, i) => {
 console.log(`${jobs.length} clips to generate (${RAW.length * 7} letters, ${ANCHORS.length} anchor words, ${PHRASES.length} phrases).`);
 console.log(`Estimate: well under 10 minutes of audio total, ~5 ETB/minute per Addis AI's pricing.`);
 
-// ---- Generate one clip, with a couple of retries on transient failure ----
+// ---- Generate one clip ----
+//
+// Two independent retry layers, deliberately different:
+//
+// 1. Transient-error retries (generateOnce, below): the SAME
+//    client_request_id across attempts, per Addis AI's idempotency
+//    guidance -- these are for "did that actually go through," so a
+//    replay of the same logical request is exactly what we want.
+//
+// 2. Quality retries (generateOne, further down): a FRESH
+//    client_request_id every attempt. This voice model sometimes
+//    hallucinates -- pads a short, isolated input (a single letter, a
+//    single word) into a much longer, unrelated utterance. Measured
+//    across the first real batch: ~1 in 5 clips came back 5-13 seconds
+//    long when a real one is under ~2s, for input that should produce
+//    one short syllable or word. Nothing in the response marks a clip
+//    as bad -- but this API's mp3 output is constant-bitrate, so file
+//    size is a reliable stand-in for duration, and a clip landing way
+//    outside the normal size band for its category is almost certainly
+//    hallucinated. Reusing the same request id here would just replay
+//    the same bad result, so each quality attempt asks for a genuinely
+//    new generation instead.
 
 // Addis AI allows only one voice generation in flight per account at a
 // time (HTTP 429 CONCURRENT_GENERATION_LIMIT if you overlap requests), on
@@ -147,13 +168,7 @@ console.log(`Estimate: well under 10 minutes of audio total, ~5 ETB/minute per A
 // than the quick retry that's fine for an ordinary transient error.
 const MAX_ATTEMPTS = 6;
 
-async function generateOne(job) {
-  const outPath = path.join(OUT_DIR, job.filename);
-  try {
-    const existing = await stat(outPath);
-    if (existing.size > 0) return { job, skipped: true };
-  } catch {}
-
+async function generateOnce(job, reqId) {
   let lastErr;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
@@ -168,7 +183,7 @@ async function generateOne(job) {
           voice_id: VOICE_ID,
           language: "am",
           output_format: "mp3_44100",
-          client_request_id: job.reqId,
+          client_request_id: reqId,
         }),
       });
       if (!genRes.ok) {
@@ -190,13 +205,67 @@ async function generateOne(job) {
 
       const audioRes = await fetch(audioUrl);
       if (!audioRes.ok) throw new Error(`audio fetch HTTP ${audioRes.status}`);
-      const bytes = new Uint8Array(await audioRes.arrayBuffer());
-      await writeFile(outPath, bytes);
-      return { job, ok: true };
+      return new Uint8Array(await audioRes.arrayBuffer());
     } catch (e) {
       lastErr = e;
       if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, 1500 * attempt));
     }
+  }
+  throw lastErr;
+}
+
+// Size bands per category, in bytes, at this API's observed ~65-70kbps
+// constant bitrate. Min guards against a truncated/near-silent clip;
+// max is the hallucination guard described above. Bands are generous —
+// the point is to catch the dramatic outliers (5-13s instead of ~1s),
+// not to police normal length variation between e.g. short and long
+// phrases.
+const SIZE_LIMITS = {
+  letter: { min: 2000, max: 25000 }, // ~0.2s-2.8s: one glyph + a full stop
+  anchor: { min: 2000, max: 35000 }, // ~0.2s-4s: one word + a full stop
+  phrase: { min: 2000, max: 55000 }, // ~0.2s-6.3s: a short sentence
+};
+const QUALITY_ATTEMPTS = 4;
+
+function sizeLimitFor(job) {
+  if (job.id.startsWith("letter_")) return SIZE_LIMITS.letter;
+  if (job.id.startsWith("anchor_")) return SIZE_LIMITS.anchor;
+  return SIZE_LIMITS.phrase;
+}
+
+async function generateOne(job) {
+  const outPath = path.join(OUT_DIR, job.filename);
+  try {
+    const existing = await stat(outPath);
+    if (existing.size > 0) return { job, skipped: true };
+  } catch {}
+
+  const limit = sizeLimitFor(job);
+  const mid = (limit.min + limit.max) / 2;
+  let best = null; // closest-to-normal out-of-band clip seen, kept as a last resort
+  let lastErr;
+
+  for (let qAttempt = 1; qAttempt <= QUALITY_ATTEMPTS; qAttempt++) {
+    try {
+      const bytes = await generateOnce(job, randomUUID());
+      const size = bytes.length;
+      if (size >= limit.min && size <= limit.max) {
+        await writeFile(outPath, bytes);
+        return { job, ok: true, requality: qAttempt > 1 };
+      }
+      if (!best || Math.abs(size - mid) < Math.abs(best.size - mid)) best = { bytes, size };
+      lastErr = new Error(`clip size ${size}B outside [${limit.min}, ${limit.max}]B (likely hallucinated/truncated), attempt ${qAttempt}/${QUALITY_ATTEMPTS}`);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  // Never got a normal-sized clip after all quality attempts. Ship the
+  // closest-to-normal one anyway rather than nothing — flagged clearly
+  // so it's easy to find and regenerate by hand — instead of leaving
+  // this letter/word/phrase with no audio at all.
+  if (best) {
+    await writeFile(outPath, best.bytes);
+    return { job, ok: true, flagged: true, error: String(lastErr) };
   }
   return { job, error: String(lastErr) };
 }
@@ -295,27 +364,36 @@ async function buildZip(files) {
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
 
-  let done = 0, skipped = 0, failed = [];
+  let done = 0, skipped = 0, requalified = 0, failed = [], flagged = [];
   // Strictly one request in flight at a time — see the comment above
-  // generateOne(). A small pause between jobs (even successful ones)
+  // generateOnce(). A small pause between jobs (even successful ones)
   // keeps the plain per-minute rate limit from tripping too.
   const PACING_MS = 700;
 
   for (const job of jobs) {
     const result = await generateOne(job);
     if (result.skipped) skipped++;
-    else if (result.ok) done++;
-    else failed.push(result);
+    else if (result.ok) {
+      done++;
+      if (result.requality) requalified++;
+      if (result.flagged) flagged.push(result);
+    } else failed.push(result);
     const n = done + skipped + failed.length;
-    process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} failed=${failed.length}   `);
+    process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} requalified=${requalified} flagged=${flagged.length} failed=${failed.length}   `);
     if (!result.skipped) await new Promise((r) => setTimeout(r, PACING_MS));
   }
   console.log("\n");
 
   if (failed.length) {
-    console.log(`${failed.length} clips failed after retries:`);
+    console.log(`${failed.length} clips failed outright (no clip of any size came back):`);
     failed.forEach((f) => console.log(`  ${f.job.id} (${JSON.stringify(f.job.text)}): ${f.error}`));
     console.log("Re-run the workflow to retry just the missing ones (already-saved files are skipped) — but note a fresh Actions run starts from an empty folder, so partial failures are only resumable within a local re-run.\n");
+  }
+
+  if (flagged.length) {
+    console.log(`${flagged.length} clips never landed in the normal size range after ${QUALITY_ATTEMPTS} attempts each — shipped anyway (closest-to-normal size seen), but worth a manual listen before trusting them:`);
+    flagged.forEach((f) => console.log(`  ${f.job.filename} (${JSON.stringify(f.job.text)}): ${f.error}`));
+    console.log("");
   }
 
   const filenames = await readdir(OUT_DIR);
