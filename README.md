@@ -318,6 +318,31 @@ extend it:
 - [Ge'ez (Ethiopic) script — Omniglot](https://www.omniglot.com/writing/ethiopic.htm)
 - [The Amharic Alphabet — EveryAlphabet](https://www.everyalphabet.com/amharic)
 
+## Hearing words, not just letters
+
+Two ways to hear pronunciation, extended from letters (which already had
+both) to the 34 anchor words and 14 phrases on the Chart tab:
+
+- **"► hear it"** (`Speak`, already existed for letters) — tries the
+  device's own text-to-speech in Amharic. Free, but only works on the
+  rare device that ships an Amharic voice, which is why it silently shows
+  nothing rather than an error when there isn't one — same as it already
+  did for letters. Also added next to the anchor word shown mid-lesson
+  (`BaseIntro`), so it's there without needing to visit Chart.
+- **Family recording** (`Voice`, already existed for letters) — actually
+  reliable, at the cost of someone recording it once. Words now reuse
+  this completely unchanged: nothing new was added to the storage layer,
+  the Supabase schema, the passcode gate, or the Edge Function. They're
+  just filed under a pseudo-family id (`WORD_FAM` in `src/App.jsx`) safely
+  outside the real 0-33 range, since the storage layer was never actually
+  validating that a "family" was a real letter family — the same
+  `(fam, order)` key just gets reused to mean "this word, no vowel order"
+  instead.
+
+Scoped to anchor words and phrases only, not the larger sentence bank on
+the Read tab — recording all of that is a lot more to ask of one family
+sitting, and it wasn't in what was asked for.
+
 ## Structure
 
 - `src/App.jsx` — the entire app (curriculum/lesson logic untouched; the

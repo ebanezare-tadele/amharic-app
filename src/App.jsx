@@ -156,6 +156,15 @@ const WORDS = [
   ["አሥር", "asir", "ten"],
 ];
 
+// The family recording system (Voice, below) is keyed by (fam, order) —
+// a real consonant family id (0-33) plus a vowel order (0-6). Words
+// aren't either of those, but the storage layer never actually validates
+// that fam is a real family — it's just a string key. So words reuse the
+// exact same storage, passcode gate, and Supabase sync unchanged, filed
+// under pseudo-family ids safely outside the real 0-33 range: "order" is
+// then just the word's index in its own list (ANCHORS or PHRASES).
+const WORD_FAM = { anchor: 900, phrase: 901 };
+
 const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],
   ["ጤና ይስጥልኝ", "tena yistiliñ", "Hello, formal. Literally: may he give you health."],
@@ -986,6 +995,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
             <div className="eyebrow" style={{ marginBottom: 8 }}>Where you'll meet it</div>
             <div className="gz" style={{ fontSize: 34 }}>{A[0]}</div>
             <div className="note"><b style={{ color: "var(--bone)" }}>{A[1]}</b> — {A[2]}</div>
+            <div style={{ marginTop: 8 }}><Speak text={A[0]} /></div>
           </div>
         ) : (
           <div className="note">{A ? A[2] : ""}</div>
@@ -1588,12 +1598,50 @@ function Speed({ pool, best, romanize, onEnd }) {
 }
 
 /* ============================================================
+   WORD ENTRY
+   One anchor word or phrase, with the same two ways to hear it
+   that letters get: an on-the-spot attempt at the device's own
+   voice (Speak — silently unavailable on most phones, same as
+   for letters), and a family recording (Voice) that actually
+   works everywhere, filed under a pseudo-family id (WORD_FAM).
+   ============================================================ */
+
+function WordEntry({ text, rom, gloss, fam, order, audio }) {
+  return (
+    <div style={{ padding: "10px 0", borderTop: "1px solid var(--line)" }}>
+      <div className="gz" style={{ fontSize: 24 }}>{text}</div>
+      <div className="note">
+        <b style={{ color: "var(--bone)" }}>{rom}</b> — {gloss}
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
+        <Speak text={text} />
+        {audio && (
+          <Voice
+            fam={fam}
+            order={order}
+            have={audio.have.get(`${fam}.${order}`)}
+            scope={audio.scope}
+            onSaved={audio.onSaved}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    CHART
    ============================================================ */
 
 function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const [sel, setSel] = useState(null);
+  // audio.have covers letters and, now, words (WORD_FAM) in the same
+  // map — filtered here so the "record the sounds yourself" card still
+  // counts letters specifically, not words recorded further down.
+  const letterAudioCount = audio
+    ? [...audio.have.keys()].filter((k) => Number(k.split(".")[0]) < WORD_FAM.anchor).length
+    : 0;
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
       <div className="eyebrow">The whole system</div>
@@ -1606,16 +1654,18 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       </p>
 
       {audio && (
-        <div className="card" style={{ borderColor: audio.have.size ? "var(--verd)" : "var(--gold)" }}>
+        <div className="card" style={{ borderColor: letterAudioCount ? "var(--verd)" : "var(--gold)" }}>
           <div className="row-sp">
             <span className="card-title" style={{ fontSize: 17 }}>Record the sounds yourself</span>
-            <span className="pill">{audio.have.size} saved</span>
+            <span className="pill">{letterAudioCount} saved</span>
           </div>
           <div className="card-blurb" style={{ marginTop: 4 }}>
-            No phone ships an Amharic voice, and this app can't reach a cloud one. So tap any letter below
-            and record it — yours, or better, a relative's. Thirty-four base letters is about ten minutes of
-            someone's time, and it beats any synthetic voice you'd get. Clips play back everywhere that
-            letter shows up.
+            No phone ships an Amharic voice, and this app can't reach a cloud one — the "hear it" button
+            below tries anyway and quietly does nothing if there's no Amharic voice on this device. So tap
+            any letter below and record it — yours, or better, a relative's. Thirty-four base letters is
+            about ten minutes of someone's time, and it beats any synthetic voice you'd get. Clips play
+            back everywhere that letter shows up. Anchor words and phrases further down the page can be
+            recorded the same way.
           </div>
           <div style={{ display: "flex", gap: 6, marginTop: 12, background: "var(--ink)", padding: 4, borderRadius: 10 }}>
             {[["me", "Just me"], ["all", "Everyone"]].map(([id, label]) => (
@@ -1802,18 +1852,25 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       </div>
 
       <div className="rule" />
+      <div className="eyebrow" style={{ marginBottom: 4 }}>Anchor words</div>
+      <p className="note" style={{ marginBottom: 4, fontSize: 11.5 }}>
+        One real word per letter family — what each base shape gets anchored to the first time you meet
+        it in a lesson.
+      </p>
+      {FAMS.map((f) => {
+        const a = ANCHORS[f.id];
+        if (!a || !a[0]) return null;
+        return (
+          <WordEntry key={f.id} text={a[0]} rom={a[1]} gloss={a[2]} fam={WORD_FAM.anchor} order={f.id} audio={audio} />
+        );
+      })}
+
+      <div className="rule" />
       <div className="eyebrow" style={{ marginBottom: 8 }}>
         Phrases worth knowing
       </div>
-      {PHRASES.map((p) => (
-        <div key={p[0]} style={{ padding: "10px 0", borderTop: "1px solid var(--line)" }}>
-          <div className="gz" style={{ fontSize: 24 }}>
-            {p[0]}
-          </div>
-          <div className="note">
-            <b style={{ color: "var(--bone)" }}>{p[1]}</b> — {p[2]}
-          </div>
-        </div>
+      {PHRASES.map((p, i) => (
+        <WordEntry key={p[0]} text={p[0]} rom={p[1]} gloss={p[2]} fam={WORD_FAM.phrase} order={i} audio={audio} />
       ))}
 
       <div className="rule" />
