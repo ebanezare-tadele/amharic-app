@@ -2860,12 +2860,23 @@ function Thesis({ track }) {
 }
 
 function LessonCard({ open, done, fidel, title, blurb, count, onClick }) {
+  // count tracks ongoing mastery (spaced-repetition review, separate from
+  // this lesson itself) — it can genuinely still read low right after
+  // finishing a lesson for the first time, since that only takes a
+  // letter from unseen to barely-seen, not to "mastered." Showing that
+  // raw count next to done's green border read as a contradiction ("why
+  // does it say done but 0/6?"); "done" here instead matches what the
+  // border already says, and the mastery count still drives the review
+  // queue and Chart brightness in the background exactly as before.
+  const pill = !open ? "locked" : done ? "done" : count;
   return (
     <button className={"card" + (done ? " done" : "") + (open ? "" : " locked")} disabled={!open} onClick={onClick}>
       <div className="card-head"><span className="card-fidel">{fidel}</span></div>
       <div className="row-sp">
         <span className="card-title">{title}</span>
-        <span className="pill">{open ? count : "locked"}</span>
+        <span className="pill" style={done ? { background: "rgba(79,154,118,.2)", color: "#8FD9B4" } : undefined}>
+          {pill}
+        </span>
       </div>
       <div className="card-blurb" style={{ marginTop: 4 }}>{blurb}</div>
     </button>
