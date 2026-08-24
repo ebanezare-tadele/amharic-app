@@ -105,6 +105,14 @@ console.log(`Estimate: well under 10 minutes of audio total, ~5 ETB/minute per A
 
 // ---- Generate one clip, with a couple of retries on transient failure ----
 
+// Addis AI allows only one voice generation in flight per account at a
+// time (HTTP 429 CONCURRENT_GENERATION_LIMIT if you overlap requests), on
+// top of a plain rate limit (429 RATE_LIMITED). So jobs run strictly one
+// at a time (see CONCURRENCY below) and a 429 gets a real wait — honoring
+// Retry-After when the API sends one, otherwise backing off hard — rather
+// than the quick retry that's fine for an ordinary transient error.
+const MAX_ATTEMPTS = 6;
+
 async function generateOne(job) {
   const outPath = path.join(OUT_DIR, job.filename);
   try {
@@ -113,7 +121,7 @@ async function generateOne(job) {
   } catch {}
 
   let lastErr;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       const genRes = await fetch(ENDPOINT, {
         method: "POST",
@@ -131,6 +139,15 @@ async function generateOne(job) {
       });
       if (!genRes.ok) {
         const body = await genRes.text().catch(() => "");
+        if (genRes.status === 429 && attempt < MAX_ATTEMPTS) {
+          const retryAfter = Number(genRes.headers.get("retry-after"));
+          const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+            ? retryAfter * 1000
+            : 4000 * attempt;
+          await new Promise((r) => setTimeout(r, waitMs));
+          lastErr = new Error(`generate HTTP 429: ${body.slice(0, 300)}`);
+          continue;
+        }
         throw new Error(`generate HTTP ${genRes.status}: ${body.slice(0, 300)}`);
       }
       const genJson = await genRes.json();
@@ -144,7 +161,7 @@ async function generateOne(job) {
       return { job, ok: true };
     } catch (e) {
       lastErr = e;
-      if (attempt < 3) await new Promise((r) => setTimeout(r, 1500 * attempt));
+      if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, 1500 * attempt));
     }
   }
   return { job, error: String(lastErr) };
@@ -245,22 +262,20 @@ async function main() {
   await mkdir(OUT_DIR, { recursive: true });
 
   let done = 0, skipped = 0, failed = [];
-  const CONCURRENCY = 4;
-  let idx = 0;
+  // Strictly one request in flight at a time — see the comment above
+  // generateOne(). A small pause between jobs (even successful ones)
+  // keeps the plain per-minute rate limit from tripping too.
+  const PACING_MS = 700;
 
-  async function worker() {
-    while (idx < jobs.length) {
-      const job = jobs[idx++];
-      const result = await generateOne(job);
-      if (result.skipped) skipped++;
-      else if (result.ok) done++;
-      else failed.push(result);
-      const n = done + skipped + failed.length;
-      process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} failed=${failed.length}   `);
-    }
+  for (const job of jobs) {
+    const result = await generateOne(job);
+    if (result.skipped) skipped++;
+    else if (result.ok) done++;
+    else failed.push(result);
+    const n = done + skipped + failed.length;
+    process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} failed=${failed.length}   `);
+    if (!result.skipped) await new Promise((r) => setTimeout(r, PACING_MS));
   }
-
-  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   console.log("\n");
 
   if (failed.length) {
