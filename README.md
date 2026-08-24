@@ -355,10 +355,44 @@ the answer.
 
 The fix (`HearButton` in `src/App.jsx`) only ever appears after a
 question is answered, once the correct letter is already on screen either
-way — tries a family recording first, falls back to the device voice,
-renders nothing if neither exists. Verified by recording a clip for one
-letter, running an actual drill queue, and confirming the button shows up
-exactly when — and only when — that specific letter comes up.
+way — tries a family recording first, falls back to the device voice.
+Verified by recording a clip for one letter, running an actual drill
+queue, and confirming the button shows up exactly when — and only when —
+that specific letter comes up.
+
+### On a phone with no Amharic voice and nothing recorded yet, the whole feature was invisible
+
+The gap underneath the gap: every one of these audio buttons is
+conditional — they render nothing at all rather than a disabled/empty
+state when there's neither a device voice nor a family recording to play.
+On iOS specifically, Safari never ships an Amharic voice, so on an iPhone
+where nobody's recorded anything yet, *every* audio control in the app —
+Chart, lesson intros, drills — was simply absent. Not broken, just
+invisible, which reads the same as "this feature doesn't exist" from the
+outside.
+
+Two fixes for the two spots that had literally nothing to fall back on:
+
+- `HearButton` (drill verdict) now shows "No recording for this letter
+  yet — add one from the Chart tab" instead of rendering nothing, so the
+  feature's existence is never in question even before anyone's recorded
+  a single clip.
+- `BaseIntro`'s anchor word only ever had the device-voice attempt
+  (`Speak`), with no way to record it — unlike the letter above it on the
+  same screen, which always had both. It now has a `Voice` control too,
+  matching Chart's "Anchor words" section (same `WORD_FAM.anchor` key),
+  so a word can be recorded right from the lesson it's taught in instead
+  of needing a separate trip to Chart.
+
+Chart's own controls (`Voice`'s record/upload buttons, on letters, anchor
+words, and phrases alike) were never conditional — they always show
+"record it"/"upload" regardless of whether a clip exists yet. That's
+still the actual starting point for turning any of this on: **Chart tab
+→ tap a letter (or scroll to Anchor words / Phrases) → record it or
+upload a clip.** Nothing plays anywhere until something's been recorded
+somewhere — there's no synthetic Amharic voice this app can fall back on,
+which is the whole reason the recording feature exists in the first
+place.
 
 ## Updates apply automatically — no re-saving to the home screen
 

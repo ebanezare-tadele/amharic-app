@@ -996,6 +996,17 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
             <div className="gz" style={{ fontSize: 34 }}>{A[0]}</div>
             <div className="note"><b style={{ color: "var(--bone)" }}>{A[1]}</b> — {A[2]}</div>
             <div style={{ marginTop: 8 }}><Speak text={A[0]} /></div>
+            {audio && (
+              <div style={{ marginTop: 10 }}>
+                <Voice
+                  fam={WORD_FAM.anchor}
+                  order={F.id}
+                  have={audio.have.get(`${WORD_FAM.anchor}.${F.id}`)}
+                  scope={audio.scope}
+                  onSaved={audio.onSaved}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="note">{A ? A[2] : ""}</div>
@@ -1135,7 +1146,13 @@ function HearButton({ fam, order, audio }) {
   }, []);
 
   const have = audio && audio.have.get(`${fam}.${order}`);
-  if (!have && !voice) return null;
+  if (!have && !voice) {
+    return (
+      <div className="note" style={{ fontSize: 11, color: "var(--dim)" }}>
+        No recording for this letter yet — add one from the Chart tab.
+      </div>
+    );
+  }
 
   const play = async () => {
     const url = have
