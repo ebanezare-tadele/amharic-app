@@ -396,13 +396,30 @@ background — so a change is picked up the next time it's actually
 opened, not whenever the browser's own clock gets around to it.
 
 Net effect: push a change, and the next time the installed app is
-opened, it's current. Verified end-to-end (built for production, served
-it, confirmed the service worker registers and activates cleanly with
-no console errors) — the one thing this sandbox can't confirm is the
-exact reload timing on real iOS Safari, since standalone-mode PWAs there
-have their own history of being stingier about background service
-worker activity than desktop Chrome. If it ever seems to lag, force-
-quitting and reopening (not just backgrounding) is the reliable fallback.
+opened, it's current.
+
+That was the intent from the start, but the first version of this had a
+real gap: `registerType: 'autoUpdate'` only configures the *client*
+register script above to reload once a new service worker activates —
+it does nothing to make that service worker actually activate. Without
+`skipWaiting`/`clientsClaim` set in the `workbox` block of
+`vite.config.js`, a newly installed service worker just sits in
+"waiting" state until every open tab running the *old* one fully
+closes — which on a phone PWA that gets backgrounded rather than force-
+quit can be days, or never. So the reload logic above was correct but
+was never actually triggering for anyone who already had the app open.
+`skipWaiting: true` + `clientsClaim: true` make the new service worker
+take over immediately once it finishes installing, which is what fires
+the "activated" event the reload logic listens for.
+
+Verified end-to-end: built for production, served it, and confirmed
+both that `self.skipWaiting()` / `clientsClaim()` are present
+unconditionally in the generated `sw.js` (not just wired to a message
+that was never actually being sent in auto mode) and that the app
+itself works correctly against that build. What this sandbox can't
+confirm is the exact reload timing on a real device across an actual
+deploy boundary — if it ever seems to lag, force-quitting and reopening
+(not just backgrounding) is the reliable fallback.
 
 ## Structure
 
