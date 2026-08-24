@@ -34,7 +34,14 @@
          chrome) app, a real title, and the right icon if these are set —
          the manifest above isn't enough on its own. -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- "black", not "black-translucent": translucent draws app content
+         edge-to-edge under the status bar/notch, which needs
+         env(safe-area-inset-top) padding App.jsx's CSS doesn't reserve
+         (it only pads the bottom, for the tab bar). Plain "black" keeps
+         the status bar as its own reserved strip instead — and since the
+         app's background is already near-black (#10162A), it reads as
+         seamless without touching App.jsx's CSS at all. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="ፊደል" />
     <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
 
