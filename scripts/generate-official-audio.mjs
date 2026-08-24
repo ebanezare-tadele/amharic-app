@@ -80,7 +80,22 @@ const PHRASES = [
   "ደህና ሁን", "አይገባኝም", "ስንት ነው", "ውሃ እፈልጋለሁ",
 ];
 
-// ---- Build the full job list: {id, filename, text} ----
+// ---- Build the full job list: {id, filename, text, reqId} ----
+//
+// reqId (not id) is what actually goes in the API's client_request_id
+// field. It's random and generated fresh every time this script runs,
+// specifically so a later run can never accidentally replay a cached
+// result from an earlier one — Addis AI's idempotency system treats a
+// reused client_request_id as "give me back what I generated for that
+// id before," not "generate this again." The first, 4-way-concurrent
+// run of this script used a deterministic id ("letter_0_0", etc.) here
+// and got hammered with CONCURRENT_GENERATION_LIMIT/RATE_LIMITED errors
+// while retrying — plausible enough that some requests got confused
+// server-side about which text belonged to which id. A later run
+// reusing those same deterministic ids could then get back a replay of
+// that earlier chaos instead of a fresh generation. crypto.randomUUID()
+// makes that impossible: nothing from a previous run can ever match.
+import { randomUUID } from "node:crypto";
 
 const jobs = [];
 RAW.forEach((fam, famIdx) => {
@@ -89,15 +104,20 @@ RAW.forEach((fam, famIdx) => {
     jobs.push({
       id: `letter_${famIdx}_${orderIdx}`,
       filename: `letter-${famIdx}-${orderIdx}.mp3`,
-      text: ch,
+      // A bare single glyph has no sentence for the model to anchor
+      // to — Addis AI's own docs recommend complete sentences with
+      // Ethiopic punctuation for natural, correct output. A trailing
+      // full stop is the smallest nudge toward that shape.
+      text: `${ch}።`,
+      reqId: randomUUID(),
     });
   });
 });
 ANCHORS.forEach((word, i) => {
-  jobs.push({ id: `anchor_${i}`, filename: `anchor-${i}.mp3`, text: word });
+  jobs.push({ id: `anchor_${i}`, filename: `anchor-${i}.mp3`, text: word, reqId: randomUUID() });
 });
 PHRASES.forEach((phrase, i) => {
-  jobs.push({ id: `phrase_${i}`, filename: `phrase-${i}.mp3`, text: phrase });
+  jobs.push({ id: `phrase_${i}`, filename: `phrase-${i}.mp3`, text: phrase, reqId: randomUUID() });
 });
 
 console.log(`${jobs.length} clips to generate (${RAW.length * 7} letters, ${ANCHORS.length} anchor words, ${PHRASES.length} phrases).`);
@@ -134,7 +154,7 @@ async function generateOne(job) {
           voice_id: VOICE_ID,
           language: "am",
           output_format: "mp3_44100",
-          client_request_id: job.id,
+          client_request_id: job.reqId,
         }),
       });
       if (!genRes.ok) {
