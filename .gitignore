@@ -27,3 +27,4 @@ dist-ssr
 # generate-audio.yml Actions workflow) — never committed.
 scripts/official-audio-out/
 scripts/amharic-audio.zip
+scripts/__pycache__/

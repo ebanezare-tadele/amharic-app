@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // One-time generation job: turns every letter/word/phrase in the app into a
-// real Amharic audio clip via the Addis AI Voice 2 API, and zips the result
-// into amharic-audio.zip next to this script.
+// real, verified Amharic audio clip via the Addis AI Voice 2 API, and zips
+// the result into amharic-audio.zip next to this script.
 //
 // This is meant to run as a GitHub Actions job (see
 // .github/workflows/generate-audio.yml), triggered manually from the
@@ -9,7 +9,34 @@
 // It also runs fine locally if you'd rather do that:
 //   ADDIS_API_KEY=sk_... node scripts/generate-official-audio.mjs
 //
-// Requires only a modern Node.js (18+, for built-in fetch). No npm install.
+// Requires Node.js 18+ (built-in fetch) and Python 3 with faster-whisper
+// installed (pip install faster-whisper) for the verification step — see
+// scripts/whisper_worker.py for why and how.
+//
+// ---- Why this version looks different from the first one ----
+//
+// The original approach asked the TTS model to read one isolated Ge'ez
+// glyph per clip. That turned out to be the actual root cause of the
+// wrong/garbled-audio reports (not a bug to patch, a shape of input the
+// model wasn't built for): a bare single syllable has no sentence for a
+// sentence-level TTS model to anchor to, and it would sometimes pad or
+// hallucinate a short isolated input into a longer, unrelated utterance.
+// Measured directly: ~1 in 5 letter/word clips came back 5-13s long for
+// input that should produce under 2s of speech, even after adding
+// trailing punctuation per the vendor's own guidance.
+//
+// This version never asks for an isolated glyph at all. A family's 7
+// letters are generated as ONE natural recitation of the whole row (e.g.
+// "ለ፣ ሉ፣ ሊ፣ ላ፣ ሌ፣ ል፣ ሎ።") — literally how the fidel is traditionally
+// chanted aloud, not an isolated syllable — and then
+// scripts/whisper_worker.py uses real speech recognition (word-level
+// timestamps) to find exactly where each syllable falls and slices the
+// row into the 7 per-letter clips the app actually plays. Anchor words
+// and phrases were already natural-shaped input, so they're unchanged in
+// content, but every clip in every category now gets checked against
+// what was actually said (via Whisper) rather than just how long the
+// file is — a wrong-word clip at a normal duration would have passed the
+// old check silently.
 
 const ADDIS_API_KEY = process.env.ADDIS_API_KEY;
 if (!ADDIS_API_KEY) {
@@ -17,16 +44,28 @@ if (!ADDIS_API_KEY) {
   process.exit(1);
 }
 
-import { mkdir, writeFile, readdir, stat, readFile } from "node:fs/promises";
+import { mkdir, writeFile, readdir, stat, readFile, rename, unlink } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
+import { createInterface } from "node:readline";
+import { randomUUID } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.join(__dirname, "official-audio-out");
 const ZIP_PATH = path.join(__dirname, "amharic-audio.zip");
+const MANIFEST_PATH = path.join(OUT_DIR, "manifest.json");
 
 const VOICE_ID = "am-hamen"; // "the canonical Amharic example" per Addis AI's own docs
 const ENDPOINT = "https://api.addisassistant.com/api/v1/voice/generations";
+
+// SMOKE_TEST=1 (or the workflow's "smoke_test" input) runs just a
+// handful of jobs — one row, one anchor, one phrase — so a change to
+// this script or the whisper worker can be sanity-checked for a few
+// dollars of API usage and a couple of minutes, instead of finding out
+// something's wrong only after the full ~82-job batch (and its retries)
+// have already run.
+const SMOKE_TEST = process.env.SMOKE_TEST === "1";
 
 // ---- Content: same data as src/App.jsx's RAW / ANCHORS / PHRASES ----
 
@@ -80,119 +119,107 @@ const PHRASES = [
   "ደህና ሁን", "አይገባኝም", "ስንት ነው", "ውሃ እፈልጋለሁ",
 ];
 
-// ---- Build the full job list: {id, filename, text, reqId} ----
+// ---- Build the full job list ----
 //
-// reqId (not id) is what actually goes in the API's client_request_id
-// field. It's random and generated fresh every time this script runs,
-// specifically so a later run can never accidentally replay a cached
-// result from an earlier one — Addis AI's idempotency system treats a
-// reused client_request_id as "give me back what I generated for that
-// id before," not "generate this again." The first, 4-way-concurrent
-// run of this script used a deterministic id ("letter_0_0", etc.) here
-// and got hammered with CONCURRENT_GENERATION_LIMIT/RATE_LIMITED errors
-// while retrying — plausible enough that some requests got confused
-// server-side about which text belonged to which id. A later run
-// reusing those same deterministic ids could then get back a replay of
-// that earlier chaos instead of a fresh generation. crypto.randomUUID()
-// makes that impossible: nothing from a previous run can ever match.
-import { randomUUID } from "node:crypto";
+// reqId is what actually goes in the API's client_request_id field —
+// random and fresh per attempt (see generateOne below), so a retry can
+// never accidentally replay a previous attempt's result.
 
-const jobs = [];
+let jobs = [];
 RAW.forEach((fam, famIdx) => {
   const chars = Array.from(fam[0]);
-  chars.forEach((ch, orderIdx) => {
-    jobs.push({
-      id: `letter_${famIdx}_${orderIdx}`,
-      filename: `letter-${famIdx}-${orderIdx}.mp3`,
-      // A bare single glyph has no sentence for the model to anchor
-      // to — Addis AI's own docs recommend complete sentences with
-      // Ethiopic punctuation for natural, correct output. A trailing
-      // full stop is the smallest nudge toward that shape.
-      text: `${ch}።`,
-      reqId: randomUUID(),
-    });
+  jobs.push({
+    id: `row_${famIdx}`,
+    category: "row",
+    // Ethiopic comma between syllables, full stop at the end — read as
+    // one natural recitation of the row, the way the alphabet is
+    // actually chanted, not as 7 isolated glyphs.
+    text: chars.join("፣ ") + "።",
+    expected: { syllables: chars },
+    slicePrefix: `letter-${famIdx}`,
   });
 });
-// Reports of wrong audio weren't limited to single letters — anchor
-// words came back as a longer, sometimes-coherent phrase padded around
-// the target word (e.g. "ልጅ" / child came back as "this child"), or as
-// an outright incoherent longer utterance. That's consistent with the
-// same root cause as the bare-glyph case: an isolated word, with no
-// sentence shape, giving the model room to pad or hallucinate around
-// it. Every anchor word gets the same trailing-full-stop treatment.
 ANCHORS.forEach((word, i) => {
-  jobs.push({ id: `anchor_${i}`, filename: `anchor-${i}.mp3`, text: `${word}።`, reqId: randomUUID() });
+  jobs.push({ id: `anchor_${i}`, category: "anchor", text: `${word}።`, expected: { text: word }, filename: `anchor-${i}.mp3` });
 });
-
-// Phrases are already real sentences, but none of them carried ending
-// punctuation either. Most are statements/greetings (full stop); a
-// handful are genuine questions and get a question mark instead —
-// using a period there would be grammatically wrong, not just stylistically off.
-const QUESTION_PHRASES = new Set([2, 3, 5, 6, 12]); // indices into PHRASES below
+const QUESTION_PHRASES = new Set([2, 3, 5, 6, 12]); // indices into PHRASES: genuine questions get "?" not "።"
 PHRASES.forEach((phrase, i) => {
   const mark = QUESTION_PHRASES.has(i) ? "?" : "።";
-  jobs.push({ id: `phrase_${i}`, filename: `phrase-${i}.mp3`, text: `${phrase}${mark}`, reqId: randomUUID() });
+  jobs.push({ id: `phrase_${i}`, category: "phrase", text: `${phrase}${mark}`, expected: { text: phrase }, filename: `phrase-${i}.mp3` });
 });
 
-console.log(`${jobs.length} clips to generate (${RAW.length * 7} letters, ${ANCHORS.length} anchor words, ${PHRASES.length} phrases).`);
-console.log(`Estimate: well under 10 minutes of audio total, ~5 ETB/minute per Addis AI's pricing.`);
+if (SMOKE_TEST) {
+  jobs = [jobs.find((j) => j.category === "row"), jobs.find((j) => j.category === "anchor"), jobs.find((j) => j.category === "phrase")];
+  console.log("SMOKE_TEST=1 — running only 3 jobs (1 row, 1 anchor, 1 phrase) to sanity-check the pipeline.\n");
+}
+
+console.log(`${jobs.length} generation jobs (${RAW.length} letter rows covering ${RAW.length * 7} letters, ${ANCHORS.length} anchor words, ${PHRASES.length} phrases).`);
+
+// ---- Whisper verification worker (see scripts/whisper_worker.py) ----
+// A single long-lived Python process, talked to over stdin/stdout with
+// one JSON object per line each way — loading the model is the
+// expensive part, so it happens once for the whole run, not once per
+// clip.
+
+class WhisperWorker {
+  constructor() {
+    this.proc = spawn("python3", [path.join(__dirname, "whisper_worker.py")], { stdio: ["pipe", "pipe", "inherit"] });
+    this.rl = createInterface({ input: this.proc.stdout });
+    this.pending = new Map();
+    this.nextId = 0;
+    this.rl.on("line", (line) => {
+      let msg;
+      try {
+        msg = JSON.parse(line);
+      } catch {
+        return;
+      }
+      const resolve = this.pending.get(msg.id);
+      if (resolve) {
+        this.pending.delete(msg.id);
+        resolve(msg);
+      }
+    });
+    this.proc.on("exit", (code) => {
+      for (const resolve of this.pending.values()) resolve({ verified: false, reason: `whisper worker exited unexpectedly (code ${code})` });
+      this.pending.clear();
+    });
+  }
+  check(req) {
+    const id = String(this.nextId++);
+    return new Promise((resolve) => {
+      this.pending.set(id, resolve);
+      this.proc.stdin.write(JSON.stringify({ ...req, id }) + "\n");
+    });
+  }
+  close() {
+    this.proc.stdin.end();
+  }
+}
 
 // ---- Generate one clip ----
 //
-// Two independent retry layers, deliberately different:
-//
-// 1. Transient-error retries (generateOnce, below): the SAME
-//    client_request_id across attempts, per Addis AI's idempotency
-//    guidance -- these are for "did that actually go through," so a
-//    replay of the same logical request is exactly what we want.
-//
-// 2. Quality retries (generateOne, further down): a FRESH
-//    client_request_id every attempt. This voice model sometimes
-//    hallucinates -- pads a short, isolated input (a single letter, a
-//    single word) into a much longer, unrelated utterance. Measured
-//    across the first real batch: ~1 in 5 clips came back 5-13 seconds
-//    long when a real one is under ~2s, for input that should produce
-//    one short syllable or word. Nothing in the response marks a clip
-//    as bad -- but this API's mp3 output is constant-bitrate, so file
-//    size is a reliable stand-in for duration, and a clip landing way
-//    outside the normal size band for its category is almost certainly
-//    hallucinated. Reusing the same request id here would just replay
-//    the same bad result, so each quality attempt asks for a genuinely
-//    new generation instead.
-
 // Addis AI allows only one voice generation in flight per account at a
 // time (HTTP 429 CONCURRENT_GENERATION_LIMIT if you overlap requests), on
-// top of a plain rate limit (429 RATE_LIMITED). So jobs run strictly one
-// at a time (see CONCURRENCY below) and a 429 gets a real wait — honoring
-// Retry-After when the API sends one, otherwise backing off hard — rather
-// than the quick retry that's fine for an ordinary transient error.
+// top of a plain rate limit (429 RATE_LIMITED). Jobs run strictly one at
+// a time and a 429 gets a real wait — honoring Retry-After when the API
+// sends one, otherwise backing off hard.
 const MAX_ATTEMPTS = 6;
 
-async function generateOnce(job, reqId) {
+async function generateOnce(text, reqId) {
   let lastErr;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       const genRes = await fetch(ENDPOINT, {
         method: "POST",
-        headers: {
-          "x-api-key": ADDIS_API_KEY,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          text: job.text,
-          voice_id: VOICE_ID,
-          language: "am",
-          output_format: "mp3_44100",
-          client_request_id: reqId,
-        }),
+        headers: { "x-api-key": ADDIS_API_KEY, "content-type": "application/json" },
+        body: JSON.stringify({ text, voice_id: VOICE_ID, language: "am", output_format: "mp3_44100", client_request_id: reqId }),
       });
       if (!genRes.ok) {
         const body = await genRes.text().catch(() => "");
         if (genRes.status === 429 && attempt < MAX_ATTEMPTS) {
           const retryAfter = Number(genRes.headers.get("retry-after"));
-          const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
-            ? retryAfter * 1000
-            : 4000 * attempt;
+          const waitMs = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 4000 * attempt;
           await new Promise((r) => setTimeout(r, waitMs));
           lastErr = new Error(`generate HTTP 429: ${body.slice(0, 300)}`);
           continue;
@@ -214,60 +241,63 @@ async function generateOnce(job, reqId) {
   throw lastErr;
 }
 
-// Size bands per category, in bytes, at this API's observed ~65-70kbps
-// constant bitrate. Min guards against a truncated/near-silent clip;
-// max is the hallucination guard described above. Bands are generous —
-// the point is to catch the dramatic outliers (5-13s instead of ~1s),
-// not to police normal length variation between e.g. short and long
-// phrases.
-const SIZE_LIMITS = {
-  letter: { min: 2000, max: 25000 }, // ~0.2s-2.8s: one glyph + a full stop
-  anchor: { min: 2000, max: 35000 }, // ~0.2s-4s: one word + a full stop
-  phrase: { min: 2000, max: 55000 }, // ~0.2s-6.3s: a short sentence
-};
+// Quality retries: a FRESH client_request_id every attempt (reusing one
+// here would just replay the same result Whisper already rejected), up
+// to this many tries. Unlike the old size-heuristic version, a clip that
+// never verifies is NOT shipped as a last resort — the app already
+// falls back gracefully (personal recording -> device voice -> hidden)
+// for anything missing, and shipping audio Whisper flagged as wrong
+// defeats the entire point of checking.
 const QUALITY_ATTEMPTS = 4;
 
-function sizeLimitFor(job) {
-  if (job.id.startsWith("letter_")) return SIZE_LIMITS.letter;
-  if (job.id.startsWith("anchor_")) return SIZE_LIMITS.anchor;
-  return SIZE_LIMITS.phrase;
+async function alreadyDone(job) {
+  if (job.category === "row") {
+    for (let o = 0; o < 7; o++) {
+      try {
+        const s = await stat(path.join(OUT_DIR, `${job.slicePrefix}-${o}.mp3`));
+        if (s.size === 0) return false;
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  }
+  try {
+    const s = await stat(path.join(OUT_DIR, job.filename));
+    return s.size > 0;
+  } catch {
+    return false;
+  }
 }
 
-async function generateOne(job) {
-  const outPath = path.join(OUT_DIR, job.filename);
-  try {
-    const existing = await stat(outPath);
-    if (existing.size > 0) return { job, skipped: true };
-  } catch {}
+async function generateOne(job, worker) {
+  if (await alreadyDone(job)) return { job, skipped: true };
 
-  const limit = sizeLimitFor(job);
-  const mid = (limit.min + limit.max) / 2;
-  let best = null; // closest-to-normal out-of-band clip seen, kept as a last resort
-  let lastErr;
-
+  let lastReason;
   for (let qAttempt = 1; qAttempt <= QUALITY_ATTEMPTS; qAttempt++) {
-    try {
-      const bytes = await generateOnce(job, randomUUID());
-      const size = bytes.length;
-      if (size >= limit.min && size <= limit.max) {
-        await writeFile(outPath, bytes);
-        return { job, ok: true, requality: qAttempt > 1 };
-      }
-      if (!best || Math.abs(size - mid) < Math.abs(best.size - mid)) best = { bytes, size };
-      lastErr = new Error(`clip size ${size}B outside [${limit.min}, ${limit.max}]B (likely hallucinated/truncated), attempt ${qAttempt}/${QUALITY_ATTEMPTS}`);
-    } catch (e) {
-      lastErr = e;
+    const bytes = await generateOnce(job.text, randomUUID());
+    const tmpPath = path.join(OUT_DIR, `.tmp-${job.id}-${qAttempt}.mp3`);
+    await writeFile(tmpPath, bytes);
+
+    const req = { audio: tmpPath, category: job.category, expected: job.expected };
+    if (job.category === "row") {
+      req.sliceDir = OUT_DIR;
+      req.slicePrefix = job.slicePrefix;
     }
+    const result = await worker.check(req);
+
+    if (result.verified) {
+      if (job.category === "row") {
+        await unlink(tmpPath).catch(() => {});
+        return { job, ok: true, requality: qAttempt > 1, flagged: !!result.flagged, note: result.reason, files: result.sliced };
+      }
+      await rename(tmpPath, path.join(OUT_DIR, job.filename));
+      return { job, ok: true, requality: qAttempt > 1, flagged: !!result.flagged, note: result.reason, files: [job.filename] };
+    }
+    lastReason = result.reason;
+    await unlink(tmpPath).catch(() => {});
   }
-  // Never got a normal-sized clip after all quality attempts. Ship the
-  // closest-to-normal one anyway rather than nothing — flagged clearly
-  // so it's easy to find and regenerate by hand — instead of leaving
-  // this letter/word/phrase with no audio at all.
-  if (best) {
-    await writeFile(outPath, best.bytes);
-    return { job, ok: true, flagged: true, error: String(lastErr) };
-  }
-  return { job, error: String(lastErr) };
+  return { job, error: `never verified after ${QUALITY_ATTEMPTS} attempts — last reason: ${lastReason}` };
 }
 
 // ---- Minimal dependency-free ZIP writer (stored, no compression --   ----
@@ -363,40 +393,52 @@ async function buildZip(files) {
 
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
+  const worker = new WhisperWorker();
 
   let done = 0, skipped = 0, requalified = 0, failed = [], flagged = [];
-  // Strictly one request in flight at a time — see the comment above
-  // generateOnce(). A small pause between jobs (even successful ones)
-  // keeps the plain per-minute rate limit from tripping too.
+  const shipped = []; // filenames of every verified clip, for manifest.json
+  // Strictly one Addis AI request in flight at a time (see generateOnce);
+  // a small pause between jobs keeps the plain per-minute rate limit
+  // from tripping too.
   const PACING_MS = 700;
 
   for (const job of jobs) {
-    const result = await generateOne(job);
-    if (result.skipped) skipped++;
-    else if (result.ok) {
+    const result = await generateOne(job, worker);
+    if (result.skipped) {
+      skipped++;
+      if (job.category === "row") for (let o = 0; o < 7; o++) shipped.push(`${job.slicePrefix}-${o}.mp3`);
+      else shipped.push(job.filename);
+    } else if (result.ok) {
       done++;
       if (result.requality) requalified++;
-      if (result.flagged) flagged.push(result);
-    } else failed.push(result);
+      if (result.flagged) flagged.push({ job, note: result.note });
+      shipped.push(...result.files);
+    } else {
+      failed.push(result);
+    }
     const n = done + skipped + failed.length;
     process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} requalified=${requalified} flagged=${flagged.length} failed=${failed.length}   `);
     if (!result.skipped) await new Promise((r) => setTimeout(r, PACING_MS));
   }
+  worker.close();
   console.log("\n");
 
   if (failed.length) {
-    console.log(`${failed.length} clips failed outright (no clip of any size came back):`);
+    console.log(`${failed.length} job(s) never produced a Whisper-verified clip (not shipped — the app falls back to a personal recording or device voice for these):`);
     failed.forEach((f) => console.log(`  ${f.job.id} (${JSON.stringify(f.job.text)}): ${f.error}`));
-    console.log("Re-run the workflow to retry just the missing ones (already-saved files are skipped) — but note a fresh Actions run starts from an empty folder, so partial failures are only resumable within a local re-run.\n");
-  }
-
-  if (flagged.length) {
-    console.log(`${flagged.length} clips never landed in the normal size range after ${QUALITY_ATTEMPTS} attempts each — shipped anyway (closest-to-normal size seen), but worth a manual listen before trusting them:`);
-    flagged.forEach((f) => console.log(`  ${f.job.filename} (${JSON.stringify(f.job.text)}): ${f.error}`));
     console.log("");
   }
 
-  const filenames = await readdir(OUT_DIR);
+  if (flagged.length) {
+    console.log(`${flagged.length} clip(s) verified but with a caveat worth a manual listen (see whisper_worker.py's "flagged" reasons):`);
+    flagged.forEach((f) => console.log(`  ${f.job.id}: ${f.note}`));
+    console.log("");
+  }
+
+  await writeFile(MANIFEST_PATH, JSON.stringify(shipped.sort(), null, 2));
+  console.log(`manifest.json: ${shipped.length} verified file(s) the app will actually use.`);
+
+  const filenames = (await readdir(OUT_DIR)).filter((n) => !n.startsWith(".tmp-"));
   const files = [];
   for (const name of filenames) {
     const data = await readFile(path.join(OUT_DIR, name));
@@ -405,10 +447,10 @@ async function main() {
   const zip = await buildZip(files);
   await writeFile(ZIP_PATH, zip);
 
-  console.log(`Wrote ${files.length} clips into ${ZIP_PATH}`);
+  console.log(`Wrote ${files.length} file(s) (clips + manifest.json) into ${ZIP_PATH}`);
 
   if (failed.length) {
-    console.error(`${failed.length} clip(s) failed — see log above.`);
+    console.error(`${failed.length} job(s) failed verification entirely — see log above.`);
     process.exitCode = 1;
   }
 }

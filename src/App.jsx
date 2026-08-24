@@ -166,6 +166,34 @@ const WORDS = [
 // its own list (ANCHORS or PHRASES).
 const WORD_FAM = { anchor: 900, phrase: 901 };
 
+// Real, Whisper-verified recordings from Addis AI (Voice 2, am-hamen),
+// generated once (scripts/generate-official-audio.mjs) and baked in as
+// static files under public/audio/official/, filed under the same
+// (fam, order) addressing the recording system already uses. Not every
+// letter/word/phrase necessarily has one — only what actually passed
+// verification ships — so the app checks manifest.json rather than
+// assuming a file exists (see officialAudioKey / the manifest fetch in
+// AmharicFidel).
+function officialAudioUrl(fam, order) {
+  const base = `${import.meta.env.BASE_URL}audio/official/`;
+  if (fam === WORD_FAM.anchor) return `${base}anchor-${order}.mp3`;
+  if (fam === WORD_FAM.phrase) return `${base}phrase-${order}.mp3`;
+  return `${base}letter-${fam}-${order}.mp3`;
+}
+
+// manifest.json lists filenames, e.g. "letter-3-0.mp3" — converted here
+// to the same "fam.order" key shape audio.have (personal recordings)
+// already uses, so both sets can be checked the same way everywhere.
+function officialKeyFromFilename(name) {
+  let m = /^letter-(\d+)-(\d+)\.mp3$/.exec(name);
+  if (m) return `${m[1]}.${m[2]}`;
+  m = /^anchor-(\d+)\.mp3$/.exec(name);
+  if (m) return `${WORD_FAM.anchor}.${m[1]}`;
+  m = /^phrase-(\d+)\.mp3$/.exec(name);
+  if (m) return `${WORD_FAM.phrase}.${m[1]}`;
+  return null;
+}
+
 const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],
   ["ጤና ይስጥልኝ", "tena yistiliñ", "Hello, formal. Literally: may he give you health."],
@@ -1088,21 +1116,24 @@ function FamilyIntro({ fams, i, audio, onNext, onBack }) {
    HEAR BUTTON
    The single "hear it" affordance used everywhere in the app —
    letters, anchor words, phrases, and post-answer drill review.
-   Was: your recording, then a cloud-generated clip baked in at
-   build time, then the device's own Amharic voice. The baked-in
-   clips are gone — a text-to-speech API asked to read a single
-   isolated glyph or short word (no sentence context) turned out
-   to hallucinate into unrelated full-sentence audio often enough
-   (~1 in 5, even after every mitigation short of a different
-   provider) that it couldn't be trusted unheard, and there's no
-   way to QA thousands of clips by ear ourselves. So now: your own
-   recording if you made one, else the device's own Amharic voice
-   if the browser has one installed, else this hides rather than
-   play something that might be wrong. Drill questions themselves
-   never get this button — only the review screen after you've
-   already answered, since most question kinds ask "what does this
-   sound like," and playing the sound first would hand over the
-   answer.
+   Priority: your own recording, then a real official clip if the
+   generation pipeline actually produced and verified one for
+   this exact letter/word (see officialAudioUrl and the manifest
+   fetch in AmharicFidel — nothing plays unless it's actually
+   listed there), then the device's own Amharic voice, else this
+   hides rather than play something that was never verified.
+   Earlier baked-in clips asked the TTS model to read one isolated
+   glyph with no sentence context, which turned out to hallucinate
+   into unrelated full-sentence audio often enough (~1 in 5) that
+   it couldn't be trusted; the current pipeline never asks for
+   that — see the comment atop scripts/generate-official-audio.mjs
+   for how it avoids it (whole rows recited naturally, then sliced
+   using real speech-recognition timestamps) and verifies every
+   clip against what was actually said before it ships. Drill
+   questions themselves never get this button — only the review
+   screen after you've already answered, since most question kinds
+   ask "what does this sound like," and playing the sound first
+   would hand over the answer.
    ============================================================ */
 
 function HearButton({ fam, order, audio, text }) {
@@ -1120,8 +1151,20 @@ function HearButton({ fam, order, audio, text }) {
     } catch (e) {}
   }, []);
 
-  const have = audio && audio.have.has(`${fam}.${order}`);
-  if (!have && !voice) return null;
+  const key = `${fam}.${order}`;
+  const have = audio && audio.have.has(key);
+  const haveOfficial = audio && audio.official && audio.official.has(key);
+  if (!have && !haveOfficial && !voice) return null;
+
+  const speak = () => {
+    const t = text || (FAMS[fam] ? FAMS[fam].chars[order] : "");
+    if (!voice || !t) return;
+    const u = new SpeechSynthesisUtterance(t);
+    u.voice = voice;
+    u.lang = voice.lang;
+    u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  };
 
   const play = async () => {
     if (have) {
@@ -1133,13 +1176,13 @@ function HearButton({ fam, order, audio, text }) {
         } catch (e) {}
       }
     }
-    const t = text || (FAMS[fam] ? FAMS[fam].chars[order] : "");
-    if (!voice || !t) return;
-    const u = new SpeechSynthesisUtterance(t);
-    u.voice = voice;
-    u.lang = voice.lang;
-    u.rate = 0.85;
-    window.speechSynthesis.speak(u);
+    if (haveOfficial) {
+      try {
+        await new Audio(officialAudioUrl(fam, order)).play();
+        return;
+      } catch (e) {}
+    }
+    speak();
   };
 
   return (
@@ -2291,11 +2334,12 @@ function Chant({ fam, audio, compact }) {
   };
 
   // The visual chant above is timing-only — no sound. This actually
-  // plays the row, one order at a time: your own recording if there is
-  // one, else the device's own Amharic voice, same priority HearButton
-  // uses (see its comment for why there's no cloud-generated clip in
-  // the mix). Sequenced off each clip's own "ended" event rather than
-  // a fixed interval, since clip lengths vary.
+  // plays the row, one order at a time: your own recording, else a
+  // verified official clip if one exists for that letter, else the
+  // device's own Amharic voice — same priority and same "nothing plays
+  // unless it's verified" rule HearButton uses (see its comment).
+  // Sequenced off each clip's own "ended" event rather than a fixed
+  // interval, since clip lengths vary.
   const playSound = async () => {
     clearInterval(timer.current);
     const token = ++playToken.current;
@@ -2305,9 +2349,11 @@ function Chant({ fam, audio, compact }) {
       const have = audio && audio.have.has(`${fam}.${o}`);
       const recorded = have ? await getClip(fam, o) : null;
       if (playToken.current !== token) return;
-      if (recorded) {
+      const haveOfficial = !recorded && audio && audio.official && audio.official.has(`${fam}.${o}`);
+      const url = recorded || (haveOfficial ? officialAudioUrl(fam, o) : null);
+      if (url) {
         await new Promise((resolve) => {
-          const el = new Audio(recorded);
+          const el = new Audio(url);
           el.addEventListener("ended", resolve);
           el.addEventListener("error", resolve);
           el.play().catch(resolve);
@@ -2327,7 +2373,7 @@ function Chant({ fam, audio, compact }) {
     if (playToken.current === token) setI(-1);
   };
 
-  const canHear = voice || F.chars.some((_, o) => audio && audio.have.has(`${fam}.${o}`));
+  const canHear = voice || F.chars.some((_, o) => audio && (audio.have.has(`${fam}.${o}`) || (audio.official && audio.official.has(`${fam}.${o}`))));
 
   return (
     <div>
@@ -3236,8 +3282,29 @@ export default function AmharicFidel() {
   const [track, setTrack] = useState("bases");
   const [romanize, setRomanize] = useState(true);
   const [haveAudio, setHaveAudio] = useState(new Set());
+  const [officialHave, setOfficialHave] = useState(new Set());
   const [wordTab, setWordTab] = useState("read");
   const [lesson, setLesson] = useState(null);
+
+  // Whatever verified official clips actually exist, if any — see
+  // officialAudioUrl/officialKeyFromFilename above. A missing or
+  // unparseable manifest just leaves this empty rather than throwing,
+  // same graceful-degradation behavior as everything else audio-related:
+  // "hear it" simply won't offer that tier for anyone until a real,
+  // Whisper-verified batch has actually been generated and deployed.
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}audio/official/manifest.json`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((names) => {
+        const keys = new Set();
+        (Array.isArray(names) ? names : []).forEach((n) => {
+          const k = officialKeyFromFilename(n);
+          if (k) keys.add(k);
+        });
+        setOfficialHave(keys);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     loadState().then((s) => {
@@ -3360,6 +3427,7 @@ export default function AmharicFidel() {
   const addXp = (n) => setState((s) => ({ ...s, xp: s.xp + n }));
   const audio = {
     have: haveAudio,
+    official: officialHave,
     onSaved: (idx) => setHaveAudio(new Set(idx)),
   };
 

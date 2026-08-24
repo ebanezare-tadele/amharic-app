@@ -2,13 +2,21 @@ name: Generate official audio (one-time)
 
 # Manually triggered from the Actions tab — this is not part of the normal
 # deploy pipeline. It calls the Addis AI Voice 2 API to render every
-# letter/word/phrase in the app to a real Amharic mp3, then hands the
-# result back as a downloadable build artifact (not committed to the repo).
+# letter row/word/phrase in the app to a real Amharic mp3, verifies each
+# one against a real transcription (faster-whisper — see
+# scripts/whisper_worker.py for why this exists and how it works), and
+# hands the result back as a downloadable build artifact (not committed
+# to the repo) along with a manifest.json of what actually passed.
 #
 # Requires a repo secret named ADDIS_API_KEY (Settings -> Secrets and
 # variables -> Actions -> New repository secret) holding the Addis AI key.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      smoke_test:
+        description: "Run only 3 jobs (1 letter row, 1 anchor word, 1 phrase) to sanity-check the pipeline before committing to the full ~82-job batch"
+        type: boolean
+        default: false
 
 jobs:
   generate:
@@ -18,15 +26,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Generate audio clips via Addis AI
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install faster-whisper (ffmpeg ships preinstalled on this runner image)
+        run: pip install faster-whisper
+      - name: Generate + verify audio clips
         env:
           ADDIS_API_KEY: ${{ secrets.ADDIS_API_KEY }}
+          SMOKE_TEST: ${{ inputs.smoke_test && '1' || '' }}
         run: node scripts/generate-official-audio.mjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           # Uploading the raw mp3 folder (not the script's own zip) so the
           # artifact download — which GitHub always wraps in a zip of its
-          # own — doesn't end up double-zipped.
+          # own — doesn't end up double-zipped. if: always() so a partial
+          # or failed run's manifest.json and log are still retrievable.
           name: amharic-audio
           path: scripts/official-audio-out
           retention-days: 14

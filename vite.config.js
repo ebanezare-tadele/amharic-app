@@ -75,6 +75,29 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            // manifest.json (public/audio/official/) lists which clips a
+            // generation run actually verified — small and worth
+            // rechecking on every visit rather than trusting a stale
+            // cached copy forever, since it's what decides whether a
+            // "hear it" button even offers this tier.
+            urlPattern: ({ url }) => url.pathname.endsWith('/audio/official/manifest.json'),
+            handler: 'NetworkFirst',
+            options: { cacheName: 'official-audio-manifest', networkTimeoutSeconds: 3 },
+          },
+          {
+            // The clips manifest.json points to (~a few MB, not worth
+            // forcing into everyone's initial install) — deliberately
+            // left out of globPatterns above; cached the first time each
+            // one is actually played, then available offline from then on.
+            urlPattern: ({ url }) => url.pathname.includes('/audio/official/') && url.pathname.endsWith('.mp3'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'official-audio',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
     }),

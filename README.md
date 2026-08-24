@@ -151,9 +151,9 @@ worth automating anyway):
    live URL: `https://ebanezare-tadele.github.io/amharic-app/`. That's
    what you text people.
 
-No environment variables needed for this deploy. (An `ADDIS_API_KEY` repo
-secret may still exist from the abandoned audio-generation experiment —
-see "Hearing pronunciation" below — it's safe to remove.)
+No environment variables needed for this deploy (the `ADDIS_API_KEY` repo
+secret is only used by the separate, manually-triggered audio-generation
+workflow — see "Hearing pronunciation" below).
 
 Because the repo isn't named `<username>.github.io`, GitHub Pages serves
 it from a subpath rather than the domain root — `vite.config.js` sets
@@ -254,53 +254,91 @@ extend it:
 
 ## Hearing pronunciation
 
-"► hear it" buttons play **your own recording** if you've made one
-(`Voice` — yours, or a relative's, saved locally on-device), else the
+"► hear it" buttons play, in order: **your own recording** if you've made
+one (`Voice` — yours, or a relative's, saved locally on-device), else a
+**verified official clip** if the generation pipeline below actually
+produced and verified one for that exact letter/word/phrase, else the
 **device's own Amharic voice** if the browser happens to ship one (rare —
-iOS Safari never does). If neither is available, the button doesn't
-render at all rather than playing something that might be wrong.
+iOS Safari never does). If none of those is available, the button
+doesn't render at all rather than playing something that might be wrong.
 
-**There used to be a third tier: a cloud-generated clip baked into the
-app at build time, for every letter/word/phrase, so audio worked
-out of the box with no recording required.** It was pulled after
-repeated real failures, not one bad batch — worth documenting so nobody
-re-tries the same approach expecting a different result:
+### Why the official clips are trustworthy this time
 
-- Cloud text-to-speech APIs (tried: [Addis AI](https://www.addisassistant.com/)'s
-  Voice 2, `am-hamen` voice) are trained on continuous sentences, not
-  isolated syllables. A single fidel glyph or short word, fed in alone,
-  is out-of-distribution input for that kind of model — there's no
-  linguistic context to anchor pronunciation to. Wrapping every input in
-  a trailing Ethiopic full stop (`።`) — the vendor's own documented
-  mitigation — helped, but didn't fix it.
-- Measured directly with `ffprobe` across a full generation batch: even
-  after that fix, roughly **1 in 5** letter/word clips still came back
-  5–13 seconds long for input that should produce under 2 seconds of
-  speech — the model padding or hallucinating a short prompt into an
-  unrelated full sentence. That's what "child" coming back as "this
-  child," or a single letter coming back as gibberish, actually was.
-- A second, independent bug (reusing the same idempotency key across
-  generation runs, so a bad result could get replayed instead of
-  regenerated) was found and fixed along the way, and helped — but
-  didn't touch the hallucination rate above, which is a property of the
-  model being asked to do something it isn't built for.
-- Automatic per-clip QA (file-size banding as a proxy for duration, since
-  output is constant-bitrate, with automatic regeneration on an outlier)
-  was added on top of both fixes and still couldn't guarantee every clip
-  converged to a normal length, let alone that a normal-length clip said
-  the right word with the right accent.
+An earlier version of this baked in a cloud-generated clip for every
+letter/word/phrase by asking a text-to-speech API to read each one in
+isolation — a single bare glyph, on its own. That failed repeatedly and
+was pulled entirely (see git history around "Remove unreliable
+cloud-generated audio" if you want the full postmortem). The root cause:
+sentence-level TTS models are trained on continuous speech, not isolated
+syllables, so a bare glyph with no sentence context is out-of-distribution
+input — the model would sometimes pad or hallucinate it into a longer,
+unrelated utterance. Measured directly: even after adding trailing
+punctuation (the vendor's documented mitigation), ~1 in 5 letter/word
+clips still came back 5–13 seconds long for input that should've produced
+under 2 seconds of speech. A file-size-based QA pass caught only the most
+extreme cases, because it could only measure duration, not content — a
+wrong word at a plausible length sailed straight through it.
 
-None of that is a sign the code was wrong — each fix addressed a real,
-separately-measured bug. It's a sign the tool doesn't match the job:
-general-purpose sentence-level TTS isn't built to read a single isolated
-syllabogram, and no amount of prompt engineering around that reliably
-closes the gap without a human listening to every clip. Given that, and
-that there's no way to QA 286 clips by ear at scale, the honest choice
-was to stop shipping audio nobody had verified rather than keep
-iterating on mitigations for a mismatch that isn't going to fully close.
-If this gets revisited, a phoneme/letter-name-aware TTS engine (not a
-general sentence-reading one) is the thing to look for — or a proper,
-paid, human-recorded reference set.
+**`scripts/generate-official-audio.mjs` + `scripts/whisper_worker.py`
+fix that architecturally, not with another heuristic:**
+
+1. **Never ask for an isolated glyph.** A family's 7 letters are
+   generated as one clip: the whole row recited naturally, e.g.
+   `ለ፣ ሉ፣ ሊ፣ ላ፣ ሌ፣ ል፣ ሎ።` — which is literally how the fidel is
+   traditionally chanted aloud, not an isolated syllable. That's a
+   completely normal, in-distribution utterance for the model. Anchor
+   words and phrases were already natural-shaped input and are
+   unchanged.
+2. **Verify against what was actually said, not how long the file is.**
+   Every clip — rows, anchor words, phrases — gets transcribed with
+   [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (the
+   `medium` model, real open-source speech recognition, run right there
+   in the Actions job) and compared to what it was supposed to say. A
+   row clip has to transcribe to ~7 recognizable words in the right
+   order; an anchor/phrase clip's transcription has to reasonably match
+   the expected text. A duration check still runs too, but it's now one
+   signal among several, not the only one. Anything that doesn't verify
+   gets regenerated with a fresh idempotency key (up to 4 attempts) and,
+   if it still never passes, simply isn't shipped — the app already
+   falls back gracefully for anything missing, so an unverified clip is
+   excluded rather than shipped with a caveat.
+3. **Isolate letters mechanically, from real evidence, after the fact.**
+   Once a row clip verifies, Whisper's own word-level timestamps say
+   exactly where each of the 7 syllables falls in the recording.
+   `scripts/whisper_worker.py` uses those timestamps to cut the row into
+   the 7 individual `letter-{fam}-{order}.mp3` files the app actually
+   plays, via `ffmpeg`. The model is always doing the thing it's good at
+   (reading a natural utterance); the isolation happens afterward,
+   mechanically, from where the syllables actually were spoken — not by
+   asking the model to say one in a vacuum.
+
+**What ships, and what the app trusts:** the generation run writes
+`manifest.json` alongside the clips, listing only what actually passed
+verification. The app fetches that manifest once on load and only offers
+the official-clip tier for entries actually listed in it (see
+`officialKeyFromFilename` / the manifest fetch in `AmharicFidel` in
+`src/App.jsx`) — a clip Whisper couldn't verify is simply absent, not
+shipped with a shrug. `public/audio/official/` isn't committed to the
+repo; it's produced by the workflow below and only lands there when
+someone downloads the artifact and copies it in after checking the run's
+own report (failed/flagged counts) themselves.
+
+**Running the generation** (`.github/workflows/generate-audio.yml`,
+**Actions → Generate official audio (one-time) → Run workflow**):
+installs Python + `faster-whisper` alongside Node (ffmpeg ships
+preinstalled on GitHub's runner image), then runs the script against the
+`ADDIS_API_KEY` repo secret. Tick **smoke_test** on the workflow's "Run
+workflow" dialog to run just 3 jobs (1 row, 1 anchor, 1 phrase) first —
+worth doing after touching either script, since it exercises the whole
+pipeline (generation, verification, slicing, manifest) for a couple of
+minutes and a few cents instead of finding a bug only after the full
+~82-job batch. The full run is much cheaper than the old one despite the
+extra verification step: 34 row clips instead of 238 isolated letters,
+plus 34 anchor words and 14 phrases — 82 generation calls total, not 286.
+Uploads the clips + `manifest.json` as a downloadable build artifact
+(`amharic-audio`), same as before — never auto-deployed; check the run's
+own failed/flagged report first, then copy `official-audio-out/*` into
+`public/audio/official/` and deploy normally.
 
 ## Updates apply automatically — no re-saving to the home screen
 
@@ -358,14 +396,19 @@ deploy boundary — if it ever seems to lag, force-quitting and reopening
   everything to this device's own `localStorage`.
 - `src/lib/progressSync.js` — the optional cross-device sync client (see
   "Syncing progress across devices" above).
-- `scripts/generate-official-audio.mjs` + `.github/workflows/generate-audio.yml`
-  — the cloud-TTS generation script and its manually-triggered workflow
-  from the abandoned baked-audio experiment (see "Hearing pronunciation"
-  above). Left in place as a reference for what was tried and measured,
-  not wired into the app or the build.
+- `scripts/generate-official-audio.mjs` — generates the baked-in
+  pronunciation clips (see "Hearing pronunciation" above); orchestrates
+  Addis AI generation, retries, and calls out to the verification worker.
+- `scripts/whisper_worker.py` — the Whisper-based verification/slicing
+  worker `generate-official-audio.mjs` talks to over stdin/stdout; see
+  its own docstring and "Hearing pronunciation" above for why it exists.
 - `scripts/gen-icons.mjs` + `scripts/icon-template.html` — icon generator.
 - `.github/workflows/deploy.yml` — builds and publishes to GitHub Pages
   on every push to this branch.
+- `.github/workflows/generate-audio.yml` — the manually-triggered
+  audio-generation workflow (installs Python/faster-whisper alongside
+  Node; see "Hearing pronunciation" above for how to run it).
 - `vite.config.js` — `base` for the GitHub Pages subpath, PWA plugin
   config (manifest contents, service worker caching strategy, including
-  runtime caching for the Google Fonts the app's own injected CSS loads).
+  runtime caching for the Google Fonts the app's own injected CSS loads
+  and for the official audio clips/manifest).
