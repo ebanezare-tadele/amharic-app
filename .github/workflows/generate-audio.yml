@@ -31,6 +31,17 @@ jobs:
           python-version: "3.11"
       - name: Install faster-whisper (ffmpeg ships preinstalled on this runner image)
         run: pip install faster-whisper
+      # The "medium" Whisper model is a ~6-7 minute cold download from
+      # Hugging Face unauthenticated (measured directly). It never
+      # changes between runs, so cache it rather than re-downloading it
+      # every single run of what's already a manually-triggered,
+      # iterate-a-few-times workflow -- a cache hit brings that down to
+      # seconds.
+      - name: Cache Whisper model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: whisper-medium-int8-v1
       - name: Generate + verify audio clips
         env:
           ADDIS_API_KEY: ${{ secrets.ADDIS_API_KEY }}

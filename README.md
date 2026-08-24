@@ -292,10 +292,11 @@ fix that architecturally, not with another heuristic:**
 2. **Verify against what was actually said, not how long the file is.**
    Every clip — rows, anchor words, phrases — gets transcribed with
    [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (the
-   `small` model — chosen for load time; see `whisper_worker.py`'s own
-   comment on that trade-off — real open-source speech recognition, run
-   right there in the Actions job) and compared to what it was supposed
-   to say. A
+   `medium` model — `small` was tried to cut load time and turned out to
+   not meaningfully support Amharic at all, transcribing every clip into
+   Hebrew script regardless of input; see `whisper_worker.py`'s comment
+   — real open-source speech recognition, run right there in the Actions
+   job) and compared to what it was supposed to say. A
    row clip has to transcribe to ~7 recognizable words in the right
    order; an anchor/phrase clip's transcription has to reasonably match
    the expected text. A duration check still runs too, but it's now one

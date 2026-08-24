@@ -62,19 +62,20 @@ import time
 
 from faster_whisper import WhisperModel
 
-# "small" (~250MB int8) rather than "medium" (~800MB+) -- a smoke test on
-# 2026-08-24 measured the medium model taking ~6m43s just to download
-# (unauthenticated Hugging Face requests are rate-limited slower than
-# authenticated ones, per faster-whisper's own warning) before any actual
-# work started. Amharic is low-resource for Whisper at any size, but the
-# verification checks below are already generous/coarse (word-count
-# tolerance for rows, a fuzzy-match threshold for anchor/phrase text) to
-# accommodate transcription noise, so "small"'s lower absolute accuracy
-# is an acceptable trade for cutting the load time to a fraction of this.
+# "medium" -- tried "small" first to cut the ~6m43s cold-download time
+# and it was a bad trade: on a real smoke test it didn't just get Amharic
+# words wrong, it transcribed every clip into Hebrew script -- completely
+# unrelated to the input, on every single job. Amharic is low-resource
+# for Whisper at every size, but "small" is apparently not usable for it
+# at all (see git history around 2026-08-24 for the actual transcripts).
+# "medium" is the real minimum for this to mean anything. The slow-
+# download problem is solved properly in .github/workflows/generate-
+# audio.yml instead, by caching the downloaded model across runs, rather
+# than by trading away whether verification means anything.
 # Loaded once, reused for every request on stdin.
 print(f"[whisper_worker] loading model...", file=sys.stderr, flush=True)
 _load_start = time.monotonic()
-_model = WhisperModel("small", device="cpu", compute_type="int8")
+_model = WhisperModel("medium", device="cpu", compute_type="int8")
 print(f"[whisper_worker] model loaded in {time.monotonic() - _load_start:.1f}s", file=sys.stderr, flush=True)
 
 # Duration sanity bands, in seconds -- independent of the content check
