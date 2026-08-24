@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Serif+Ethiopic:wght@400;700&display=block');
+  html, body { margin: 0; padding: 0; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+  <canvas id="c" width="1200" height="630"></canvas>
+  <script>
+    const BG = '#10162A';
+    const RUBRIC = '#CE452C';
+    const BONE = '#EDE3CE';
+    const DIM = '#8C93AE';
+    const LINE = '#2E3859';
+    const FIDEL = "'Noto Serif Ethiopic', serif";
+    const DISP = "'Instrument Serif', serif";
+    const UI = "'IBM Plex Sans', system-ui, sans-serif";
+
+    // Same technique as scripts/gen-icons.mjs: measure the glyph's actual
+    // ink bounding box rather than trusting the font's em-box, which
+    // doesn't center this glyph.
+    function glyphBBox(fontPx) {
+      const m = document.createElement('canvas');
+      m.width = fontPx * 3;
+      m.height = fontPx * 3;
+      const mx = m.getContext('2d');
+      const ox = fontPx, oy = fontPx * 1.5;
+      mx.font = `${fontPx}px ${FIDEL}`;
+      mx.textAlign = 'left';
+      mx.textBaseline = 'alphabetic';
+      mx.fillText('ፊ', ox, oy);
+      const d = mx.getImageData(0, 0, m.width, m.height).data;
+      let minX = m.width, maxX = 0, minY = m.height, maxY = 0;
+      for (let y = 0; y < m.height; y++) {
+        for (let x = 0; x < m.width; x++) {
+          if (d[(y * m.width + x) * 4 + 3] > 10) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+      return { ox, oy, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2, w: maxX - minX, h: maxY - minY };
+    }
+
+    async function draw() {
+      await document.fonts.load(`400 100px ${FIDEL}`);
+      await document.fonts.load(`400 90px ${DISP}`);
+      await document.fonts.load(`600 34px ${UI}`);
+      await document.fonts.ready;
+
+      const c = document.getElementById('c');
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, 1200, 630);
+
+      // faint rule near the bottom, echoing the in-app card style
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(90, 540);
+      ctx.lineTo(1110, 540);
+      ctx.stroke();
+
+      // glyph, centered in a 340x340 box at the left
+      const boxCX = 90 + 170, boxCY = 315;
+      const ref = glyphBBox(1000);
+      const scale = 300 / Math.max(ref.w, ref.h);
+      const finalPx = 1000 * scale;
+      ctx.font = `${finalPx}px ${FIDEL}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = RUBRIC;
+      const offX = (ref.cx - ref.ox) * scale;
+      const offY = (ref.cy - ref.oy) * scale;
+      ctx.fillText('ፊ', boxCX - offX, boxCY - offY);
+
+      // title
+      const textX = 90 + 340 + 64;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = RUBRIC;
+      ctx.font = `400 92px ${DISP}`;
+      ctx.fillText('ፊደል', textX, 250);
+      ctx.fillStyle = BONE;
+      ctx.fillText('Amharic Fidel', textX, 340);
+
+      // subtitle
+      ctx.fillStyle = DIM;
+      ctx.font = `400 34px ${UI}`;
+      ctx.fillText('Learn the Amharic script — 34 letters,', textX, 420);
+      ctx.fillText('7 vowels each, at your own pace.', textX, 465);
+
+      document.title = 'ready';
+    }
+    draw();
+  </script>
+</body>
+</html>
