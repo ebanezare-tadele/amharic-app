@@ -70,6 +70,7 @@ import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { chooseRowBounds } from "./row-slicing.mjs";
+import { RAW, ANCHORS, PHRASES, rowText, anchorText, phraseText } from "./content.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.join(__dirname, "official-audio-out");
@@ -86,57 +87,9 @@ const ENDPOINT = "https://api.addisassistant.com/api/v1/voice/generations";
 // batch (and its retries) have already run.
 const SMOKE_TEST = process.env.SMOKE_TEST === "1";
 
-// ---- Content: same data as src/App.jsx's RAW / ANCHORS / PHRASES ----
-
-const RAW = [
-  ["ለሉሊላሌልሎ", "l", "lä"],
-  ["መሙሚማሜምሞ", "m", "mä"],
-  ["ረሩሪራሬርሮ", "r", "rä"],
-  ["ሰሱሲሳሴስሶ", "s", "sä"],
-  ["በቡቢባቤብቦ", "b", "bä"],
-  ["ተቱቲታቴትቶ", "t", "tä"],
-  ["ነኑኒናኔንኖ", "n", "nä"],
-  ["ከኩኪካኬክኮ", "k", "kä"],
-  ["ወዉዊዋዌውዎ", "w", "wä"],
-  ["የዩዪያዬይዮ", "y", "yä"],
-  ["ደዱዲዳዴድዶ", "d", "dä"],
-  ["ገጉጊጋጌግጎ", "g", "gä"],
-  ["ሀሁሂሃሄህሆ", "h", "hä"],
-  ["አኡኢኣኤእኦ", "'", "ä"],
-  ["ቀቁቂቃቄቅቆ", "q", "qä"],
-  ["ጠጡጢጣጤጥጦ", "t'", "t'ä"],
-  ["ሸሹሺሻሼሽሾ", "sh", "shä"],
-  ["ቸቹቺቻቼችቾ", "ch", "chä"],
-  ["ጀጁጂጃጄጅጆ", "j", "jä"],
-  ["ኘኙኚኛኜኝኞ", "ny", "nyä"],
-  ["ዘዙዚዛዜዝዞ", "z", "zä"],
-  ["ጨጩጪጫጬጭጮ", "ch'", "ch'ä"],
-  ["ፈፉፊፋፌፍፎ", "f", "fä"],
-  ["ፐፑፒፓፔፕፖ", "p", "pä"],
-  ["ጸጹጺጻጼጽጾ", "ts'", "ts'ä"],
-  ["ዠዡዢዣዤዥዦ", "zh", "zhä"],
-  ["ኸኹኺኻኼኽኾ", "kh", "khä"],
-  ["ቨቩቪቫቬቭቮ", "v", "vä"],
-  ["ጰጱጲጳጴጵጶ", "p'", "p'ä"],
-  ["ሐሑሒሓሔሕሖ", "h", "hä"],
-  ["ኀኁኂኃኄኅኆ", "h", "hä"],
-  ["ሠሡሢሣሤሥሦ", "s", "sä"],
-  ["ዐዑዒዓዔዕዖ", "'", "ä"],
-  ["ፀፁፂፃፄፅፆ", "ts'", "ts'ä"],
-];
-
-const ANCHORS = [
-  "ልጅ", "መኪና", "ራስ", "ሰላም", "ቤት", "ተማሪ", "ነጭ", "ከተማ", "ወተት", "የት",
-  "ደህና", "ገንዘብ", "ሀገር", "አባት", "ቀን", "ጠዋት", "ሽሮ", "ችግር", "ጀበና", "ነኝ",
-  "ዘጠኝ", "ጨረቃ", "ፈረስ", "ፖሊስ", "ጸሎት", "ዥዋዥዌ", "መኸር", "ቪዛ", "ጳጳስ", "መጽሐፍ",
-  "ኃይል", "ሥራ", "ዓይን", "ፀሐይ",
-];
-
-const PHRASES = [
-  "ሰላም", "ጤና ይስጥልኝ", "እንደምን አደርክ", "እንደምን አደርሽ", "ደህና ነኝ",
-  "ስምህ ማን ነው", "ስምሽ ማን ነው", "አመሰግናለሁ", "ይቅርታ", "እባክህ",
-  "ደህና ሁን", "አይገባኝም", "ስንት ነው", "ውሃ እፈልጋለሁ",
-];
+// ---- Content: RAW / ANCHORS / PHRASES live in scripts/content.mjs, ----
+// shared with the content-verification tooling so both always agree on
+// exactly what text a clip was supposed to say.
 
 // ---- Build the full job list ----
 
@@ -150,18 +103,16 @@ RAW.forEach((fam, famIdx) => {
     // one natural recitation of the row, the way the alphabet is
     // actually chanted, not as 7 isolated glyphs. The commas are also
     // what silenceSliceRow() below relies on for pauses to cut at.
-    text: chars.join("፣ ") + "።",
+    text: rowText(famIdx),
     syllableCount: chars.length,
     slicePrefix: `letter-${famIdx}`,
   });
 });
 ANCHORS.forEach((word, i) => {
-  jobs.push({ id: `anchor_${i}`, category: "anchor", text: `${word}።`, filename: `anchor-${i}.mp3` });
+  jobs.push({ id: `anchor_${i}`, category: "anchor", text: anchorText(i), filename: `anchor-${i}.mp3` });
 });
-const QUESTION_PHRASES = new Set([2, 3, 5, 6, 12]); // indices into PHRASES: genuine questions get "?" not "።"
 PHRASES.forEach((phrase, i) => {
-  const mark = QUESTION_PHRASES.has(i) ? "?" : "።";
-  jobs.push({ id: `phrase_${i}`, category: "phrase", text: `${phrase}${mark}`, filename: `phrase-${i}.mp3` });
+  jobs.push({ id: `phrase_${i}`, category: "phrase", text: phraseText(i), filename: `phrase-${i}.mp3` });
 });
 
 if (SMOKE_TEST) {

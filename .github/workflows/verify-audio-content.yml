@@ -1,0 +1,60 @@
+name: Verify audio content (closed-set)
+
+# Diagnostic, not part of the normal pipeline: checks whether the
+# already-shipped clips in public/audio/official/ actually say the
+# right thing, using closed-set ranking instead of open transcription
+# (see the long comment atop scripts/verify_audio_content.py for why —
+# short version: open transcription with faster-whisper already failed
+# for Amharic, even with language forced; closed-set ranking asks an
+# easier question of the same model).
+#
+# Runs entirely against files already committed to the branch — no
+# artifact download needed, no Addis AI calls, no cost beyond CI
+# minutes and the (free-tier) faster-whisper model download.
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: "Only check the first N rows/anchors/phrases (leave blank for a full run across everything shipped)"
+        type: string
+        default: "6"
+      model:
+        description: "faster-whisper checkpoint"
+        type: choice
+        options: [tiny, small, medium, large-v3]
+        default: medium
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install faster-whisper
+        run: pip install --quiet faster-whisper
+      - name: Export the exact texts every clip is supposed to say
+        run: node scripts/export-verification-texts.mjs
+      - name: Run closed-set content verification
+        run: |
+          python3 scripts/verify_audio_content.py \
+            --clips-dir public/audio/official \
+            --texts scripts/verification-texts.json \
+            --out scripts/verification-report.json \
+            --model "${{ inputs.model }}" \
+            ${{ inputs.pilot != '' && format('--pilot {0}', inputs.pilot) || '' }}
+      - name: Print full report to the job log
+        if: always()
+        run: cat scripts/verification-report.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audio-content-verification-report
+          path: scripts/verification-report.json
+          retention-days: 14
