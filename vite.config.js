@@ -90,10 +90,25 @@ export default defineConfig({
             // forcing into everyone's initial install) — deliberately
             // left out of globPatterns above; cached the first time each
             // one is actually played, then available offline from then on.
+            //
+            // cacheName is versioned (v2, not "official-audio") on
+            // purpose: an earlier commit (b80b603, since reverted) baked
+            // in a first batch of clips under these exact same filenames
+            // that were prone to TTS hallucination, then a later commit
+            // replaced them with better-verified clips at the same URLs.
+            // CacheFirst never revalidates a URL it's already cached, so
+            // any browser that played a letter/word during that window
+            // would keep serving the old wrong audio forever, even after
+            // the correct files were deployed — indistinguishable from
+            // the bug never having been fixed. Renaming the cache is what
+            // actually invalidates that: it's a fresh, empty cache, so
+            // everyone refetches from the network at least once. Bump
+            // this suffix again (v3, v4, ...) any time already-shipped
+            // clips are regenerated/replaced under unchanged filenames.
             urlPattern: ({ url }) => url.pathname.includes('/audio/official/') && url.pathname.endsWith('.mp3'),
             handler: 'CacheFirst',
             options: {
-              cacheName: 'official-audio',
+              cacheName: 'official-audio-v2',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] },
             },

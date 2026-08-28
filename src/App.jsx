@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import {
   generateSyncCode, getSavedSyncCode, saveSyncCode, pullBundle, pushBundle, gatherBundle, applyBundle,
 } from "./lib/progressSync.js";
+import { WORD_FAM, officialAudioUrl, officialKeyFromFilename } from "./audio.js";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -164,37 +165,14 @@ const WORDS = [
 // exact same storage unchanged, filed under pseudo-family ids safely
 // outside the real 0-33 range: "order" is then just the word's index in
 // its own list (ANCHORS or PHRASES).
-const WORD_FAM = { anchor: 900, phrase: 901 };
-
-// Real recordings from Addis AI (Voice 2, am-hamen), generated once
-// (scripts/generate-official-audio.mjs) and baked in as static files
-// under public/audio/official/, filed under the same (fam, order)
-// addressing the recording system already uses. Verified with ffprobe
-// duration + ffmpeg silence-gap checks (no speech-recognition model
-// involved — see the comment atop generate-official-audio.mjs for why).
-// Not every letter/word/phrase necessarily has one — only what actually
-// passed verification ships — so the app checks manifest.json rather
-// than assuming a file exists (see officialAudioKey / the manifest
-// fetch in AmharicFidel).
-function officialAudioUrl(fam, order) {
-  const base = `${import.meta.env.BASE_URL}audio/official/`;
-  if (fam === WORD_FAM.anchor) return `${base}anchor-${order}.mp3`;
-  if (fam === WORD_FAM.phrase) return `${base}phrase-${order}.mp3`;
-  return `${base}letter-${fam}-${order}.mp3`;
-}
-
-// manifest.json lists filenames, e.g. "letter-3-0.mp3" — converted here
-// to the same "fam.order" key shape audio.have (personal recordings)
-// already uses, so both sets can be checked the same way everywhere.
-function officialKeyFromFilename(name) {
-  let m = /^letter-(\d+)-(\d+)\.mp3$/.exec(name);
-  if (m) return `${m[1]}.${m[2]}`;
-  m = /^anchor-(\d+)\.mp3$/.exec(name);
-  if (m) return `${WORD_FAM.anchor}.${m[1]}`;
-  m = /^phrase-(\d+)\.mp3$/.exec(name);
-  if (m) return `${WORD_FAM.phrase}.${m[1]}`;
-  return null;
-}
+// officialAudioUrl/officialKeyFromFilename/WORD_FAM live in src/audio.js
+// (imported above) so they're unit-testable without pulling in React —
+// see src/audio.test.js. Verified with ffprobe duration + ffmpeg
+// silence-gap checks (no speech-recognition model involved — see the
+// comment atop generate-official-audio.mjs for why); not every
+// letter/word/phrase necessarily has one — only what actually passed
+// verification ships — so the app checks manifest.json rather than
+// assuming a file exists (see the manifest fetch in AmharicFidel).
 
 const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],

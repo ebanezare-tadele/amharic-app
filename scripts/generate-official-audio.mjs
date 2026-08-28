@@ -69,6 +69,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { chooseRowBounds } from "./row-slicing.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.join(__dirname, "official-audio-out");
@@ -245,24 +246,7 @@ async function sliceRow(audioPath, duration, syllableCount, sliceDir, slicePrefi
   console.error(`  silencedetect (duration=${duration.toFixed(2)}s, EDGE=${EDGE.toFixed(2)}s): ${JSON.stringify(allGaps.map((g) => [g.start.toFixed(2), g.end.toFixed(2)]))}`);
   console.error(`  interior gaps: ${interior.length} (wanted ${wantGaps})`);
 
-  let bounds, flagged = false;
-  if (interior.length >= wantGaps) {
-    const chosen = [...interior].sort((a, b) => (b.end - b.start) - (a.end - a.start)).slice(0, wantGaps);
-    const cuts = chosen.map((g) => (g.start + g.end) / 2).sort((a, b) => a - b);
-    const points = [0, ...cuts, duration];
-    bounds = points.slice(0, -1).map((s, i) => [s, points[i + 1]]);
-    flagged = interior.length !== wantGaps;
-  } else {
-    // Fewer candidate pauses than syllables even at a permissive
-    // threshold -- not enough real evidence to place confident cuts.
-    // Even split across the whole clip instead of rejecting: measured
-    // that regenerating the same row text gives the same pause pattern
-    // every time (Addis AI renders it near-deterministically), so
-    // discarding and retrying wouldn't change anything here.
-    const step = duration / syllableCount;
-    bounds = Array.from({ length: syllableCount }, (_, i) => [i * step, (i + 1) * step]);
-    flagged = true;
-  }
+  const { bounds, confidence, flagged, note } = chooseRowBounds(interior, syllableCount, duration);
 
   const PAD = 0.06;
   const names = [];
@@ -273,7 +257,7 @@ async function sliceRow(audioPath, duration, syllableCount, sliceDir, slicePrefi
     if (!ok) return { ok: false, reason: `ffmpeg failed to cut segment ${i}` };
     names.push(outName);
   }
-  return { ok: true, names, flagged };
+  return { ok: true, names, flagged, confidence, note };
 }
 
 // Per-category sane duration bands, in seconds. Min guards against a
@@ -400,8 +384,8 @@ async function generateOne(job) {
         console.error(`[${job.id}] quality attempt ${qAttempt}: slicing rejected — ${lastReason}`);
         continue;
       }
-      console.error(`[${job.id}] quality attempt ${qAttempt}: sliced OK${result.flagged ? " (flagged: gap count off by one, even-split fallback)" : ""}`);
-      return { job, ok: true, requality: qAttempt > 1, flagged: result.flagged, files: result.names };
+      console.error(`[${job.id}] quality attempt ${qAttempt}: sliced OK${result.flagged ? ` (flagged, ${result.confidence}: ${result.note})` : ""}`);
+      return { job, ok: true, requality: qAttempt > 1, flagged: result.flagged, note: result.note, files: result.names };
     }
 
     await rename(tmpPath, path.join(OUT_DIR, job.filename));
@@ -521,7 +505,7 @@ async function main() {
     } else if (result.ok) {
       done++;
       if (result.requality) requalified++;
-      if (result.flagged) flagged.push({ job, note: "gap count off by one, even-split fallback" });
+      if (result.flagged) flagged.push({ job, note: result.note });
       shipped.push(...result.files);
     } else {
       failed.push(result);
