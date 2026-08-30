@@ -3,6 +3,7 @@ import {
   generateSyncCode, getSavedSyncCode, saveSyncCode, pullBundle, pushBundle, gatherBundle, applyBundle,
 } from "./lib/progressSync.js";
 import { WORD_FAM, officialAudioUrl, officialKeyFromFilename } from "./audio.js";
+import { onInstallPromptAvailable, isStandalone, isIOSDevice } from "./lib/installPrompt.js";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -2991,6 +2992,59 @@ function Tour({ onDone }) {
 }
 
 /* ============================================================
+   INSTALL BANNER
+   Chrome/Edge/Android expose a real programmatic install prompt
+   (beforeinstallprompt, captured in src/lib/installPrompt.js as
+   early as possible since it can fire before this even mounts) —
+   there, this is one tap. iOS Safari has no such API at all; the
+   only path is the manual Share -> Add to Home Screen menu, so
+   there it shows those steps instead of a button. Dismissed the
+   same one-time way as Callout below (state.seenIntro), and never
+   shown at all once actually running standalone (already
+   installed) or on a platform that offers neither path.
+   ============================================================ */
+
+function InstallBanner({ seenIntro, onSeen }) {
+  const [prompt, setPrompt] = useState(null);
+  useEffect(() => onInstallPromptAvailable(setPrompt), []);
+
+  if (seenIntro.includes("cb-install") || isStandalone()) return null;
+
+  const ios = isIOSDevice();
+  if (!prompt && !ios) return null; // no install path to offer
+
+  const install = async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    await prompt.userChoice;
+    onSeen("cb-install");
+  };
+
+  return (
+    <div className="card" style={{ borderColor: "var(--gold)", padding: "12px 14px" }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <div style={{ flex: 1 }}>
+          <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Add to Home Screen</div>
+          <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>
+            {ios
+              ? <>Opens faster and works offline as its own app. Tap the <b>Share</b> button (the square with an arrow, in Safari's toolbar), then <b>Add to Home Screen</b>.</>
+              : <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>}
+          </div>
+        </div>
+        <button onClick={() => onSeen("cb-install")} style={{ color: "var(--dim)", fontSize: 16, lineHeight: 1, padding: 2 }}>
+          ✕
+        </button>
+      </div>
+      {!ios && (
+        <button className="btn" style={{ marginTop: 10, width: "100%" }} onClick={install}>
+          Install ፊደል
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
    CALLOUT
    A small, dismissible, one-time tip anchored in place next to
    the feature it explains — pointing things out as they're
@@ -3110,6 +3164,14 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
         building, tracing, and the speed round. The streak counts by calendar day, from opening the
         app — it's on the honor system, not tied to actually finishing anything.
       </Callout>
+
+      {/* Shown only once there's something to protect — right after the
+          first sign of real progress, not on the very first screen. */}
+      {known.size > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <InstallBanner seenIntro={seenIntro} onSeen={onSeen} />
+        </div>
+      )}
 
       {dueCount > 0 && (
         <button className="card" style={{ borderColor: "var(--rubric)" }} onClick={onReview}>

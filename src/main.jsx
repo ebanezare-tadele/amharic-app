@@ -2,6 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import './lib/windowStorage.js'
+// Imported here, before anything else, so its beforeinstallprompt
+// listener is registered as early as possible — see the comment atop
+// the module for why that matters.
+import './lib/installPrompt.js'
 import './index.css'
 import App from './App.jsx'
 
