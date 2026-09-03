@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   generateSyncCode, getSavedSyncCode, saveSyncCode, pullBundle, pushBundle, gatherBundle, applyBundle,
+  getCompareCodes, saveCompareCodes,
 } from "./lib/progressSync.js";
 import { WORD_FAM, officialAudioUrl, officialKeyFromFilename } from "./audio.js";
 import { onInstallPromptAvailable, isStandalone, isIOSDevice } from "./lib/installPrompt.js";
+import { applyTodayPatch, emptyToday, questsForDay, rollStreak, MAX_FREEZES } from "./lib/gamification.js";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -446,9 +448,11 @@ const emptyState = () => ({
   basesDone: [],
   sweepsDone: [],
   streakDays: 0,
+  streakFreezes: 0,
   lastDay: null,
   bestSpeed: 0,
   seenIntro: [],
+  today: null,
 });
 
 function loadState() {
@@ -549,6 +553,7 @@ const CSS = `
 .xpfill { height: 100%; background: var(--gold); transition: width .5s cubic-bezier(.2,.8,.2,1); }
 .chip { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--dim); }
 .chip b { color: var(--bone); }
+.combo { font-size: 12px; font-weight: 700; color: var(--gold); animation: ink .3s cubic-bezier(.2,.9,.3,1); }
 
 /* ---- THE SIGNATURE: rubric row ---- */
 .rubric {
@@ -1176,6 +1181,7 @@ function Lesson({ spec, state, pool, audio, onDone, onExit }) {
   const [chosen, setChosen] = useState(null);
   const [got, setGot] = useState(0);
   const [missed, setMissed] = useState(0);
+  const [combo, setCombo] = useState(0);
   const results = useRef([]);
 
   const qkinds = kindsFor(kind === "review" ? "unit" : kind);
@@ -1246,9 +1252,12 @@ function Lesson({ spec, state, pool, audio, onDone, onExit }) {
     setChosen(opt);
     const ok = opt === q.correct;
     results.current.push({ fam: q.fam, order: q.order, ok });
-    if (ok) setGot(got + 1);
-    else {
+    if (ok) {
+      setGot(got + 1);
+      setCombo(combo + 1);
+    } else {
       setMissed(missed + 1);
+      setCombo(0);
       const again = makeQ({ fam: q.fam, order: q.order }, bank.current, qkinds);
       const nq = queue.slice();
       nq.splice(Math.min(qi + 3, nq.length), 0, again);
@@ -1273,6 +1282,9 @@ function Lesson({ spec, state, pool, audio, onDone, onExit }) {
             <div className="xpfill" style={{ width: `${(qi / queue.length) * 100}%` }} />
           </div>
           <span className="chip"><b>{qi + 1}</b>/{queue.length}</span>
+          {combo >= 2 && (
+            <span className="combo" key={combo}>🔥 {combo}</span>
+          )}
         </div>
 
         {showRubric ? (
@@ -1674,7 +1686,7 @@ function WordEntry({ text, rom, gloss, fam, order, audio }) {
    CHART
    ============================================================ */
 
-function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
+function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen, level, xp, streakDays }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const [sel, setSel] = useState(null);
   // audio.have covers letters and, now, words (WORD_FAM) in the same
@@ -1909,6 +1921,10 @@ function Chart({ cards, unlockedFams, audio, onReset, seenIntro, onSeen }) {
       <SyncPanel />
 
       <div className="rule" />
+      <div className="eyebrow" style={{ marginBottom: 8 }}>Compare progress</div>
+      <ComparePanel mine={{ level, xp, streakDays, masteredCount: Object.values(cards).filter((c) => (c.lvl || 0) >= 5).length }} />
+
+      <div className="rule" />
       <button
         className="speaker"
         style={confirmReset ? { borderColor: "var(--rubric)", color: "var(--rubric)" } : undefined}
@@ -2046,6 +2062,128 @@ function SyncPanel() {
           {msg}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ============================================================
+   COMPARE
+   Entirely separate from this device's own sync code (SyncPanel
+   above) — this only ever READS someone else's bundle by their
+   code (pullBundle, never applyBundle), so watching a code can't
+   touch anyone's actual progress, yours or theirs. Off by default;
+   nothing here is visible until a code is added. See
+   getCompareCodes/saveCompareCodes in lib/progressSync.js.
+   ============================================================ */
+
+function statsFromBundle(bundle) {
+  const p = bundle && bundle.progress;
+  if (!p) return null;
+  return {
+    level: Math.floor((p.xp || 0) / 250) + 1,
+    xp: p.xp || 0,
+    streakDays: p.streakDays || 0,
+    masteredCount: Object.values(p.cards || {}).filter((c) => (c.lvl || 0) >= 5).length,
+  };
+}
+
+function CompareRow({ label, stats }) {
+  return (
+    <div className="row-sp" style={{ padding: "8px 0", borderTop: "1px solid var(--line)" }}>
+      <span className="note" style={{ fontSize: 12.5, color: "var(--bone)" }}>{label}</span>
+      {stats.error ? (
+        <span className="note" style={{ fontSize: 11, color: "var(--rubric)" }}>{stats.error}</span>
+      ) : (
+        <span className="note" style={{ fontSize: 11.5 }}>
+          lv <b style={{ color: "var(--bone)" }}>{stats.level}</b> · {stats.masteredCount} mastered ·{" "}
+          {stats.streakDays}d streak
+        </span>
+      )}
+    </div>
+  );
+}
+
+function ComparePanel({ mine }) {
+  const [codes, setCodes] = useState(() => getCompareCodes());
+  const [input, setInput] = useState("");
+  const [entries, setEntries] = useState({});
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async (list) => {
+    setBusy(true);
+    const next = {};
+    for (const code of list) {
+      try {
+        const bundle = await pullBundle(code);
+        const stats = statsFromBundle(bundle);
+        next[code] = stats || { error: "No synced progress found for that code." };
+      } catch (e) {
+        next[code] = { error: e.message || "Couldn't reach the server." };
+      }
+    }
+    setEntries(next);
+    setBusy(false);
+  };
+
+  useEffect(() => {
+    if (codes.length) refresh(codes);
+  }, []);
+
+  const addCode = async () => {
+    const typed = input.trim().toUpperCase();
+    if (!typed || codes.includes(typed)) return;
+    const next = [...codes, typed];
+    setCodes(next);
+    saveCompareCodes(next);
+    setInput("");
+    await refresh(next);
+  };
+
+  const removeCode = (code) => {
+    const next = codes.filter((c) => c !== code);
+    setCodes(next);
+    saveCompareCodes(next);
+    setEntries((e) => {
+      const n = { ...e };
+      delete n[code];
+      return n;
+    });
+  };
+
+  return (
+    <div>
+      <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
+        Optional — studying with someone else? Add their sync code (from their Sync panel above) to see
+        how you're both doing. Read-only: this can never change their progress, or yours.
+      </p>
+
+      <CompareRow label="You" stats={mine} />
+      {codes.map((code) => (
+        <div key={code} className="row-sp" style={{ alignItems: "center" }}>
+          <div style={{ flex: 1 }}>
+            <CompareRow label={code} stats={entries[code] || { error: "Loading…" }} />
+          </div>
+          <button onClick={() => removeCode(code)} style={{ color: "var(--dim)", fontSize: 15, padding: "0 0 0 8px" }}>
+            ✕
+          </button>
+        </div>
+      ))}
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addCode()}
+          placeholder="their sync code"
+          style={{
+            flex: 1, minWidth: 140, background: "var(--ink)", border: "1px solid var(--line)",
+            borderRadius: 20, padding: "6px 14px", color: "var(--bone)", fontSize: 12,
+          }}
+        />
+        <button className="speaker" disabled={busy || !input.trim()} onClick={addCode}>
+          {busy ? "working…" : "add"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -3096,6 +3234,49 @@ function Badges({ state, known, level, allBases, audioCount }) {
   );
 }
 
+/* ============================================================
+   DAILY QUESTS
+   Same 3 (of a pool of 4) for everyone on a given calendar day —
+   see questsForDay in src/lib/gamification.js for why that's
+   deterministic rather than random. Progress and payout both come
+   from state.today, which every XP-earning action already updates
+   via bumpToday (see AmharicFidel below) — this component only reads.
+   ============================================================ */
+
+function DailyQuests({ today }) {
+  const day = todayStamp();
+  const quests = questsForDay(day);
+  const t = today && today.day === day ? today : emptyToday(day);
+
+  return (
+    <div className="card" style={{ padding: "12px 14px", marginBottom: 16 }}>
+      <div className="eyebrow" style={{ marginBottom: 8 }}>Today's quests</div>
+      {quests.map((q) => {
+        const done = t.claimed.includes(q.id);
+        const progress = Math.min(q.get(t), q.target);
+        return (
+          <div key={q.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0" }}>
+            <span style={{ fontSize: 15, color: done ? "var(--gold)" : "var(--dim)", width: 16, textAlign: "center" }}>
+              {done ? "✓" : "○"}
+            </span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12.5, color: done ? "var(--dim)" : "var(--bone)", textDecoration: done ? "line-through" : "none" }}>
+                {q.label}
+              </div>
+              {!done && (
+                <div style={{ height: 3, background: "var(--ink3)", borderRadius: 2, marginTop: 4 }}>
+                  <div style={{ height: 3, width: `${(progress / q.target) * 100}%`, background: "var(--rubric)", borderRadius: 2 }} />
+                </div>
+              )}
+            </div>
+            <span className="pill" style={{ fontSize: 10, opacity: done ? 0.5 : 1 }}>+{q.reward} xp</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, seenIntro, onSeen, audioCount }) {
   const bDone = new Set(state.basesDone || []);
   const sDone = new Set(state.sweepsDone || []);
@@ -3121,11 +3302,20 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
         <div className="stat"><b>{state.streakDays}</b><span>day streak</span></div>
       </div>
 
+      {state.streakFreezes > 0 && (
+        <div className="note" style={{ textAlign: "center", fontSize: 11, marginTop: -10, marginBottom: 4 }}>
+          ❄️ {state.streakFreezes} freeze{state.streakFreezes > 1 ? "s" : ""} saved — a missed day won't break the streak
+        </div>
+      )}
+
       <Callout id="cb-stats" seenIntro={seenIntro} onSeen={onSeen}>
         Level is just total XP in disguise — 250 XP per level, earned across lessons, review, word
         building, tracing, and the speed round. The streak counts by calendar day, from opening the
-        app — it's on the honor system, not tied to actually finishing anything.
+        app — it's on the honor system, not tied to actually finishing anything. Every 7-day milestone
+        banks a freeze (up to {MAX_FREEZES}): miss a day with one saved and the streak survives anyway.
       </Callout>
+
+      <DailyQuests today={state.today} />
 
       {/* Shown only once there's something to protect — right after the
           first sign of real progress, not on the very first screen. */}
@@ -3292,12 +3482,13 @@ export default function AmharicFidel() {
   useEffect(() => {
     loadState().then((s) => {
       const t = todayStamp();
-      if (s.lastDay !== t) {
-        const y = new Date(Date.now() - DAY);
-        const ys = `${y.getFullYear()}-${y.getMonth()}-${y.getDate()}`;
-        s.streakDays = s.lastDay === ys ? (s.streakDays || 0) + 1 : 1;
-        s.lastDay = t;
-      }
+      const y = new Date(Date.now() - DAY);
+      const ys = `${y.getFullYear()}-${y.getMonth()}-${y.getDate()}`;
+      const rolled = rollStreak({ streakDays: s.streakDays, streakFreezes: s.streakFreezes, lastDay: s.lastDay, yesterdayStamp: ys, todayDay: t });
+      s.streakDays = rolled.streakDays;
+      s.streakFreezes = rolled.streakFreezes;
+      s.lastDay = t;
+      s.today = applyTodayPatch(s.today, t, {}).today;
       s.basesDone = s.basesDone || [];
       s.sweepsDone = s.sweepsDone || [];
       if (!s.startDate) s.startDate = Date.now();
@@ -3392,6 +3583,13 @@ export default function AmharicFidel() {
   const level = Math.floor(state.xp / 250) + 1;
   const pct = ((state.xp % 250) / 250) * 100;
 
+  // Rolls a same-day quest-progress patch into state.today (see
+  // src/lib/gamification.js), returning both the updated today object
+  // and any bonus XP a quest just newly completed — call inside a
+  // setState updater alongside whatever else that action already does,
+  // same pattern at every XP-earning call site below.
+  const bumpToday = (s, patch) => applyTodayPatch(s.today, todayStamp(), patch);
+
   const grade = (results) => {
     const now = Date.now();
     setState((s) => {
@@ -3406,7 +3604,10 @@ export default function AmharicFidel() {
     });
   };
 
-  const addXp = (n) => setState((s) => ({ ...s, xp: s.xp + n }));
+  const addXp = (n) => setState((s) => {
+    const { today, bonusXp } = bumpToday(s, { xp: n });
+    return { ...s, xp: s.xp + n + bonusXp, today };
+  });
   const audio = {
     have: haveAudio,
     official: officialHave,
@@ -3414,7 +3615,7 @@ export default function AmharicFidel() {
   };
 
   const resetAll = () => {
-    const fresh = { ...emptyState(), startDate: Date.now(), lastDay: todayStamp(), streakDays: 1 };
+    const fresh = { ...emptyState(), startDate: Date.now(), lastDay: todayStamp(), streakDays: 1, today: emptyToday(todayStamp()) };
     lastSig.current = "";
     setState(fresh);
     saveState({ ...fresh, track }, true);
@@ -3447,7 +3648,9 @@ export default function AmharicFidel() {
           onDone={(results, xp) => {
             grade(results);
             setState((s) => {
-              const n = { ...s, xp: s.xp + xp };
+              const correct = results.filter((r) => r.ok).length;
+              const { today, bonusXp } = bumpToday(s, { xp, lessonsDone: 1, correct });
+              const n = { ...s, xp: s.xp + xp + bonusXp, today };
               if (lesson.kind === "base" && !n.basesDone.includes(lesson.id)) n.basesDone = [...n.basesDone, lesson.id];
               if (lesson.kind === "sweep" && !n.sweepsDone.includes(lesson.id)) n.sweepsDone = [...n.sweepsDone, lesson.id];
               if (lesson.kind === "unit" && !n.unitsDone.includes(lesson.id)) n.unitsDone = [...n.unitsDone, lesson.id];
@@ -3496,6 +3699,9 @@ export default function AmharicFidel() {
             onReset={resetAll}
             seenIntro={state.seenIntro}
             onSeen={markSeen}
+            level={level}
+            xp={state.xp}
+            streakDays={state.streakDays}
           />
         )}
         {tab === "words" && (
@@ -3545,7 +3751,10 @@ export default function AmharicFidel() {
               <Speed
                 pool={pool}
                 best={state.bestSpeed}
-                onEnd={(sc) => setState((s) => ({ ...s, xp: s.xp + sc * 5, bestSpeed: Math.max(s.bestSpeed, sc) }))}
+                onEnd={(sc) => setState((s) => {
+                  const { today, bonusXp } = bumpToday(s, { xp: sc * 5, speedPlayed: 1 });
+                  return { ...s, xp: s.xp + sc * 5 + bonusXp, bestSpeed: Math.max(s.bestSpeed, sc), today };
+                })}
               />
             </div>
           ))}

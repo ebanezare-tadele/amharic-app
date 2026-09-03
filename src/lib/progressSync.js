@@ -58,6 +58,29 @@ export function saveSyncCode(code) {
   } catch {}
 }
 
+// Other people's sync codes this device wants to watch (opt-in progress
+// compare) -- entirely separate from CODE_STORAGE_KEY above, which is
+// this device's OWN code. Read-only: compare never calls applyBundle,
+// so watching someone's code can't overwrite anything of theirs or
+// yours.
+const COMPARE_STORAGE_KEY = "amharic-fidel:compare-codes";
+
+export function getCompareCodes() {
+  try {
+    const raw = window.localStorage.getItem(COMPARE_STORAGE_KEY);
+    const codes = raw ? JSON.parse(raw) : [];
+    return Array.isArray(codes) ? codes : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCompareCodes(codes) {
+  try {
+    window.localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(codes));
+  } catch {}
+}
+
 export async function pullBundle(code) {
   return rpc("get_progress", { p_code: code }); // null if no row for that code
 }
