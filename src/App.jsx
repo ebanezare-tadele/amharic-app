@@ -441,7 +441,6 @@ function wordsFor(unlockedChars) {
 const emptyState = () => ({
   xp: 0,
   startDate: null,
-  romanize: true,
   cards: {},
   unitsDone: [],
   basesDone: [],
@@ -903,24 +902,16 @@ const KINDS = {
   unit: ["f2r", "r2f", "row"],
 };
 
-// no Latin anywhere — orders are named the way Amharic names them
-const KINDS_FIDEL = {
-  base: ["anchor", "anchor2"],
-  sweep: ["transform", "orderName", "match"],
-  unit: ["row", "orderName", "match"],
-};
+const kindsFor = (lessonKind) => KINDS[lessonKind] || KINDS.unit;
 
-const kindsFor = (lessonKind, romanize) =>
-  (romanize ? KINDS : KINDS_FIDEL)[lessonKind] || (romanize ? KINDS.unit : KINDS_FIDEL.unit);
-
-function buildSession(targets, pool, reviews, kinds, romanize) {
+function buildSession(targets, pool, reviews, kinds) {
   const q = [];
   targets.forEach((t) => {
     q.push(makeQ(t, pool, kinds));
     q.push(makeQ(t, pool, kinds));
   });
   pick(reviews, targets.length ? 4 : 18).forEach((r) =>
-    q.push(makeQ(r, pool, kindsFor("unit", romanize)))
+    q.push(makeQ(r, pool, kindsFor("unit")))
   );
   return shuffle(q).slice(0, 18);
 }
@@ -1173,7 +1164,7 @@ function HearButton({ fam, order, audio, text }) {
   );
 }
 
-function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
+function Lesson({ spec, state, pool, audio, onDone, onExit }) {
   const { kind, fams, orders } = spec;
   const isReview = kind === "review";
   const needsIntro = !isReview && !spec.skipIntro;
@@ -1187,7 +1178,7 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
   const [missed, setMissed] = useState(0);
   const results = useRef([]);
 
-  const qkinds = kind === "review" ? kindsFor("unit", romanize) : kindsFor(kind, romanize);
+  const qkinds = kindsFor(kind === "review" ? "unit" : kind);
 
   const startDrills = useCallback(() => {
     const targets = [];
@@ -1197,7 +1188,7 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
     );
     const b = targets.length ? [...pool, ...targets] : pool;
     bank.current = b;
-    setQueue(buildSession(pick(targets, 9), b, reviews, qkinds, romanize));
+    setQueue(buildSession(pick(targets, 9), b, reviews, qkinds));
     setPhase("drill");
   }, []);
 
@@ -1306,8 +1297,8 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
             <div style={{ padding: "16px 0 4px" }}>
               <span className="gz" style={{ fontSize: 76, color: "var(--dim)" }}>{F.chars[0]}</span>
               <span className="disp" style={{ fontSize: 34, margin: "0 14px", color: "var(--dim)" }}>+</span>
-              <span className={romanize ? "disp" : "gz"} style={{ fontSize: romanize ? 52 : 30, color: "var(--rubric)" }}>
-                {romanize ? ORDERS[q.order].v : ORDERS[q.order].am}
+              <span className="disp" style={{ fontSize: 52, color: "var(--rubric)" }}>
+                {ORDERS[q.order].v}
               </span>
             </div>
           )}
@@ -1369,9 +1360,7 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
               ? "Look at the right side of the letter. That's where the mark lives."
               : kind === "base"
               ? "Bare consonant — no vowel mark yet."
-              : romanize
-              ? `Order ${q.order + 1} · ${ORDERS[q.order].say}`
-              : `${ORDERS[q.order].am} · ደረጃ ${q.order + 1}`}
+              : `Order ${q.order + 1} · ${ORDERS[q.order].say}`}
           </div>
         </div>
       )}
@@ -1383,7 +1372,7 @@ function Lesson({ spec, state, pool, romanize, audio, onDone, onExit }) {
    WORD BUILDER
    ============================================================ */
 
-function WordBuild({ pool, unlockedChars, romanize, onXp }) {
+function WordBuild({ pool, unlockedChars, onXp }) {
   const bank = useMemo(() => wordsFor(unlockedChars), [unlockedChars]);
   const [i, setI] = useState(0);
   const [slots, setSlots] = useState([]);
@@ -1449,12 +1438,7 @@ function WordBuild({ pool, unlockedChars, romanize, onXp }) {
           {w[2]}
         </div>
         <div className="note" style={{ marginBottom: 24 }}>
-          {romanize && (
-            <>
-              sounds like <b style={{ color: "var(--bone)" }}>{w[1]}</b> ·{" "}
-            </>
-          )}
-          {target.length} letters
+          sounds like <b style={{ color: "var(--bone)" }}>{w[1]}</b> · {target.length} letters
         </div>
 
         <div style={{ textAlign: "center", minHeight: 60, marginBottom: 26 }}>
@@ -1494,10 +1478,8 @@ function WordBuild({ pool, unlockedChars, romanize, onXp }) {
           </div>
           <div className="vsub" style={{ marginBottom: 12 }}>
             <span className="gz" style={{ fontSize: 22 }}>{w[0]}</span>
-            {romanize
-              ? ` · ${w[1]} · ` +
-                target.map((c) => (CHAR_MAP[c] ? FAMS[CHAR_MAP[c].fam].rom[CHAR_MAP[c].order] : c)).join(" · ")
-              : ` · ${w[2]}`}
+            {` · ${w[1]} · ` +
+              target.map((c) => (CHAR_MAP[c] ? FAMS[CHAR_MAP[c].fam].rom[CHAR_MAP[c].order] : c)).join(" · ")}
           </div>
           <button className="btn" onClick={() => setI(i + 1)}>
             Next word
@@ -1517,7 +1499,7 @@ function WordBuild({ pool, unlockedChars, romanize, onXp }) {
    SPEED ROUND
    ============================================================ */
 
-function Speed({ pool, best, romanize, onEnd }) {
+function Speed({ pool, best, onEnd }) {
   const [t, setT] = useState(60);
   const [score, setScore] = useState(0);
   const [q, setQ] = useState(null);
@@ -1541,7 +1523,7 @@ function Speed({ pool, best, romanize, onEnd }) {
       const ch = FAMS[p.fam].chars[p.order];
       if (FAMS[p.fam].rom[p.order] !== rom && !opts.includes(ch)) opts.push(ch);
     }
-    setQ({ rom, base: FAMS[tgt.fam].chars[0], am: ORDERS[tgt.order].am, correct: opts[0], options: shuffle(opts) });
+    setQ({ rom, correct: opts[0], options: shuffle(opts) });
   }, [pool]);
 
   useEffect(() => {
@@ -1637,21 +1619,14 @@ function Speed({ pool, best, romanize, onEnd }) {
       </div>
 
       <div
-        className={romanize ? "prompt-rom" : "gz"}
+        className="prompt-rom"
         style={{
           textAlign: "center",
-          margin: romanize ? "34px 0" : "28px 0",
-          fontSize: romanize ? undefined : 30,
+          margin: "34px 0",
           color: flash === "ok" ? "var(--verd)" : flash === "no" ? "var(--rubric)" : "var(--bone)",
         }}
       >
-        {romanize ? q.rom : (
-          <>
-            <span style={{ fontSize: 48 }}>{q.base}</span>
-            <span style={{ margin: "0 10px", color: "var(--dim)" }}>→</span>
-            {q.am}
-          </>
-        )}
+        {q.rom}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 9 }}>
@@ -2421,7 +2396,7 @@ function maskFromChar(ch) {
   return g;
 }
 
-function Trace({ letters, romanize, onXp }) {
+function Trace({ letters, onXp }) {
   const ghostRef = useRef(null);
   const inkRef = useRef(null);
   const maskRef = useRef(null);
@@ -2569,23 +2544,14 @@ function Trace({ letters, romanize, onXp }) {
 
         <div className="row-sp" style={{ marginBottom: 8 }}>
           <span className="eyebrow">
-            {info ? (romanize ? `${FAMS[info.fam].rom[info.order]} · ${ORDERS[info.order].am}` : ORDERS[info.order].am) : "write it"}
+            {info ? `${FAMS[info.fam].rom[info.order]} · ${ORDERS[info.order].am}` : "write it"}
           </span>
           <span className="pill">{i + 1} of {letters.length}</span>
         </div>
 
         {mode === "memory" && score === null && (
-          <div
-            className={romanize ? "disp" : "gz"}
-            style={{ fontSize: romanize ? 40 : 24, textAlign: "center", marginBottom: 6 }}
-          >
-            {!info ? "" : romanize ? FAMS[info.fam].rom[info.order] : (
-              <>
-                <span style={{ fontSize: 40 }}>{FAMS[info.fam].chars[0]}</span>
-                <span style={{ margin: "0 10px", color: "var(--dim)" }}>→</span>
-                {ORDERS[info.order].am}
-              </>
-            )}
+          <div className="disp" style={{ fontSize: 40, textAlign: "center", marginBottom: 6 }}>
+            {info ? FAMS[info.fam].rom[info.order] : ""}
           </div>
         )}
 
@@ -2647,7 +2613,7 @@ function Trace({ letters, romanize, onXp }) {
    READER
    ============================================================ */
 
-function Reader({ known, romanize, audio }) {
+function Reader({ known, audio }) {
   const [i, setI] = useState(0);
   const [tap, setTap] = useState(null);
   const [showRom, setShowRom] = useState(false);
@@ -2735,7 +2701,7 @@ function Reader({ known, romanize, audio }) {
           ))}
         </div>
 
-        {showRom && romanize && (
+        {showRom && (
           <div className="note" style={{ fontSize: 14, color: "var(--bone)", marginBottom: 6 }}>
             {sent.map((w) => w[1]).join(" ")}
           </div>
@@ -2746,7 +2712,7 @@ function Reader({ known, romanize, audio }) {
               <div key={k} style={{ display: "flex", gap: 10, padding: "6px 0", borderTop: "1px solid var(--line)" }}>
                 <span className="gz" style={{ fontSize: 19, minWidth: 78 }}>{w[0]}</span>
                 <span className="note" style={{ flex: 1 }}>
-                  {romanize && <b style={{ color: "var(--bone)" }}>{w[1]} — </b>}
+                  <b style={{ color: "var(--bone)" }}>{w[1]} — </b>
                   {w[2]}
                 </span>
               </div>
@@ -2755,11 +2721,9 @@ function Reader({ known, romanize, audio }) {
         )}
 
         <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
-          {romanize && (
-            <button className="speaker" onClick={() => setShowRom(!showRom)}>
-              {showRom ? "hide" : "show"} sounds
-            </button>
-          )}
+          <button className="speaker" onClick={() => setShowRom(!showRom)}>
+            {showRom ? "hide" : "show"} sounds
+          </button>
           <button className="speaker" onClick={() => setShowEn(!showEn)}>
             {showEn ? "hide" : "show"} meaning
           </button>
@@ -2772,10 +2736,8 @@ function Reader({ known, romanize, audio }) {
             <div className="row-sp">
               <span className="gz" style={{ fontSize: 42, color: "var(--rubric)" }}>{tap.c}</span>
               <div style={{ flex: 1, textAlign: "right" }}>
-                <div className={romanize ? "" : "gz"} style={{ fontSize: 20, fontWeight: 600 }}>
-                  {romanize
-                    ? FAMS[CHAR_MAP[tap.c].fam].rom[CHAR_MAP[tap.c].order]
-                    : ORDERS[CHAR_MAP[tap.c].order].am}
+                <div style={{ fontSize: 20, fontWeight: 600 }}>
+                  {FAMS[CHAR_MAP[tap.c].fam].rom[CHAR_MAP[tap.c].order]}
                 </div>
                 <div className="note" style={{ fontSize: 11 }}>
                   {FAMS[CHAR_MAP[tap.c].fam].chars[0]} + {ORDERS[CHAR_MAP[tap.c].order].v} mark ·{" "}
@@ -3134,7 +3096,7 @@ function Badges({ state, known, level, allBases, audioCount }) {
   );
 }
 
-function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, romanize, setRomanize, seenIntro, onSeen, audioCount }) {
+function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track, setTrack, seenIntro, onSeen, audioCount }) {
   const bDone = new Set(state.basesDone || []);
   const sDone = new Set(state.sweepsDone || []);
   const uDone = new Set(state.unitsDone || []);
@@ -3207,26 +3169,6 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
         These two tracks aren't a one-time choice — switch anytime, for free. They feed the same
         progress, the same review queue, the same chart.
       </Callout>
-
-      <button
-        className="card"
-        onClick={() => setRomanize(!romanize)}
-        style={{ borderColor: romanize ? "var(--line)" : "var(--gold)" }}
-      >
-        <div className="row-sp">
-          <span className="card-title" style={{ fontSize: 17 }}>
-            {romanize ? "Romanization on" : "ፊደል only"}
-          </span>
-          <span className="pill" style={{ background: romanize ? "var(--ink3)" : "rgba(217,169,60,.2)", color: romanize ? "var(--dim)" : "var(--gold)" }}>
-            {romanize ? "tap to drop it" : "on"}
-          </span>
-        </div>
-        <div className="card-blurb" style={{ marginTop: 4 }}>
-          {romanize
-            ? "Drills answer in Latin letters. Fine to start with, but it becomes the thing you read instead of the fidel."
-            : "No Latin in drills. Orders go by their real names — ግዕዝ, ካዕብ, ሣልስ — and letters are matched against words and each other. Reference screens still show sounds."}
-        </div>
-      </button>
 
       {track === "bases" ? (
         <>
@@ -3322,7 +3264,6 @@ export default function AmharicFidel() {
   const [state, setState] = useState(null);
   const [tab, setTab] = useState("learn");
   const [track, setTrack] = useState("bases");
-  const [romanize, setRomanize] = useState(true);
   const [haveAudio, setHaveAudio] = useState(new Set());
   const [officialHave, setOfficialHave] = useState(new Set());
   const [wordTab, setWordTab] = useState("read");
@@ -3362,7 +3303,6 @@ export default function AmharicFidel() {
       if (!s.startDate) s.startDate = Date.now();
       setState(s);
       if (s.track) setTrack(s.track);
-      if (typeof s.romanize === "boolean") setRomanize(s.romanize);
       loadAudIndex().then(setHaveAudio);
     });
   }, []);
@@ -3372,12 +3312,12 @@ export default function AmharicFidel() {
     if (!state) return;
     const sig = JSON.stringify([
       state.basesDone, state.sweepsDone, state.unitsDone,
-      state.bestSpeed, state.startDate, track, romanize,
+      state.bestSpeed, state.startDate, track,
     ]);
     const structural = sig !== lastSig.current;
     lastSig.current = sig;
-    saveState({ ...state, track, romanize }, structural);
-  }, [state, track, romanize]);
+    saveState({ ...state, track }, structural);
+  }, [state, track]);
 
   // Once a device is linked (SyncPanel, on the Chart tab), push whatever
   // changed — progress or a new/removed recording — up automatically, so
@@ -3477,7 +3417,7 @@ export default function AmharicFidel() {
     const fresh = { ...emptyState(), startDate: Date.now(), lastDay: todayStamp(), streakDays: 1 };
     lastSig.current = "";
     setState(fresh);
-    saveState({ ...fresh, track, romanize }, true);
+    saveState({ ...fresh, track }, true);
   };
 
   // Marks a tour step / callout as seen — app-tour for the first-launch
@@ -3502,7 +3442,6 @@ export default function AmharicFidel() {
           spec={lesson}
           state={state}
           pool={pool}
-          romanize={romanize}
           audio={audio}
           onExit={() => setLesson(null)}
           onDone={(results, xp) => {
@@ -3541,8 +3480,6 @@ export default function AmharicFidel() {
             dueCount={due.length}
             track={track}
             setTrack={setTrack}
-            romanize={romanize}
-            setRomanize={setRomanize}
             onStart={(spec) => setLesson(spec)}
             onSpeed={() => setTab("speed")}
             onReview={() => setLesson({ kind: "review", id: "rev", fams: [], orders: [], doneLabel: "Review done" })}
@@ -3575,9 +3512,9 @@ export default function AmharicFidel() {
               </div>
             </div>
             {wordTab === "read" ? (
-              <Reader known={known} romanize={romanize} audio={audio} />
+              <Reader known={known} audio={audio} />
             ) : (
-              <WordBuild pool={pool} unlockedChars={known} romanize={romanize} onXp={addXp} />
+              <WordBuild pool={pool} unlockedChars={known} onXp={addXp} />
             )}
           </div>
         )}
@@ -3591,7 +3528,6 @@ export default function AmharicFidel() {
                     .map((p) => FAMS[p.fam].chars[p.order])
                 : []
             }
-            romanize={romanize}
             onXp={addXp}
           />
         )}
@@ -3609,7 +3545,6 @@ export default function AmharicFidel() {
               <Speed
                 pool={pool}
                 best={state.bestSpeed}
-                romanize={romanize}
                 onEnd={(sc) => setState((s) => ({ ...s, xp: s.xp + sc * 5, bestSpeed: Math.max(s.bestSpeed, sc) }))}
               />
             </div>
