@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Serif+Ethiopic:wght@400;500;700&display=swap');
+
+.fd {
+  --ink: #10162A;
+  --ink2: #19203A;
+  --ink3: #262F4F;
+  --line: #2E3859;
+  --bone: #EDE3CE;
+  --dim: #8C93AE;
+  --rubric: #CE452C;
+  --verd: #4F9A76;
+  --gold: #D9A93C;
+  --fidel: 'Noto Serif Ethiopic','Kefa','Noto Sans Ethiopic','Abyssinica SIL','Nyala',serif;
+  --disp: 'Instrument Serif','Iowan Old Style',Georgia,serif;
+  --ui: 'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--ui);
+  min-height: 100vh; /* fallback for browsers without dvh support */
+  min-height: 100dvh; /* actual visible viewport -- 100vh assumes the tallest
+  possible viewport (as if the browser's own URL bar were hidden), so on
+  iOS Safari with the URL bar showing, 100vh is taller than what's really
+  on screen. That's exactly what pushed content below the fold requiring
+  a scroll to reach action buttons that should already be visible. */
+  padding-top: env(safe-area-inset-top); /* the bottom inset was already
+  handled (.verdict, .tabs) but the top one never was -- a real gap: in
+  any fullscreen/standalone-ish display mode, content can render straight
+  under the notch/Dynamic Island with nothing reserving that space. Costs
+  nothing in a normal browser tab (the browser's own chrome already
+  reserves this, so the env() value is just 0 there). */
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+.fd * { box-sizing: border-box; }
+.fd button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+.fd button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.wrap { width: 100%; max-width: 540px; margin: 0 auto; padding: 0 16px; }
+.grow { flex: 1; }
+/* Screens with a sticky .verdict action bar (Trace, Reader, Lesson, ...) use
+   a two-level structure: an outer <div className="grow"> so the screen fills
+   the scrollable region, holding a content <div className="wrap"> followed by
+   the sticky bar. The content div should NOT also carry "grow" -- that was a
+   real bug (App.jsx history): flex:1 on the inner div force-stretched it to
+   fill the outer container even when actual content was short (a single
+   canvas, a single sentence), pushing the sticky bar's natural position below
+   the fold and forcing a scroll to reach action buttons that should already
+   be on screen. Content should size to itself; only the outer wrapper grows. */
+
+/* On an actual desktop monitor, a bare 540px column centered in a flat
+   dark field reads as an unstyled mobile app dropped into a browser tab
+   -- not broken, just accidental-looking. Two modest, low-risk changes
+   fix that without a real desktop redesign (a split-panel layout isn't
+   the right call for a single-focus, one-thing-at-a-time app like this
+   one): a little more breathing room in the column itself, and a soft
+   glow behind it so the side margins look like a choice, not an oversight. */
+@media (min-width: 900px) {
+  .wrap { max-width: 620px; }
+  .fd {
+    background:
+      radial-gradient(ellipse 1000px 620px at 50% 0%, rgba(206,69,44,0.06), transparent 65%),
+      var(--ink);
+  }
+}
+
+/* ---- eyebrow labels: colophon voice ---- */
+.eyebrow {
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--dim); font-weight: 600;
+}
+.disp { font-family: var(--disp); font-weight: 400; letter-spacing: -.01em; }
+.gz { font-family: var(--fidel); }
+
+/* ---- top bar ---- */
+.top {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px 10px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: var(--ink); z-index: 20;
+}
+.mark { font-family: var(--fidel); font-size: 22px; color: var(--rubric); line-height: 1; }
+.xpbar { flex: 1; height: 5px; background: var(--ink3); border-radius: 3px; overflow: hidden; }
+.xpfill { height: 100%; background: var(--gold); transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.chip { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--dim); }
+.chip b { color: var(--bone); }
+.combo { font-size: 12px; font-weight: 700; color: var(--gold); animation: ink .3s cubic-bezier(.2,.9,.3,1); }
+
+/* ---- THE SIGNATURE: rubric row ---- */
+.rubric {
+  display: flex; justify-content: center; gap: 2px;
+  padding: 14px 0 12px;
+}
+.rcell {
+  font-family: var(--fidel); font-size: 21px; line-height: 1;
+  width: 34px; height: 40px; display: flex; align-items: center; justify-content: center;
+  color: #4C5473; transition: color .25s, transform .25s;
+  border-bottom: 2px solid transparent; padding-bottom: 4px;
+}
+.rcell.on { color: var(--rubric); border-bottom-color: var(--rubric); transform: scale(1.18); }
+.rcell.known { color: var(--dim); }
+.rord { text-align: center; font-size: 10px; letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
+
+/* ---- the big glyph ---- */
+.stage { text-align: center; padding: 8px 0 4px; }
+.glyph {
+  font-family: var(--fidel); font-size: 108px; line-height: 1.15;
+  color: var(--bone); display: inline-block;
+}
+.glyph.set { animation: ink .45s cubic-bezier(.2,.9,.3,1); color: var(--verd); }
+.glyph.miss { animation: shake .4s; }
+@keyframes ink { 0%{transform:scale(1)} 35%{transform:scale(1.13)} 100%{transform:scale(1)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 45%{transform:translateX(7px)} 70%{transform:translateX(-4px)} }
+.prompt-rom { font-family: var(--disp); font-size: 60px; line-height: 1.1; }
+
+.ask { text-align: center; font-size: 13px; color: var(--dim); margin: 2px 0 18px; }
+
+/* ---- answers ---- */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt {
+  background: var(--ink2); border: 1px solid var(--line); border-radius: 14px;
+  padding: 18px 8px; font-size: 20px; font-weight: 500; text-align: center;
+  transition: transform .12s, background .18s, border-color .18s;
+  min-height: 62px; display: flex; align-items: center; justify-content: center;
+}
+.opt:active { transform: scale(.97); }
+.opt.gz { font-size: 34px; padding: 12px 8px; }
+.opt.amh { font-family: var(--fidel); font-size: 20px; padding: 16px 6px; }
+.opt.gzw { font-family: var(--fidel); font-size: 23px; padding: 15px 6px; }
+.opt.right { background: rgba(79,154,118,.18); border-color: var(--verd); color: #8FD9B4; }
+.opt.wrong { background: rgba(206,69,44,.14); border-color: var(--rubric); color: #F09A86; }
+.opt.fade { opacity: .35; }
+.opt[disabled] { cursor: default; }
+
+/* ---- verdict bar ---- */
+.verdict {
+  /* margin-top: auto is the actual fix for the dead-space complaint --
+     its parent is a flex column (className="grow") that still stretches
+     to fill the scrollable region even when content is short (removing
+     that stretch entirely broke long-content screens). auto margin uses
+     any leftover space to push .verdict itself down to the container's
+     bottom edge, flush above the tab bar, with no gap either above or
+     below it and no scroll needed. position:sticky still does its normal
+     job once real content is tall enough to need scrolling -- auto
+     margins and sticky don't conflict, since sticky only affects the
+     element once its static (in-flow) position would scroll out of view. */
+  margin-top: auto;
+  position: sticky; bottom: 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line); background: var(--ink2);
+}
+.verdict.ok { background: rgba(79,154,118,.13); border-top-color: var(--verd); }
+.verdict.no { background: rgba(206,69,44,.11); border-top-color: var(--rubric); }
+.vtitle { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
+.vsub { font-size: 13px; color: var(--dim); line-height: 1.45; }
+
+.btn {
+  width: 100%; padding: 15px; border-radius: 13px; font-weight: 700; font-size: 15px;
+  background: var(--bone); color: var(--ink); transition: transform .12s, opacity .2s;
+}
+.btn:active { transform: scale(.98); }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--bone); }
+.btn.rub { background: var(--rubric); color: #fff; }
+.btn:disabled { opacity: .35; }
+
+/* ---- cards / units ---- */
+.card {
+  background: var(--ink2); border: 1px solid var(--line); border-radius: 16px;
+  padding: 16px; margin-bottom: 10px; width: 100%; text-align: left; display: block;
+  transition: border-color .2s, transform .12s;
+}
+.card:active { transform: scale(.99); }
+.card.locked { opacity: .42; }
+.card.done { border-color: rgba(79,154,118,.5); }
+.card-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.card-fidel { font-family: var(--fidel); font-size: 26px; color: var(--rubric); letter-spacing: 4px; }
+.card-title { font-family: var(--disp); font-size: 21px; }
+.card-blurb { font-size: 13px; color: var(--dim); line-height: 1.5; }
+.meter { height: 3px; background: var(--ink3); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--verd); }
+
+/* ---- chart ---- */
+.chart { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+.cc {
+  font-family: var(--fidel); font-size: 19px; width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center; border-radius: 8px;
+  color: #4C5473;
+}
+.cc.l1 { color: var(--dim); }
+.cc.l2 { color: var(--bone); }
+.cc.l3 { color: var(--bone); background: rgba(217,169,60,.14); }
+.cc.l4 { color: var(--gold); background: rgba(217,169,60,.2); }
+
+/* ---- tabs ---- */
+.tabs {
+  display: flex; border-top: 1px solid var(--line); background: var(--ink);
+  padding-bottom: env(safe-area-inset-bottom); position: sticky; bottom: 0; z-index: 20;
+}
+.tab { flex: 1; padding: 11px 4px 12px; text-align: center; color: #5B6485; }
+.tab .tg { font-family: var(--fidel); font-size: 19px; line-height: 1.2; display: block; }
+.tab .tl { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.tab.on { color: var(--rubric); }
+
+/* ---- misc ---- */
+.rule { height: 1px; background: var(--line); margin: 18px 0; }
+.tile {
+  background: var(--ink2); border: 1px solid var(--line); border-radius: 11px;
+  padding: 12px 14px; font-family: var(--fidel); font-size: 28px; line-height: 1;
+  transition: transform .12s, opacity .2s;
+}
+.tile:active { transform: scale(.95); }
+.tile.used { opacity: .2; }
+.slot {
+  min-width: 46px; height: 54px; border-bottom: 2px solid var(--line);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--fidel); font-size: 30px; margin: 0 3px;
+}
+.slot.filled { border-bottom-color: var(--rubric); }
+.row-sp { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.stat { text-align: center; flex: 1; }
+.stat b { display: block; font-family: var(--disp); font-size: 30px; line-height: 1.1; }
+.stat span { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.pill { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; background: var(--ink3); color: var(--dim); }
+.note { font-size: 12.5px; color: var(--dim); line-height: 1.55; }
+.speaker { border: 1px solid var(--line); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--dim); }
+
+.padwrap {
+  position: relative; width: 100%; max-width: 320px; margin: 0 auto;
+  aspect-ratio: 1; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--ink2); overflow: hidden;
+}
+.padwrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.padwrap .guide { position: absolute; inset: 0; pointer-events: none; }
+.padwrap .guide i {
+  position: absolute; background: var(--line); opacity: .5;
+}
+.chantcell {
+  font-family: var(--fidel); font-size: 22px; width: 38px; height: 44px;
+  display: flex; align-items: center; justify-content: center; color: #4C5473;
+  border-radius: 8px; transition: all .12s linear;
+}
+.chantcell.on { color: var(--rubric); background: rgba(206,69,44,.12); transform: scale(1.2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fd *, .fd *::before { animation: none !important; transition: none !important; }
+}

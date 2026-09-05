@@ -1,10 +1,5 @@
-// @vitest-environment jsdom
-// (App.jsx pulls in lib/installPrompt.js, which registers a
-// window.addEventListener at module load time -- needs a DOM global to
-// import at all, even though this test never touches the DOM itself.)
-//
-// src/App.jsx and scripts/content.mjs each keep their own copy of the
-// letter-family/anchor-word/phrase text -- App.jsx's copy carries UI-only
+// src/content.js and scripts/content.mjs each keep their own copy of the
+// letter-family/anchor-word/phrase text -- content.js's copy carries UI-only
 // fields (romanization, notes) content.mjs doesn't need, so one importing
 // the other wasn't a clean fit (see content.mjs's own comment). That
 // means nothing stops the two from silently drifting apart if one is
@@ -13,7 +8,7 @@
 // is, rather than only surfacing as a mismatch between what the app
 // teaches and what the generated audio actually says.
 import { describe, it, expect } from "vitest";
-import { RAW as APP_RAW, ANCHORS as APP_ANCHORS, PHRASES as APP_PHRASES } from "./App.jsx";
+import { RAW as APP_RAW, ANCHORS as APP_ANCHORS, PHRASES as APP_PHRASES } from "./content.js";
 import { RAW as GEN_RAW, ANCHORS as GEN_ANCHORS, PHRASES as GEN_PHRASES } from "../scripts/content.mjs";
 
 describe("App.jsx content matches scripts/content.mjs (audio generation)", () => {
