@@ -3466,7 +3466,7 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
     // flex) plus both platforms' home-screen instructions, since this
     // travels in the message itself and the in-app banner/Callouts can't
     // reach someone before they've opened the link at all.
-    const text = `Welcome to ፊደል Amharic Fidel!\n\nRead Amharic in a few minutes a day. Daily challenges, tracing practice, spaced review that catches what you forget, and a reader for real text.\n\nAdd it to your home screen so it opens like an app:\niPhone: use Safari (not Chrome) -- Share icon, then Add to Home Screen. If Chrome offers "Open as Web App," turn it off, or the icon may reopen as a fresh tab each time.\n\nAndroid (Chrome): three-dot menu, then Add to Home Screen`;
+    const text = `Welcome to ፊደል Amharic Fidel!\n\nRead Amharic in a few minutes a day. Daily challenges, tracing practice, spaced review that catches what you forget, and a reader for real text.\n\nAdd it to your home screen so it opens like an app:\niPhone (Safari): Share icon, then Add to Home Screen.\niPhone (Chrome): Share icon, then Add to Home Screen -- turn OFF "Open as Web App" if it asks, or the icon will reopen as a fresh tab each time instead of a stable app.\nAndroid (Chrome): three-dot menu, then Add to Home Screen`;
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
