@@ -3111,18 +3111,25 @@ function LessonCard({ open, done, fidel, title, blurb, count, onClick }) {
 // user-driven toggle: no auto-collapse on completion, since the whole
 // point (per product decision) is that it's the person's own choice.
 function StageHeader({ open, onToggle, title, done, total, style, dataTour }) {
+  // A plain text label read as just another line, not a section boundary
+  // with cards grouped under it -- given real visual weight (its own
+  // bordered band, a pill for the count) instead, matching how the rest
+  // of the app already marks something as its own distinct block (.card,
+  // the track-toggle bar) rather than inventing a new visual language.
   return (
     <button
       onClick={onToggle}
       data-tour={dataTour}
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
-        textAlign: "left", background: "none", ...style,
+        textAlign: "left", background: "var(--ink3)", border: "1px solid var(--line)",
+        borderRadius: 12, padding: "13px 14px", ...style,
       }}
     >
-      <span className="eyebrow" style={{ margin: 0 }}>{title}</span>
-      <span className="note" style={{ fontSize: 11, color: "var(--dim)", flexShrink: 0, marginLeft: 8 }}>
-        {done}/{total} {open ? "▾" : "▸"}
+      <span className="eyebrow" style={{ margin: 0, fontSize: 11.5 }}>{title}</span>
+      <span style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: 10 }}>
+        <span className="pill">{done}/{total}</span>
+        <span style={{ color: "var(--dim)", fontSize: 15, lineHeight: 1 }}>{open ? "▾" : "▸"}</span>
       </span>
     </button>
   );
@@ -3554,7 +3561,7 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
             title="Stage two · the six vowel columns"
             done={SWEEPS.filter((sw) => sDone.has(sw.id)).length}
             total={SWEEPS.length}
-            style={{ margin: "22px 0 4px" }}
+            style={{ margin: "22px 0 8px" }}
           />
           {openStages.stage2 && (
             <>
