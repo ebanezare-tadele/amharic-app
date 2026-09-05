@@ -49,8 +49,13 @@ jobs:
       # by its old path, so loading the model fails with "There is no
       # such class as speechbrain.lobes.models.huggingface_wav2vec.
       # HuggingFaceWav2Vec2" before a single clip gets transcribed.
+      # "requests" added explicitly -- confirmed via a real run that
+      # speechbrain==0.5.16 doesn't declare it as a hard dependency even
+      # though speechbrain/pretrained/fetching.py imports it directly,
+      # so loading the model failed with "No module named 'requests'"
+      # before this was added.
       - name: Install speechbrain + torch (CPU)
-        run: pip install --quiet "speechbrain==0.5.16" torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+        run: pip install --quiet "speechbrain==0.5.16" requests torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
       - name: Run open-transcription content verification
