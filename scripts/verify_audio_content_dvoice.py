@@ -177,7 +177,11 @@ def main():
     word_pool = build_pool(texts["anchors"] + texts["phrases"])
 
     log(f"Loading {args.model_source} (SpeechBrain EncoderASR)...")
-    from speechbrain.inference.ASR import EncoderASR
+    # speechbrain.inference is the 1.0+ import path -- doesn't exist in
+    # 0.5.16, which this is deliberately pinned to (see the workflow's own
+    # comment: the model's hparams.yaml needs 0.5.16's pre-1.0 module
+    # layout). 0.5.16's equivalent is speechbrain.pretrained.
+    from speechbrain.pretrained import EncoderASR
     asr_model = EncoderASR.from_hparams(
         source=args.model_source,
         savedir=f"pretrained_models/{args.model_source.replace('/', '-')}",
