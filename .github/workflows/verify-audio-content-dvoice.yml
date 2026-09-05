@@ -58,8 +58,14 @@ jobs:
       # fetching.py calls hf_hub_download(..., use_auth_token=...), a
       # parameter huggingface_hub removed entirely in its 1.0 release
       # (renamed to "token" years before that removal actually landed).
+      # "transformers" added after a real run: dvoice-amharic's encoder is
+      # wrapped via speechbrain's huggingface_wav2vec lobe, which is itself
+      # just a thin wrapper around a HF transformers Wav2Vec2Model --
+      # SpeechBrain doesn't declare that as a hard dependency either, so
+      # loading failed with "Please install transformers from HuggingFace
+      # to use wav2vec2 / Hubert" before this was added.
       - name: Install speechbrain + torch (CPU)
-        run: pip install --quiet "speechbrain==0.5.16" "huggingface_hub<1.0" requests torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+        run: pip install --quiet "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
       - name: Run open-transcription content verification

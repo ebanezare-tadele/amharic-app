@@ -6,7 +6,11 @@ acoustic model from scripts/verify_audio_content_dvoice.py -- same idea
 (open transcription against a model actually trained on Amharic, not
 general-purpose faster-whisper, which had near-zero real signal for this
 language -- see that script's own long comment for the full history), but
-via badrex/w2v-bert-2.0-amharic-asr instead of aioxlabs/dvoice-amharic.
+via badrex/w2v-bert-2.0-ethiopian-asr instead of aioxlabs/dvoice-amharic.
+(Named "amharic-asr" in an earlier commit during development -- a real
+run 404'd on that exact name; the model was consolidated into this
+multilingual "ethiopian-asr" repo, which explicitly includes Amharic
+alongside Tigrinya/Afaan Oromo/Sidama/Wolaytta.)
 
 Two independent models is deliberate, not redundant: this one is a plain
 Wav2Vec2BertForCTC checkpoint loaded through vanilla `transformers`
@@ -138,7 +142,7 @@ def main():
     ap.add_argument("--texts", required=True, type=Path)
     ap.add_argument("--out", required=True, type=Path)
     ap.add_argument("--pilot", type=int, default=None)
-    ap.add_argument("--model-source", default="badrex/w2v-bert-2.0-amharic-asr")
+    ap.add_argument("--model-source", default="badrex/w2v-bert-2.0-ethiopian-asr")
     ap.add_argument("--similarity-threshold", type=float, default=0.5)
     args = ap.parse_args()
 
