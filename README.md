@@ -58,9 +58,15 @@ policies at all**, which blocks all direct table access — no listing,
 no enumeration, nothing readable without the exact code. The only way
 to read or write is through two `SECURITY DEFINER` SQL functions,
 `get_progress(code)` / `put_progress(code, state)`, each scoped to the
-one row matching that exact code. That schema was applied directly to
-the Supabase project via its migration tooling rather than living as a
-file in this repo — nothing in this app's own source needs to define it.
+one row matching that exact code. `put_progress` also rejects any
+payload over 10MB, so calling the RPC directly with an arbitrary code
+can't be used to grow the database without bound. That schema was
+applied directly to the Supabase project via its migration tooling
+rather than living as a file in this repo — nothing in this app's own
+source needs to define it. This whole matrix (direct table access
+denied, cross-code isolation, malformed/oversized payload handling) was
+verified live against the database as the `anon` role, not just assumed
+from the schema.
 
 The client talks to Supabase's REST endpoint with a plain `fetch()` — no
 `@supabase/supabase-js` dependency — since the app only ever needs two
