@@ -1,0 +1,89 @@
+name: Pilot - edge-tts row generation + slicing + verification
+
+# One-off pilot, NOT part of the audio pipeline: does edge-tts (free,
+# no API key -- Microsoft's neural TTS) produce a usable whole-row
+# recitation that slices cleanly into per-letter clips the same way the
+# real Addis-AI-based pipeline does? See scripts/pilot-edge-tts-row.mjs
+# for why this reuses the real row-slicing logic rather than a
+# simplified version, and why it never touches public/audio/official/.
+#
+# Runs both existing ASR verification scripts (dvoice-amharic and
+# badrex/w2v-bert-2.0-ethiopian-asr) against ONLY the pilot output, and
+# uploads the whole-row clip + all 7 sliced letters as an artifact so a
+# human (or another AI with real audio-listening capability) can
+# actually listen and compare against the current shipped equivalent
+# for the same row.
+on:
+  workflow_dispatch:
+    inputs:
+      fam:
+        description: "Which letter family (row) to pilot, 0-33"
+        type: string
+        default: "0"
+      voice:
+        description: "edge-tts Amharic voice"
+        type: choice
+        options: [am-ET-MekdesNeural, am-ET-AmehaNeural]
+        default: am-ET-MekdesNeural
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install edge-tts
+        run: pip install --quiet edge-tts
+      - name: Generate + slice the pilot row
+        run: node scripts/pilot-edge-tts-row.mjs --fam "${{ inputs.fam }}" --voice "${{ inputs.voice }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pilot-edge-tts-row-output
+          path: scripts/pilot-edge-tts-out/
+          retention-days: 14
+
+      # Both existing ASR checks, pointed at the pilot output instead of
+      # public/audio/official/ -- reusing the same verification scripts
+      # rather than writing a third one for this one-off pilot.
+      - name: Install speechbrain + torch (CPU) [dvoice-amharic check]
+        run: pip install --quiet "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - name: Run dvoice-amharic ASR check against the pilot row
+        continue-on-error: true
+        run: |
+          python3 scripts/verify_audio_content_dvoice.py \
+            --clips-dir scripts/pilot-edge-tts-out \
+            --texts scripts/pilot-edge-tts-out/pilot-texts.json \
+            --out scripts/pilot-edge-tts-out/pilot-report-dvoice.json \
+            --similarity-threshold 0.5
+      - name: Run badrex ASR check against the pilot row
+        continue-on-error: true
+        run: |
+          python3 scripts/verify_audio_content_badrex.py \
+            --clips-dir scripts/pilot-edge-tts-out \
+            --texts scripts/pilot-edge-tts-out/pilot-texts.json \
+            --out scripts/pilot-edge-tts-out/pilot-report-badrex.json \
+            --similarity-threshold 0.5
+      - name: Print both ASR reports to the job log
+        if: always()
+        run: |
+          echo "--- dvoice-amharic ---"
+          cat scripts/pilot-edge-tts-out/pilot-report-dvoice.json || true
+          echo "--- badrex/w2v-bert-2.0-ethiopian-asr ---"
+          cat scripts/pilot-edge-tts-out/pilot-report-badrex.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pilot-edge-tts-asr-reports
+          path: |
+            scripts/pilot-edge-tts-out/pilot-report-dvoice.json
+            scripts/pilot-edge-tts-out/pilot-report-badrex.json
+          retention-days: 14
+          if-no-files-found: warn
