@@ -6,6 +6,6 @@ export default defineConfig({
     include: ['src/**/*.test.js', 'scripts/**/*.test.mjs'],
   },
   define: {
-    'import.meta.env.BASE_URL': JSON.stringify('/'),
+    'import.meta.env.BASE_URL': JSON.stringify('/amharic-app/'),
   },
 })

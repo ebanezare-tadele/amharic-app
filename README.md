@@ -126,7 +126,7 @@ shows a preview card instead of a bare link — `public/og-image.png`
 plus the Open Graph/Twitter Card meta tags in `index.html`. Those tags
 hardcode the deployed URL (`og:url`, `og:image`) since the spec requires
 absolute URLs — update them if the app ever moves off
-`ebanezare-tadele.github.io/`. Regenerate the image after
+`ebanezare-tadele.github.io/amharic-app/`. Regenerate the image after
 changing its template:
 
 ```bash
@@ -148,16 +148,16 @@ worth automating anyway):
 2. Push to this branch (or **Actions → Deploy to GitHub Pages → Run
    workflow** to trigger it without waiting for a push).
 3. The workflow's summary (and the Pages settings page) will show the
-   live URL: `https://ebanezare-tadele.github.io/`. That's what you text
-   people.
+   live URL: `https://ebanezare-tadele.github.io/amharic-app/`. That's
+   what you text people.
 
 No environment variables needed for this deploy (the `ADDIS_API_KEY` repo
 secret is only used by the separate, manually-triggered audio-generation
 workflow — see "Hearing pronunciation" below).
 
-The repo is named `ebanezare-tadele.github.io`, so GitHub Pages serves it
-at the domain root rather than a project subpath — `vite.config.js` sets
-`base: '/'` to match. If this ever moves to a different repo name or a
+Because the repo isn't named `<username>.github.io`, GitHub Pages serves
+it from a subpath rather than the domain root — `vite.config.js` sets
+`base: '/amharic-app/'` to match. If you ever rename the repo or move to a
 custom domain, update `BASE` there to match.
 
 **If you'd rather use Vercel or Netlify instead** (e.g. for a custom
