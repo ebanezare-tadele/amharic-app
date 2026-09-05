@@ -1,0 +1,61 @@
+name: Verify audio content (badrex w2v-bert-2.0, open transcription)
+
+# A second, independent diagnostic alongside verify-audio-content-dvoice.yml
+# -- same question (does the already-shipped audio actually say the right
+# thing), different Amharic acoustic model: badrex/w2v-bert-2.0-amharic-asr,
+# a plain transformers Wav2Vec2BertForCTC checkpoint, not a SpeechBrain
+# package. No SpeechBrain version-pinning fragility here -- that model's
+# own hparams.yaml needing a pre-1.0 SpeechBrain module layout caused three
+# separate real failures in the other workflow (see its git history). Two
+# independent models catching the same problem is stronger evidence than
+# either alone; disagreement between them is itself informative.
+#
+# Runs entirely against files already committed to the branch -- no
+# artifact download needed, no paid API calls, no cost beyond CI minutes
+# and the (free) model download.
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: "Only check the first N rows/anchors/phrases (leave blank for a full run across everything shipped)"
+        type: string
+        default: "6"
+      similarity_threshold:
+        description: "Below this open-transcription similarity (0-1), flag a clip NEEDS_REVIEW"
+        type: string
+        default: "0.5"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install transformers + torch (CPU)
+        run: pip install --quiet transformers torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - name: Export the exact texts every clip is supposed to say
+        run: node scripts/export-verification-texts.mjs
+      - name: Run open-transcription content verification
+        run: |
+          python3 scripts/verify_audio_content_badrex.py \
+            --clips-dir public/audio/official \
+            --texts scripts/verification-texts.json \
+            --out scripts/verification-report-badrex.json \
+            --similarity-threshold "${{ inputs.similarity_threshold }}" \
+            ${{ inputs.pilot != '' && format('--pilot {0}', inputs.pilot) || '' }}
+      - name: Print full report to the job log
+        if: always()
+        run: cat scripts/verification-report-badrex.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audio-content-verification-report-badrex
+          path: scripts/verification-report-badrex.json
+          retention-days: 14
