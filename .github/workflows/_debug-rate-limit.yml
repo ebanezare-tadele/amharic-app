@@ -1,0 +1,16 @@
+name: (debug) check PostgREST request.headers visibility
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call debug_headers RPC
+        run: |
+          curl -s -X POST "https://mzbvnqunbcensahaohgo.supabase.co/rest/v1/rpc/debug_headers" \
+            -H "content-type: application/json" \
+            -H "apikey: sb_publishable_Gm1jIrYLERtvPQ7nwCxUjg_9PhhOWLN" \
+            -H "authorization: Bearer sb_publishable_Gm1jIrYLERtvPQ7nwCxUjg_9PhhOWLN" \
+            -d '{}'
