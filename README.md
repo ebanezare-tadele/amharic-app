@@ -75,6 +75,21 @@ This is best-effort, last-write-wins sync — fine for one person's
 progress across a couple of devices, not built for simultaneous editing
 on two devices at once.
 
+### Comparing progress with someone else (optional, read-only)
+
+Also off by default, and entirely separate from syncing above — this
+never touches your own device's data or theirs. From the Chart tab, add
+someone else's sync code to a watch list to see their level, mastered-
+letter count, and streak alongside your own.
+
+This calls a dedicated `get_compare_stats(code)` RPC rather than
+`get_progress`, so it can only ever return that one aggregate summary —
+never recordings, never the raw per-card progress map, never anything
+that would let watching a code reconstruct someone's actual data. Nothing
+here can write: there's no equivalent of `put_progress` reachable from
+this feature, so a compare code can't affect anyone's progress, watcher
+or watched.
+
 ## Installing as an app (PWA)
 
 The app is installable on both Android and iOS, but the two platforms
