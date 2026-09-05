@@ -3251,7 +3251,15 @@ function InstallBanner({ seenIntro, onSeen }) {
   if (seenIntro.includes("cb-install") || isStandalone()) return null;
 
   const ios = isIOSDevice();
-  if (!prompt && !ios) return null; // no install path to offer
+  // Used to return null here on Android/desktop Chrome whenever
+  // beforeinstallprompt hadn't fired yet -- meaning anyone Chrome hasn't
+  // yet decided to offer a real install to saw NOTHING, no explanation at
+  // all. That's exactly the confusing case a real user hit: no button,
+  // and manually using the browser's own "Add to Home screen" just makes
+  // a bookmark shortcut (opens in a new browser tab forever after, not a
+  // standalone app) -- indistinguishable from a real install unless
+  // someone tells you. Show the explanation either way now; only the
+  // actual button is conditional on a captured prompt.
 
   const install = async () => {
     if (!prompt) return;
@@ -3266,16 +3274,26 @@ function InstallBanner({ seenIntro, onSeen }) {
         <div style={{ flex: 1 }}>
           <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Add to Home Screen</div>
           <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>
-            {ios
-              ? <>Opens faster and works offline as its own app. Tap the <b>Share</b> button (the square with an arrow, in Safari's toolbar), then <b>Add to Home Screen</b>.</>
-              : <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>}
+            {ios ? (
+              <>Opens faster and works offline as its own app. Tap the <b>Share</b> button (the square with an arrow, in Safari's toolbar), then <b>Add to Home Screen</b>.</>
+            ) : prompt ? (
+              <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>
+            ) : (
+              <>
+                Look for <b>Install app</b> in Chrome's <b>⋮</b> menu — not "Add to Home screen," which just
+                saves a bookmark that reopens in the browser (and can pile up new tabs) instead of its own app
+                window. If Chrome only offers "Add to Home screen" right now, it hasn't decided to offer the
+                real install yet — that's Chrome's own call, not something this app can force, and it usually
+                comes after a couple more visits.
+              </>
+            )}
           </div>
         </div>
         <button onClick={() => onSeen("cb-install")} style={{ color: "var(--dim)", fontSize: 16, lineHeight: 1, padding: 2 }}>
           ✕
         </button>
       </div>
-      {!ios && (
+      {!ios && prompt && (
         <button className="btn" style={{ marginTop: 10, width: "100%" }} onClick={install}>
           Install ፊደል
         </button>
