@@ -3,6 +3,7 @@ import { BASE_BATCHES, SWEEPS, UNITS, FAMS, ORDERS } from "../content.js";
 import { key, DAY, todayStamp } from "../state.js";
 import { ALL } from "./Lesson.jsx";
 import { Callout } from "./Callout.jsx";
+import { SectionHeader } from "./SectionHeader.jsx";
 import { questsForDay, emptyToday, MAX_FREEZES } from "../lib/gamification.js";
 import { onInstallPromptAvailable, isStandalone, isIOSDevice } from "../lib/installPrompt.js";
 
@@ -114,35 +115,6 @@ export function LessonCard({ open, done, fidel, title, blurb, count, onClick }) 
         </span>
       </div>
       <div className="card-blurb" style={{ marginTop: 4 }}>{blurb}</div>
-    </button>
-  );
-}
-
-// A stage's own progress stays visible even collapsed -- collapsing is
-// purely to save scroll room, not to hide where you stand. Purely local,
-// user-driven toggle: no auto-collapse on completion, since the whole
-// point (per product decision) is that it's the person's own choice.
-export function StageHeader({ open, onToggle, title, done, total, style, dataTour }) {
-  // A plain text label read as just another line, not a section boundary
-  // with cards grouped under it -- given real visual weight (its own
-  // bordered band, a pill for the count) instead, matching how the rest
-  // of the app already marks something as its own distinct block (.card,
-  // the track-toggle bar) rather than inventing a new visual language.
-  return (
-    <button
-      onClick={onToggle}
-      data-tour={dataTour}
-      style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
-        textAlign: "left", background: "var(--ink3)", border: "1px solid var(--line)",
-        borderRadius: 12, padding: "13px 14px", ...style,
-      }}
-    >
-      <span className="eyebrow" style={{ margin: 0, fontSize: 11.5 }}>{title}</span>
-      <span style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: 10 }}>
-        <span className="pill">{done}/{total}</span>
-        <span style={{ color: "var(--dim)", fontSize: 15, lineHeight: 1 }}>{open ? "▾" : "▸"}</span>
-      </span>
     </button>
   );
 }
@@ -454,7 +426,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
   // Purely a per-visit UI preference (not persisted) -- collapsing a
   // stage just saves scroll room while you're looking at the other one,
   // it's not a setting worth remembering across sessions.
-  const [openStages, setOpenStages] = useState({ stage1: true, stage2: true, rows: true });
+  const [openStages, setOpenStages] = useState({ stage1: true, stage2: false, rows: true });
   const toggleStage = (id) => setOpenStages((s) => ({ ...s, [id]: !s[id] }));
 
   return (
@@ -540,7 +512,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
 
       {track === "bases" ? (
         <>
-          <StageHeader
+          <SectionHeader
             open={openStages.stage1}
             onToggle={() => toggleStage("stage1")}
             title="Stage one · the 34 shapes"
@@ -566,7 +538,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
             );
           })}
 
-          <StageHeader
+          <SectionHeader
             open={openStages.stage2}
             onToggle={() => toggleStage("stage2")}
             title="Stage two · the six vowel columns"
@@ -600,7 +572,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
         </>
       ) : (
         <>
-          <StageHeader
+          <SectionHeader
             open={openStages.rows}
             onToggle={() => toggleStage("rows")}
             title="Rows, four at a time"
