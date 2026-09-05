@@ -3413,14 +3413,14 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
   // trip: it just hands plain text to whatever the OS share sheet offers.
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
   const shareProgress = () => {
-    // Whoever gets this has never seen the app before -- "Level 2, 4-day
-    // streak" means nothing without first saying what it even is. Leads
-    // with a one-line overview, then the personal stat as the hook, then
-    // the install tip -- all three travel in the message itself since the
-    // in-app banner and Callouts can't reach someone before they've opened
-    // the link (and the install tip specifically has to be read even by
-    // someone who never clicks through at all).
-    const text = `ፊደል — a free app for learning the Amharic alphabet (fidel), one shape at a time. I'm level ${level}, a ${state.streakDays}-day streak, ${known.size} letters down. 🔥\n\nTip: add it to your home screen so it opens like an app -- iPhone: Share icon → Add to Home Screen. Android: tap Install when Chrome offers it.`;
+    // Whoever gets this has never seen the app before -- opens with a
+    // "welcome" framing that explains what it actually is (a real product
+    // description, not a stat flex), then the personal number as a light
+    // aside, then the install tip. All three travel in the message itself
+    // since the in-app banner and Callouts can't reach someone before
+    // they've opened the link (and the install tip specifically has to be
+    // read even by someone who never clicks through at all).
+    const text = `Welcome to ፊደል — Amharic Fidel! Learn to read the Amharic alphabet through short daily lessons and quests, with review that brings back anything you're forgetting. I'm level ${level}, ${state.streakDays}-day streak so far. 🔥\n\nTip: add it to your home screen so it opens like an app -- iPhone: Share icon → Add to Home Screen. Android: tap Install when Chrome offers it.`;
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
