@@ -64,8 +64,14 @@ jobs:
       # SpeechBrain doesn't declare that as a hard dependency either, so
       # loading failed with "Please install transformers from HuggingFace
       # to use wav2vec2 / Hubert" before this was added.
+      # "torchaudio<2.9" pinned after a real run: as of torchaudio 2.9,
+      # torchaudio.load() (called by speechbrain's load_audio()) delegates
+      # to a new torchcodec backend that isn't installed alongside torchaudio
+      # by default, failing with "No module named 'torchcodec'". Pinning
+      # below 2.9 keeps the old built-in decode backend so no extra package
+      # (with its own torch-version-matching fragility) is needed.
       - name: Install speechbrain + torch (CPU)
-        run: pip install --quiet "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+        run: pip install --quiet "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch "torchaudio<2.9" --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
       - name: Run open-transcription content verification

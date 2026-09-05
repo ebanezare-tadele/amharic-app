@@ -44,7 +44,18 @@ jobs:
       # for chat-template metadata irrelevant to this (non-chat, ASR) model,
       # against a public repo with nothing to authenticate.
       - name: Install transformers + torch (CPU)
-        run: pip install --quiet transformers "huggingface_hub<1.0" torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+        run: pip install --quiet transformers "huggingface_hub<1.0" torch "torchaudio<2.9" --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      # Diagnostic: a real run 401'd fetching preprocessor_config.json from
+      # this exact (confirmed-to-exist) public repo. Rather than guess why,
+      # print what the Hub API and a direct anonymous file fetch actually
+      # return from a runner that can reach huggingface.co (this sandbox
+      # can't) before the real load call runs.
+      - name: Inspect the model repo directly (diagnostic)
+        run: |
+          echo "--- Hub API model listing ---"
+          curl -s -w '\nHTTP %{http_code}\n' "https://huggingface.co/api/models/badrex/w2v-bert-2.0-ethiopian-asr"
+          echo "--- direct anonymous file fetch ---"
+          curl -s -o /dev/null -w 'HTTP %{http_code}\n' "https://huggingface.co/badrex/w2v-bert-2.0-ethiopian-asr/resolve/main/preprocessor_config.json"
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
       - name: Run open-transcription content verification
