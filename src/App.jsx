@@ -24,8 +24,11 @@ const ORDERS = [
   { n: 7, am: "ሳብዕ", v: "o", hint: "stroke high on the right, or the right side lifts", say: "like o in go" },
 ];
 
-// [chars, consonant, display name, optional note]
-const RAW = [
+// [chars, consonant, display name, optional note]. Exported (along
+// with ANCHORS/PHRASES below) only so content-sync.test.js can catch
+// this and scripts/content.mjs ever drifting apart -- see that test
+// for why both exist rather than one importing the other.
+export const RAW = [
   ["ለሉሊላሌልሎ", "l", "lä"],
   ["መሙሚማሜምሞ", "m", "mä"],
   ["ረሩሪራሬርሮ", "r", "rä"],
@@ -177,7 +180,7 @@ const WORDS = [
 // verification ships — so the app checks manifest.json rather than
 // assuming a file exists (see the manifest fetch in AmharicFidel).
 
-const PHRASES = [
+export const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],
   ["ጤና ይስጥልኝ", "tena yistiliñ", "Hello, formal. Literally: may he give you health."],
   ["እንደምን አደርክ", "endemin aderk", "Good morning — to a man."],
@@ -202,7 +205,7 @@ const PHRASES = [
    ============================================================ */
 
 // one real word per family — how it gets anchored when taught aloud
-const ANCHORS = [
+export const ANCHORS = [
   ["ልጅ", "lij", "child"],
   ["መኪና", "mekina", "car"],
   ["ራስ", "ras", "head"],
