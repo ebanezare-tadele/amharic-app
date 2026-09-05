@@ -540,6 +540,22 @@ const CSS = `
 .wrap { width: 100%; max-width: 540px; margin: 0 auto; padding: 0 16px; }
 .grow { flex: 1; }
 
+/* On an actual desktop monitor, a bare 540px column centered in a flat
+   dark field reads as an unstyled mobile app dropped into a browser tab
+   -- not broken, just accidental-looking. Two modest, low-risk changes
+   fix that without a real desktop redesign (a split-panel layout isn't
+   the right call for a single-focus, one-thing-at-a-time app like this
+   one): a little more breathing room in the column itself, and a soft
+   glow behind it so the side margins look like a choice, not an oversight. */
+@media (min-width: 900px) {
+  .wrap { max-width: 620px; }
+  .fd {
+    background:
+      radial-gradient(ellipse 1000px 620px at 50% 0%, rgba(206,69,44,0.06), transparent 65%),
+      var(--ink);
+  }
+}
+
 /* ---- eyebrow labels: colophon voice ---- */
 .eyebrow {
   font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
@@ -3065,64 +3081,118 @@ function LessonCard({ open, done, fidel, title, blurb, count, onClick }) {
   );
 }
 
+// A stage's own progress stays visible even collapsed -- collapsing is
+// purely to save scroll room, not to hide where you stand. Purely local,
+// user-driven toggle: no auto-collapse on completion, since the whole
+// point (per product decision) is that it's the person's own choice.
+function StageHeader({ open, onToggle, title, done, total, style, dataTour }) {
+  return (
+    <button
+      onClick={onToggle}
+      data-tour={dataTour}
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+        textAlign: "left", background: "none", ...style,
+      }}
+    >
+      <span className="eyebrow" style={{ margin: 0 }}>{title}</span>
+      <span className="note" style={{ fontSize: 11, color: "var(--dim)", flexShrink: 0, marginLeft: 8 }}>
+        {done}/{total} {open ? "▾" : "▸"}
+      </span>
+    </button>
+  );
+}
+
 /* ============================================================
-   TOUR
-   First-launch walkthrough. Same visual language as the lesson
-   intro screens (BaseIntro/SweepIntro/FamilyIntro) — this is an
-   intro to the app itself rather than to a letter.
+   SPOTLIGHT
+   First-launch walkthrough, redesigned around a real complaint:
+   the old Tour replaced the whole Home screen with generic slides
+   before letting anyone see the actual app. This instead renders
+   Home immediately underneath and dims everything BUT a highlight
+   ring around a real element (found via the data-tour attributes
+   sprinkled through the JSX below), so people click through actual
+   pieces of the actual interface. Re-openable anytime via the "?"
+   button in the top bar, not just a one-time first-launch thing.
    ============================================================ */
 
-const TOUR_STEPS = [
-  {
-    glyph: "ፊ",
-    title: "Learn to read Amharic",
-    body: "34 base shapes, 7 vowel bends each — that's the whole alphabet. A short tour of how this app is laid out, then you're in.",
-  },
-  {
-    glyph: "ት",
-    title: "Learn",
-    body: "Short daily lessons — all 34 shapes first, then one vowel mark at a time. Answer right and a letter's mastery climbs; answer wrong and it comes back sooner. That's the review queue on the home screen — clear it and what you've learned sticks.",
-  },
-  {
-    glyph: "ፊ",
-    title: "Chart",
-    body: "The whole fidel at a glance — tap any letter for its detail. Record your own voice, or a relative's, right there and \"hear it\" plays it back.",
-  },
-  {
-    glyph: "ቃ ጽ",
-    title: "Read & Write",
-    body: "ቃ Read real sentences and spell words with the letters you already know. ጽ Trace each shape by hand, scored against the actual glyph.",
-  },
-  {
-    glyph: "ፊደል",
-    title: "That's it",
-    body: "Fifteen minutes a day gets you decoding — sounding out any word you see — in about six months. Let's start.",
-    cta: "Start learning",
-  },
+const SPOTLIGHT_STEPS = [
+  { target: null, title: "Welcome to ፊደል", body: "A 60-second look at where everything lives. Skip anytime — this doesn't come back uninvited." },
+  { target: "topbar", title: "Level & XP", body: "Every lesson, review, and drill earns XP. 250 XP clears a level." },
+  { target: "tabs", title: "Four ways to practice", body: "Learn teaches new letters. Chart is the whole fidel at a glance, tap any letter to hear or record it. Read puts real sentences in front of you. Write is free-hand tracing, scored against the actual shape." },
+  { target: "quests", title: "Daily quests", body: "Three quick goals every day for bonus XP — they reset each morning, so a couple minutes keeps a streak alive even on a busy day." },
+  { target: "stage", title: "Your path", body: "Tap any card here to start that lesson. Each one unlocks once the one before it's done." },
+  { target: null, title: "That's it", body: "Tap the ? up top anytime to see this again. Let's go." },
 ];
 
-function Tour({ onDone }) {
+function Spotlight({ onDone }) {
   const [i, setI] = useState(0);
-  const step = TOUR_STEPS[i];
-  const last = i === TOUR_STEPS.length - 1;
+  const [rect, setRect] = useState(null);
+  const step = SPOTLIGHT_STEPS[i];
+  const last = i === SPOTLIGHT_STEPS.length - 1;
+
+  useEffect(() => {
+    if (!step.target) {
+      setRect(null);
+      return;
+    }
+    const el = document.querySelector(`[data-tour="${step.target}"]`);
+    if (!el) {
+      setRect(null);
+      return;
+    }
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    const measure = () => setRect(el.getBoundingClientRect());
+    measure();
+    // scrollIntoView is smooth/async -- re-measure once it's likely settled,
+    // and keep tracking resize/scroll so the ring doesn't drift out of place.
+    const t = setTimeout(measure, 350);
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [i]);
+
+  const pad = 8;
+  const cardOnTop = rect && rect.top > window.innerHeight * 0.55;
+
   return (
-    <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 18, display: "flex", flexDirection: "column" }}>
-        <div className="row-sp">
-          <span className="eyebrow">{i + 1} of {TOUR_STEPS.length}</span>
-          <button onClick={onDone} style={{ color: "var(--dim)", fontSize: 18 }}>Skip ✕</button>
+    <div style={{ position: "fixed", inset: 0, zIndex: 200 }}>
+      {rect ? (
+        <div
+          style={{
+            position: "fixed",
+            left: rect.left - pad, top: rect.top - pad,
+            width: rect.width + pad * 2, height: rect.height + pad * 2,
+            borderRadius: 14,
+            boxShadow: "0 0 0 9999px rgba(6,9,20,0.84)",
+            border: "2px solid var(--rubric)",
+            pointerEvents: "none",
+            transition: "left .2s ease, top .2s ease, width .2s ease, height .2s ease",
+          }}
+        />
+      ) : (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(6,9,20,0.84)" }} />
+      )}
+
+      <div
+        className="card"
+        style={{
+          position: "fixed", left: "50%", transform: "translateX(-50%)",
+          ...(cardOnTop ? { top: 20 } : { bottom: 20 }),
+          width: "calc(100% - 32px)", maxWidth: 380, borderColor: "var(--rubric)",
+        }}
+      >
+        <div className="row-sp" style={{ marginBottom: 8 }}>
+          <span className="eyebrow">{i + 1} of {SPOTLIGHT_STEPS.length}</span>
+          <button onClick={onDone} style={{ color: "var(--dim)", fontSize: 16 }}>Skip ✕</button>
         </div>
-        <div className="grow" style={{ display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
-          <div className="gz" style={{ fontSize: step.glyph.length > 2 ? 48 : 96, color: "var(--rubric)", marginBottom: 22 }}>
-            {step.glyph}
-          </div>
-          <div className="disp" style={{ fontSize: 32, marginBottom: 14 }}>{step.title}</div>
-          <p className="note" style={{ fontSize: 15, lineHeight: 1.6, maxWidth: 360, margin: "0 auto" }}>{step.body}</p>
-        </div>
-      </div>
-      <div className="verdict">
-        <button className="btn" onClick={() => (last ? onDone() : setI(i + 1))}>
-          {last ? step.cta : "Next"}
+        <div className="disp" style={{ fontSize: 21, marginBottom: 8 }}>{step.title}</div>
+        <p className="note" style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 14 }}>{step.body}</p>
+        <button className="btn" style={{ width: "100%" }} onClick={() => (last ? onDone() : setI(i + 1))}>
+          {last ? "Let's go" : "Next"}
         </button>
       </div>
     </div>
@@ -3287,7 +3357,7 @@ function DailyQuests({ today }) {
   const t = today && today.day === day ? today : emptyToday(day);
 
   return (
-    <div className="card" style={{ padding: "12px 14px", marginBottom: 16 }}>
+    <div className="card" data-tour="quests" style={{ padding: "12px 14px", marginBottom: 16 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>Today's quests</div>
       {quests.map((q) => {
         const done = t.claimed.includes(q.id);
@@ -3333,6 +3403,12 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
+  // Purely a per-visit UI preference (not persisted) -- collapsing a
+  // stage just saves scroll room while you're looking at the other one,
+  // it's not a setting worth remembering across sessions.
+  const [openStages, setOpenStages] = useState({ stage1: true, stage2: true, rows: true });
+  const toggleStage = (id) => setOpenStages((s) => ({ ...s, [id]: !s[id] }));
+
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
       <Thesis />
@@ -3371,13 +3447,13 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
 
       <DailyQuests today={state.today} />
 
-      {/* Shown only once there's something to protect — right after the
-          first sign of real progress, not on the very first screen. */}
-      {known.size > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <InstallBanner seenIntro={seenIntro} onSeen={onSeen} />
-        </div>
-      )}
+      {/* Shown from the very first open, on purpose -- someone arriving
+          via a shared link is exactly who most needs to know this can go
+          on their home screen, not someone who's already invested time.
+          Still fully dismissible and never shown again once seen. */}
+      <div style={{ marginBottom: 16 }}>
+        <InstallBanner seenIntro={seenIntro} onSeen={onSeen} />
+      </div>
 
       {dueCount > 0 && (
         <button className="card" style={{ borderColor: "var(--rubric)" }} onClick={onReview}>
@@ -3416,8 +3492,16 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
 
       {track === "bases" ? (
         <>
-          <div className="eyebrow" style={{ margin: "18px 0 10px" }}>Stage one · the 34 shapes</div>
-          {BASE_BATCHES.map((b, i) => {
+          <StageHeader
+            open={openStages.stage1}
+            onToggle={() => toggleStage("stage1")}
+            title="Stage one · the 34 shapes"
+            done={BASE_BATCHES.filter((b) => bDone.has(b.id)).length}
+            total={BASE_BATCHES.length}
+            style={{ margin: "18px 0 10px" }}
+            dataTour="stage"
+          />
+          {openStages.stage1 && BASE_BATCHES.map((b, i) => {
             const open = i === 0 || bDone.has(BASE_BATCHES[i - 1].id);
             const n = b.fams.filter((f) => solid(f, 0)).length;
             return (
@@ -3434,31 +3518,49 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
             );
           })}
 
-          <div className="eyebrow" style={{ margin: "22px 0 4px" }}>Stage two · the six vowel columns</div>
-          <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
-            {allBases ? "Taught most-regular first. The ə column comes last because it barely follows a rule." : "Opens once all 34 base shapes are done."}
-          </p>
-          {SWEEPS.map((sw, i) => {
-            const open = allBases && (i === 0 || sDone.has(SWEEPS[i - 1].id));
-            const n = sw.fams.filter((f) => solid(f, sw.order)).length;
-            return (
-              <LessonCard
-                key={sw.id}
-                open={open}
-                done={sDone.has(sw.id)}
-                fidel={[0, 1, 3, 7].map((f) => FAMS[f].chars[sw.order]).join("")}
-                title={`${sw.title} · part ${sw.part}`}
-                blurb={sw.blurb}
-                count={`${n}/${sw.fams.length}`}
-                onClick={() => onStart({ kind: "sweep", id: sw.id, fams: sw.fams, orders: [sw.order], doneLabel: `${ORDERS[sw.order].v} column, part ${sw.part}` })}
-              />
-            );
-          })}
+          <StageHeader
+            open={openStages.stage2}
+            onToggle={() => toggleStage("stage2")}
+            title="Stage two · the six vowel columns"
+            done={SWEEPS.filter((sw) => sDone.has(sw.id)).length}
+            total={SWEEPS.length}
+            style={{ margin: "22px 0 4px" }}
+          />
+          {openStages.stage2 && (
+            <>
+              <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
+                {allBases ? "Taught most-regular first. The ə column comes last because it barely follows a rule." : "Opens once all 34 base shapes are done."}
+              </p>
+              {SWEEPS.map((sw, i) => {
+                const open = allBases && (i === 0 || sDone.has(SWEEPS[i - 1].id));
+                const n = sw.fams.filter((f) => solid(f, sw.order)).length;
+                return (
+                  <LessonCard
+                    key={sw.id}
+                    open={open}
+                    done={sDone.has(sw.id)}
+                    fidel={[0, 1, 3, 7].map((f) => FAMS[f].chars[sw.order]).join("")}
+                    title={`${sw.title} · part ${sw.part}`}
+                    blurb={sw.blurb}
+                    count={`${n}/${sw.fams.length}`}
+                    onClick={() => onStart({ kind: "sweep", id: sw.id, fams: sw.fams, orders: [sw.order], doneLabel: `${ORDERS[sw.order].v} column, part ${sw.part}` })}
+                  />
+                );
+              })}
+            </>
+          )}
         </>
       ) : (
         <>
-          <div className="eyebrow" style={{ margin: "0 0 10px" }}>Rows, four at a time</div>
-          {UNITS.map((u, i) => {
+          <StageHeader
+            open={openStages.rows}
+            onToggle={() => toggleStage("rows")}
+            title="Rows, four at a time"
+            done={UNITS.filter((u) => uDone.has(u.n)).length}
+            total={UNITS.length}
+            style={{ margin: "0 0 10px" }}
+          />
+          {openStages.rows && UNITS.map((u, i) => {
             const open = i === 0 || uDone.has(UNITS[i - 1].n);
             const n = u.fams.reduce((a, f) => a + ORDERS.filter((_, o) => solid(f, o)).length, 0);
             return (
@@ -3513,11 +3615,25 @@ export default function AmharicFidel() {
   const [wordTab, setWordTab] = useState("read");
   const [lesson, setLesson] = useState(null);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const introChecked = useRef(false);
 
   useEffect(() => {
     notifySaveFailure = () => setSaveFailed(true);
     return () => { notifySaveFailure = () => {}; };
   }, []);
+
+  // Home renders immediately either way -- this only decides whether the
+  // Spotlight overlay auto-opens on top of it once state has actually
+  // loaded (state starts null; see loadState() above). introChecked
+  // guards against re-opening on every later state change once this
+  // has run once.
+  useEffect(() => {
+    if (state && !introChecked.current) {
+      introChecked.current = true;
+      if (!state.seenIntro.includes("app-tour")) setShowTour(true);
+    }
+  }, [state]);
 
   // Whatever verified official clips actually exist, if any — see
   // officialAudioUrl/officialKeyFromFilename above. A missing or
@@ -3692,15 +3808,6 @@ export default function AmharicFidel() {
   const markSeen = (id) =>
     setState((s) => (s.seenIntro.includes(id) ? s : { ...s, seenIntro: [...s.seenIntro, id] }));
 
-  if (!state.seenIntro.includes("app-tour")) {
-    return (
-      <div className="fd">
-        <style>{CSS}</style>
-        <Tour onDone={() => markSeen("app-tour")} />
-      </div>
-    );
-  }
-
   if (lesson) {
     return (
       <div className="fd">
@@ -3733,11 +3840,18 @@ export default function AmharicFidel() {
     <div className="fd">
       <style>{CSS}</style>
 
-      <div className="top">
+      <div className="top" data-tour="topbar">
         <span className="mark">ፊ</span>
         <span className="chip">lv <b>{level}</b></span>
         <div className="xpbar"><div className="xpfill" style={{ width: `${pct}%` }} /></div>
         <span className="chip"><b>{state.xp}</b> xp</span>
+        <button
+          onClick={() => setShowTour(true)}
+          title="Show the tour again"
+          style={{ color: "var(--dim)", fontSize: 13, fontWeight: 700, width: 22, height: 22, borderRadius: "50%", border: "1px solid var(--line)", flexShrink: 0 }}
+        >
+          ?
+        </button>
       </div>
 
       {saveFailed && (
@@ -3838,7 +3952,7 @@ export default function AmharicFidel() {
           ))}
       </div>
 
-      <div className="tabs">
+      <div className="tabs" data-tour="tabs">
         {[["learn", "ት", "learn"], ["chart", "ፊ", "chart"], ["words", "ቃ", "read"], ["write", "ጽ", "write"]].map(
           ([id, g, label]) => (
             <button key={id} className={"tab" + (tab === id ? " on" : "")} onClick={() => setTab(id)}>
@@ -3848,6 +3962,15 @@ export default function AmharicFidel() {
           )
         )}
       </div>
+
+      {showTour && (
+        <Spotlight
+          onDone={() => {
+            setShowTour(false);
+            markSeen("app-tour");
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -119,6 +119,22 @@ Both platforms then get a standalone app (no browser chrome), the ፊ icon,
 and offline access after the first load, via the service worker generated
 by `vite-plugin-pwa` (`src/../vite.config.js`).
 
+The install banner (dismissible, on the Learn tab) shows from the very
+first visit, not just once someone's made progress — the person most
+likely to need "you can add this to your home screen" is someone opening
+a link a friend just shared, not someone already invested.
+
+### Getting into an actual app store (future, not started)
+
+Two real paths, neither free of cost or effort:
+- **Android / Google Play**: the most accessible route — a Trusted Web
+  Activity wraps this same PWA with very little extra code (tools like
+  PWABuilder.com can generate most of it), for a one-time $25 Google Play
+  developer fee.
+- **iOS App Store**: Apple doesn't accept a bare PWA — it needs a native
+  or WebView wrapper, plus a $99/year Apple Developer Program membership.
+  A recurring cost, not a one-time one.
+
 **What I verified vs. what needs your own phone:** I confirmed the
 manifest is valid (name, icons at 192/512 including maskable variants,
 `display: standalone`) and that the service worker registers and goes
