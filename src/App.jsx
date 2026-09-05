@@ -3511,12 +3511,18 @@ export default function AmharicFidel() {
     });
   }, []);
 
+  // cards/xp are here specifically so a finished lesson (including a
+  // review session, which never touches basesDone/sweepsDone/unitsDone)
+  // always counts as structural, matching saveState's own "anything
+  // you'd be upset to lose" comment -- an earlier version of this list
+  // omitted them, so a completed review only got the 250ms-debounced
+  // save like routine progress.
   const lastSig = useRef("");
   useEffect(() => {
     if (!state) return;
     const sig = JSON.stringify([
       state.basesDone, state.sweepsDone, state.unitsDone,
-      state.bestSpeed, state.startDate, track,
+      state.bestSpeed, state.startDate, state.cards, state.xp, track,
     ]);
     const structural = sig !== lastSig.current;
     lastSig.current = sig;

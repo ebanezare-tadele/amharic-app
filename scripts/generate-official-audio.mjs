@@ -279,6 +279,12 @@ async function generateOnce(jobId, text, reqId) {
 // anything missing.
 const QUALITY_ATTEMPTS = 4;
 
+// Skip-if-exists only ever matters for a human resuming an interrupted
+// local run without wiping OUT_DIR (saves re-spending API calls on
+// clips that already verified). It cannot ship stale content from CI:
+// OUT_DIR is scripts/official-audio-out, which is gitignored and never
+// checked out, so on every generate-audio.yml run it starts absent and
+// every job here returns false — nothing is ever skipped in production.
 async function alreadyDone(job) {
   if (job.category === "row") {
     for (let o = 0; o < job.syllableCount; o++) {
