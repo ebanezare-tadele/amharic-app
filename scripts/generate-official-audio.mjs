@@ -440,7 +440,7 @@ async function buildZip(files) {
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
 
-  let done = 0, skipped = 0, requalified = 0, failed = [], flagged = [];
+  let done = 0, skipped = 0, requalified = 0, failed = [], flagged = [], excluded = [];
   const shipped = []; // filenames of every verified clip, for manifest.json
   // Strictly one Addis AI request in flight at a time (see generateOnce);
   // a small pause between jobs keeps the plain per-minute rate limit
@@ -456,13 +456,25 @@ async function main() {
     } else if (result.ok) {
       done++;
       if (result.requality) requalified++;
-      if (result.flagged) flagged.push({ job, note: result.note });
-      shipped.push(...result.files);
+      // "even-split" means no real evidence existed for where the
+      // syllable boundaries actually are (see chooseRowBounds in
+      // row-slicing.mjs) -- the clip is a duration-plausible guess, not
+      // a verified one. Shipping that as if it were the same as a
+      // properly-sliced row is exactly the "verified" that isn't
+      // finding called out this session: excluded from the manifest
+      // rather than shipped with an asterisk nobody sees. "surplus"
+      // (real pauses, just more than needed) still ships normally.
+      if (result.confidence === "even-split") {
+        excluded.push({ job, note: result.note });
+      } else {
+        if (result.flagged) flagged.push({ job, note: result.note });
+        shipped.push(...result.files);
+      }
     } else {
       failed.push(result);
     }
     const n = done + skipped + failed.length;
-    process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} requalified=${requalified} flagged=${flagged.length} failed=${failed.length}   `);
+    process.stdout.write(`\r[${n}/${jobs.length}] generated=${done} skipped=${skipped} requalified=${requalified} flagged=${flagged.length} excluded=${excluded.length} failed=${failed.length}   `);
     if (!result.skipped) await new Promise((r) => setTimeout(r, PACING_MS));
   }
   console.log("\n");
@@ -470,6 +482,12 @@ async function main() {
   if (failed.length) {
     console.log(`${failed.length} job(s) never produced a verified clip (not shipped — the app falls back to a personal recording or device voice for these):`);
     failed.forEach((f) => console.log(`  ${f.job.id} (${JSON.stringify(f.job.text)}): ${f.error}`));
+    console.log("");
+  }
+
+  if (excluded.length) {
+    console.log(`${excluded.length} row(s) generated but excluded from the manifest — no real evidence for where the syllable boundaries are, only a duration-plausible guess (the app falls back to a personal recording or device voice for these letters):`);
+    excluded.forEach((f) => console.log(`  ${f.job.id}: ${f.note}`));
     console.log("");
   }
 
