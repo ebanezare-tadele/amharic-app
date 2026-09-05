@@ -2,11 +2,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// GitHub Pages serves a project repo (not a *.github.io repo itself) from
-// a subpath — https://<user>.github.io/amharic-app/ — so every asset URL
-// needs that prefix. If you later move this to a custom domain or a
-// user/org root site, change this back to '/'.
-const BASE = '/amharic-app/'
+// The repo is named ebanezare-tadele.github.io, so GitHub Pages serves it
+// at the domain root rather than a project subpath — '/' is correct here.
+// If this ever moves to a different (non-*.github.io-named) repo or a
+// project subpath again, change this back to '/<repo-name>/'.
+const BASE = '/'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -28,7 +28,7 @@ export default defineConfig({
         short_name: 'ፊደል',
         description: 'Learn the Amharic fidel — 34 consonant families across 7 vowel orders.',
         // Relative, not "/..." — vite-plugin-pwa resolves these against
-        // `base` above, so they still work under the /amharic-app/ subpath.
+        // `base` above, whatever it's set to.
         start_url: '.',
         scope: '.',
         display: 'standalone',
