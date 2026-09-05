@@ -42,8 +42,15 @@ jobs:
           python-version: "3.11"
       - name: Install ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      # Pinned to 0.5.16, the last pre-1.0 release -- confirmed via a real
+      # run (see git history) that "speechbrain" unpinned installs 1.0+,
+      # which moved/renamed the huggingface_wav2vec module the
+      # aioxlabs/dvoice-amharic model's own hparams.yaml still references
+      # by its old path, so loading the model fails with "There is no
+      # such class as speechbrain.lobes.models.huggingface_wav2vec.
+      # HuggingFaceWav2Vec2" before a single clip gets transcribed.
       - name: Install speechbrain + torch (CPU)
-        run: pip install --quiet speechbrain torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+        run: pip install --quiet "speechbrain==0.5.16" torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
       - name: Run open-transcription content verification
