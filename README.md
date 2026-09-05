@@ -108,12 +108,21 @@ trigger it differently:
   This can take a visit or two for Chrome's own engagement heuristics to
   kick in; it's not something the app can force.
 
-- **iOS (Safari only):** open the URL in **Safari specifically** — Chrome,
-  Firefox, etc. on iOS are all still WebKit under the hood, but Apple only
-  exposes "Add to Home Screen" through Safari's own UI. Tap the Share icon
-  → **Add to Home Screen** → Add. There's no automatic prompt on iOS the
-  way there is on Android; it's always this manual step. Worth mentioning
-  to family when you send the link.
+- **iOS (Safari recommended):** open the URL in **Safari** and tap the
+  Share icon → **Add to Home Screen** → Add. There's no automatic prompt
+  on iOS the way there is on Android; it's always this manual step.
+
+  Correction from an earlier version of this doc: Chrome and other iOS
+  browsers *can* also trigger "Add to Home Screen" — it's an OS-level
+  share-sheet action, not exclusive to Safari's own UI. But confirmed
+  from a real report: Chrome's version of that dialog includes an "Open
+  as Web App" toggle that, left on, made the icon reopen as a fresh tab
+  every time instead of a stable app — because Chrome on iOS isn't
+  actually able to host a standalone web app the way Safari can (it's
+  a WebKit wrapper without that capability, whatever the toggle implies).
+  If you use Chrome anyway, turn that toggle **off**. Safari doesn't have
+  this problem, hence the recommendation. Worth mentioning to family when
+  you send the link.
 
 Both platforms then get a standalone app (no browser chrome), the ፊ icon,
 and offline access after the first load, via the service worker generated

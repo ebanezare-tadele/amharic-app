@@ -534,6 +534,12 @@ const CSS = `
   iOS Safari with the URL bar showing, 100vh is taller than what's really
   on screen. That's exactly what pushed content below the fold requiring
   a scroll to reach action buttons that should already be visible. */
+  padding-top: env(safe-area-inset-top); /* the bottom inset was already
+  handled (.verdict, .tabs) but the top one never was -- a real gap: in
+  any fullscreen/standalone-ish display mode, content can render straight
+  under the notch/Dynamic Island with nothing reserving that space. Costs
+  nothing in a normal browser tab (the browser's own chrome already
+  reserves this, so the env() value is just 0 there). */
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
@@ -3275,7 +3281,13 @@ function InstallBanner({ seenIntro, onSeen }) {
           <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Add to Home Screen</div>
           <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>
             {ios ? (
-              <>Opens faster and works offline as its own app. Tap the <b>Share</b> button (the square with an arrow, in Safari's toolbar), then <b>Add to Home Screen</b>.</>
+              <>
+                Opens faster and works offline as its own app. Works best in <b>Safari</b> specifically —
+                tap the <b>Share</b> button (the square with an arrow), then <b>Add to Home Screen</b>. On
+                Chrome, if it offers an <b>"Open as Web App"</b> toggle, turn it off — a real user hit this:
+                left on, the icon kept opening fresh tabs instead of reopening reliably (Chrome on iPhone
+                can't actually host a standalone app the way Safari can).
+              </>
             ) : prompt ? (
               <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>
             ) : (
@@ -3454,7 +3466,7 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
     // flex) plus both platforms' home-screen instructions, since this
     // travels in the message itself and the in-app banner/Callouts can't
     // reach someone before they've opened the link at all.
-    const text = `Welcome to ፊደል Amharic Fidel!\n\nRead Amharic in a few minutes a day. Daily challenges, tracing practice, spaced review that catches what you forget, and a reader for real text.\n\nAdd it to your home screen so it opens like an app:\niPhone (Safari): Share icon, then Add to Home Screen\n\nAndroid (Chrome): three-dot menu, then Add to Home Screen`;
+    const text = `Welcome to ፊደል Amharic Fidel!\n\nRead Amharic in a few minutes a day. Daily challenges, tracing practice, spaced review that catches what you forget, and a reader for real text.\n\nAdd it to your home screen so it opens like an app:\niPhone: use Safari (not Chrome) -- Share icon, then Add to Home Screen. If Chrome offers "Open as Web App," turn it off, or the icon may reopen as a fresh tab each time.\n\nAndroid (Chrome): three-dot menu, then Add to Home Screen`;
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
