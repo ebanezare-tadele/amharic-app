@@ -85,6 +85,16 @@ export async function pullBundle(code) {
   return rpc("get_progress", { p_code: code }); // null if no row for that code
 }
 
+// Opt-in progress compare uses this instead of pullBundle -- a separate,
+// read-only RPC (get_compare_stats, added specifically for this) that
+// computes just {xp, streakDays, masteredCount} server-side, so watching
+// someone's code for compare can never pull their recordings or raw
+// progress map across the wire at all, unlike get_progress which returns
+// literally everything stored under that code.
+export async function pullCompareStats(code) {
+  return rpc("get_compare_stats", { p_code: code }); // null if no row for that code
+}
+
 export async function pushBundle(code, bundle) {
   await rpc("put_progress", { p_code: code, p_state: bundle });
 }

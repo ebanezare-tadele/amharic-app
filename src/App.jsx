@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   generateSyncCode, getSavedSyncCode, saveSyncCode, pullBundle, pushBundle, gatherBundle, applyBundle,
-  getCompareCodes, saveCompareCodes,
+  getCompareCodes, saveCompareCodes, pullCompareStats,
 } from "./lib/progressSync.js";
 import { WORD_FAM, officialAudioUrl, officialKeyFromFilename } from "./audio.js";
 import { onInstallPromptAvailable, isStandalone, isIOSDevice } from "./lib/installPrompt.js";
@@ -469,17 +469,20 @@ function loadState() {
 let saveTimer = null;
 let pendingSave = null;
 
+// Set by AmharicFidel on mount so a save failure (quota exceeded, storage
+// unavailable) actually reaches the user instead of vanishing — this
+// function lives outside any component (called from a plain timer and
+// from the pagehide/visibilitychange handlers below), so it has no
+// state setter of its own to call.
+let notifySaveFailure = () => {};
+
 function flushSave() {
   if (!pendingSave) return;
   const p = pendingSave;
   pendingSave = null;
   clearTimeout(saveTimer);
   saveTimer = null;
-  try {
-    window.storage.set("fidel:v1", JSON.stringify(p));
-  } catch (e) {
-    /* memory-only session */
-  }
+  window.storage.set("fidel:v1", JSON.stringify(p)).catch(() => notifySaveFailure());
 }
 
 // `now` is passed for anything you'd be upset to lose: a finished lesson,
@@ -2069,21 +2072,22 @@ function SyncPanel() {
 /* ============================================================
    COMPARE
    Entirely separate from this device's own sync code (SyncPanel
-   above) — this only ever READS someone else's bundle by their
-   code (pullBundle, never applyBundle), so watching a code can't
-   touch anyone's actual progress, yours or theirs. Off by default;
-   nothing here is visible until a code is added. See
+   above) — this only ever reads someone else's aggregate stats via
+   pullCompareStats (get_compare_stats, a dedicated read-only RPC),
+   never their full bundle and never applyBundle, so watching a code
+   can't pull their recordings or raw progress map, let alone touch
+   anyone's actual progress, yours or theirs. Off by default; nothing
+   here is visible until a code is added. See
    getCompareCodes/saveCompareCodes in lib/progressSync.js.
    ============================================================ */
 
-function statsFromBundle(bundle) {
-  const p = bundle && bundle.progress;
-  if (!p) return null;
+function statsFromCompareResult(result) {
+  if (!result) return null;
   return {
-    level: Math.floor((p.xp || 0) / 250) + 1,
-    xp: p.xp || 0,
-    streakDays: p.streakDays || 0,
-    masteredCount: Object.values(p.cards || {}).filter((c) => (c.lvl || 0) >= 5).length,
+    level: Math.floor((result.xp || 0) / 250) + 1,
+    xp: result.xp || 0,
+    streakDays: result.streakDays || 0,
+    masteredCount: result.masteredCount || 0,
   };
 }
 
@@ -2114,8 +2118,8 @@ function ComparePanel({ mine }) {
     const next = {};
     for (const code of list) {
       try {
-        const bundle = await pullBundle(code);
-        const stats = statsFromBundle(bundle);
+        const result = await pullCompareStats(code);
+        const stats = statsFromCompareResult(result);
         next[code] = stats || { error: "No synced progress found for that code." };
       } catch (e) {
         next[code] = { error: e.message || "Couldn't reach the server." };
@@ -3458,6 +3462,12 @@ export default function AmharicFidel() {
   const [officialHave, setOfficialHave] = useState(new Set());
   const [wordTab, setWordTab] = useState("read");
   const [lesson, setLesson] = useState(null);
+  const [saveFailed, setSaveFailed] = useState(false);
+
+  useEffect(() => {
+    notifySaveFailure = () => setSaveFailed(true);
+    return () => { notifySaveFailure = () => {}; };
+  }, []);
 
   // Whatever verified official clips actually exist, if any — see
   // officialAudioUrl/officialKeyFromFilename above. A missing or
@@ -3673,6 +3683,18 @@ export default function AmharicFidel() {
         <div className="xpbar"><div className="xpfill" style={{ width: `${pct}%` }} /></div>
         <span className="chip"><b>{state.xp}</b> xp</span>
       </div>
+
+      {saveFailed && (
+        <div className="wrap" style={{ paddingTop: 10 }}>
+          <div className="row-sp card" style={{ borderColor: "var(--rubric)", padding: "10px 14px" }}>
+            <span className="note" style={{ color: "var(--rubric)", fontSize: 12 }}>
+              Couldn't save just now — your device may be low on storage. Progress from this session
+              may not stick if you close the app.
+            </span>
+            <button onClick={() => setSaveFailed(false)} style={{ color: "var(--dim)", fontSize: 16, padding: "0 0 0 10px" }}>✕</button>
+          </div>
+        </div>
+      )}
 
       <div className="grow" style={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
         {tab === "learn" && (

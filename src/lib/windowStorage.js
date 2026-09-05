@@ -17,18 +17,16 @@ window.storage = {
   },
 
   async set(key, value) {
-    try {
-      window.localStorage.setItem(NS + key, value);
-    } catch {
-      // Quota exceeded or storage unavailable — fail silently, same as the
-      // artifact sandbox's own failure mode that App.jsx already catches
-      // around every storage call.
-    }
+    // Quota exceeded or storage unavailable — let this reject rather than
+    // swallowing it. Every real caller (Voice's record/delete, flushSave)
+    // already has a try/catch built specifically to handle this failing;
+    // silently resolving here was defeating all of that, letting a
+    // recording (or lesson progress) disappear with the UI never told
+    // the save didn't happen.
+    window.localStorage.setItem(NS + key, value);
   },
 
   async delete(key) {
-    try {
-      window.localStorage.removeItem(NS + key);
-    } catch {}
+    window.localStorage.removeItem(NS + key);
   },
 };
