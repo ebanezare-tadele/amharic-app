@@ -162,7 +162,7 @@ export function StageHeader({ open, onToggle, title, done, total, style, dataTou
 const SPOTLIGHT_STEPS = [
   { target: null, title: "Welcome to ፊደል", body: "A 60-second look at where everything lives. Skip anytime — this doesn't come back uninvited." },
   { target: "topbar", title: "Level & XP", body: "Every lesson, review, and drill earns XP. 250 XP clears a level." },
-  { target: "tabs", title: "Four ways to practice", body: "Learn teaches new letters. Chart is the whole fidel at a glance, tap any letter to hear or record it. Read puts real sentences in front of you. Write is free-hand tracing, scored against the actual shape." },
+  { target: "tabs", title: "Five ways to practice", body: "Learn teaches new letters. Chart is the whole fidel at a glance, tap any letter to hear or record it. More has the numerals, the script's history, anchor words and phrases, and syncing across devices. Read puts real sentences in front of you. Write is free-hand tracing, scored against the actual shape." },
   { target: "quests", title: "Daily quests", body: "Three quick goals every day for bonus XP — they reset each morning, so a couple minutes keeps a streak alive even on a busy day." },
   { target: "stage", title: "Your path", body: "Tap any card here to start that lesson. Each one unlocks once the one before it's done." },
   { target: null, title: "That's it", body: "Tap the ? up top anytime to see this again. Let's go." },

@@ -8,6 +8,7 @@ import { key, DAY, INTERVALS, loadState, saveState, flushSave, todayStamp, empty
 import { loadAudIndex } from "./lib/clipStorage.js";
 import { Lesson } from "./components/Lesson.jsx";
 import { Chart } from "./components/Chart.jsx";
+import { More } from "./components/More.jsx";
 import { Reader } from "./components/Reader.jsx";
 import { WordBuild, Speed } from "./components/Drills.jsx";
 import { Trace } from "./components/Practice.jsx";
@@ -301,12 +302,18 @@ export default function AmharicFidel() {
             cards={state.cards}
             unlockedFams={unlockedFams}
             audio={audio}
-            onReset={resetAll}
             seenIntro={state.seenIntro}
             onSeen={markSeen}
+          />
+        )}
+        {tab === "more" && (
+          <More
+            cards={state.cards}
+            audio={audio}
             level={level}
             xp={state.xp}
             streakDays={state.streakDays}
+            onReset={resetAll}
           />
         )}
         {tab === "words" && (
@@ -366,7 +373,7 @@ export default function AmharicFidel() {
       </div>
 
       <div className="tabs" data-tour="tabs">
-        {[["learn", "ት", "learn"], ["chart", "ፊ", "chart"], ["words", "ቃ", "read"], ["write", "ጽ", "write"]].map(
+        {[["learn", "ት", "learn"], ["chart", "ፊ", "chart"], ["more", "ተ", "more"], ["words", "ቃ", "read"], ["write", "ጽ", "write"]].map(
           ([id, g, label]) => (
             <button key={id} className={"tab" + (tab === id ? " on" : "")} onClick={() => setTab(id)}>
               <span className="tg">{g}</span>
