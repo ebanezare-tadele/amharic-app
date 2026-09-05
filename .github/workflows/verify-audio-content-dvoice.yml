@@ -1,0 +1,65 @@
+name: Verify audio content (dvoice-amharic, open transcription)
+
+# Diagnostic, not part of the normal pipeline: checks whether the
+# already-shipped clips in public/audio/official/ actually say the right
+# thing, using aioxlabs/dvoice-amharic -- a wav2vec2+CTC model actually
+# trained on Amharic (SpeechBrain's DVoice project), not the
+# general-purpose faster-whisper checkpoint this project already tried
+# and dropped (see scripts/verify_audio_content.py and the long comment
+# atop generate-official-audio.mjs for that history).
+#
+# This is genuinely untested outside this one CI run: this sandbox can't
+# reach huggingface.co to prototype it locally first, so treat the very
+# first run as a pilot (see the pilot input below) -- read the actual
+# transcriptions in the job log before trusting the pass/fail verdicts
+# for anything.
+#
+# Runs entirely against files already committed to the branch -- no
+# artifact download needed, no paid API calls, no cost beyond CI minutes
+# and the (free) model download.
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: "Only check the first N rows/anchors/phrases (leave blank for a full run across everything shipped)"
+        type: string
+        default: "6"
+      similarity_threshold:
+        description: "Below this open-transcription similarity (0-1), flag a clip NEEDS_REVIEW"
+        type: string
+        default: "0.5"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install speechbrain + torch (CPU)
+        run: pip install --quiet speechbrain torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - name: Export the exact texts every clip is supposed to say
+        run: node scripts/export-verification-texts.mjs
+      - name: Run open-transcription content verification
+        run: |
+          python3 scripts/verify_audio_content_dvoice.py \
+            --clips-dir public/audio/official \
+            --texts scripts/verification-texts.json \
+            --out scripts/verification-report-dvoice.json \
+            --similarity-threshold "${{ inputs.similarity_threshold }}" \
+            ${{ inputs.pilot != '' && format('--pilot {0}', inputs.pilot) || '' }}
+      - name: Print full report to the job log
+        if: always()
+        run: cat scripts/verification-report-dvoice.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audio-content-verification-report-dvoice
+          path: scripts/verification-report-dvoice.json
+          retention-days: 14

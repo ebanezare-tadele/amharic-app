@@ -2541,6 +2541,39 @@ function maskFromChar(ch) {
   return g;
 }
 
+const INK_NEUTRAL = "#EDE3CE";
+
+// Shared by Trace's live-drawing feedback and its final check() -- same
+// coarse-grid coverage/spill math either way, just called at different
+// times.
+function coverageOf(ctx, mask) {
+  const d = ctx.getImageData(0, 0, PAD, PAD).data;
+  const step = PAD / CELLS;
+  const u = new Uint8Array(CELLS * CELLS);
+  for (let py = 0; py < PAD; py++) {
+    for (let px = 0; px < PAD; px++) {
+      if (d[(py * PAD + px) * 4 + 3] > 60) {
+        u[Math.floor(py / step) * CELLS + Math.floor(px / step)] = 1;
+      }
+    }
+  }
+  let gTot = 0, uTot = 0, hit = 0;
+  for (let k = 0; k < mask.length; k++) {
+    if (mask[k]) gTot++;
+    if (u[k]) uTot++;
+    if (mask[k] && u[k]) hit++;
+  }
+  return { coverage: gTot ? hit / gTot : 0, spill: uTot ? (uTot - hit) / uTot : 1 };
+}
+
+function lerpColor(hexA, hexB, t) {
+  const a = parseInt(hexA.slice(1), 16), b = parseInt(hexB.slice(1), 16);
+  const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+  const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+  const r = Math.round(ar + (br - ar) * t), g = Math.round(ag + (bg - ag) * t), bl = Math.round(ab + (bb - ab) * t);
+  return `rgb(${r}, ${g}, ${bl})`;
+}
+
 function Trace({ letters, onXp }) {
   const ghostRef = useRef(null);
   const inkRef = useRef(null);
@@ -2604,14 +2637,17 @@ function Trace({ letters, onXp }) {
     return [((e.clientX - r.left) / r.width) * PAD, ((e.clientY - r.top) / r.height) * PAD];
   };
 
+  const moveCount = useRef(0);
+
   const down = (e) => {
     if (score !== null) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     drawing.current = true;
     dirty.current = true;
+    moveCount.current = 0;
     const x = inkRef.current.getContext("2d");
     const [a, b] = pos(e);
-    x.strokeStyle = "#EDE3CE";
+    x.strokeStyle = INK_NEUTRAL;
     x.lineWidth = 13;
     x.lineCap = "round";
     x.lineJoin = "round";
@@ -2625,6 +2661,18 @@ function Trace({ letters, onXp }) {
     const [a, b] = pos(e);
     x.lineTo(a, b);
     x.stroke();
+
+    // Live "getting warmer" feedback: every few points (getImageData isn't
+    // free -- no need to run it on every single pointermove), recolor the
+    // whole stroke toward --verd as coverage of the target shape improves.
+    // stroke() re-renders the WHOLE accumulated path each call (no
+    // beginPath() between segments), so changing strokeStyle here recolors
+    // ink already drawn, not just what comes next.
+    moveCount.current++;
+    if (maskRef.current && moveCount.current % 4 === 0) {
+      const { coverage } = coverageOf(x, maskRef.current);
+      x.strokeStyle = lerpColor(INK_NEUTRAL, "#4F9A76", Math.min(1, coverage));
+    }
   };
 
   const up = () => {
@@ -2633,25 +2681,8 @@ function Trace({ letters, onXp }) {
 
   const check = () => {
     if (!dirty.current || !maskRef.current) return;
-    const d = inkRef.current.getContext("2d").getImageData(0, 0, PAD, PAD).data;
-    const step = PAD / CELLS;
-    const u = new Uint8Array(CELLS * CELLS);
-    for (let py = 0; py < PAD; py++) {
-      for (let px = 0; px < PAD; px++) {
-        if (d[(py * PAD + px) * 4 + 3] > 60) {
-          u[Math.floor(py / step) * CELLS + Math.floor(px / step)] = 1;
-        }
-      }
-    }
-    const g = maskRef.current;
-    let gTot = 0, uTot = 0, hit = 0;
-    for (let k = 0; k < g.length; k++) {
-      if (g[k]) gTot++;
-      if (u[k]) uTot++;
-      if (g[k] && u[k]) hit++;
-    }
-    const coverage = gTot ? hit / gTot : 0;
-    const spill = uTot ? (uTot - hit) / uTot : 1;
+    const x = inkRef.current.getContext("2d");
+    const { coverage, spill } = coverageOf(x, maskRef.current);
     const sc = Math.max(0, Math.round(100 * coverage * (1 - 0.5 * spill)));
     setScore({ sc, coverage: Math.round(coverage * 100), spill: Math.round(spill * 100) });
     if (sc >= 70) onXp(10);
@@ -3292,6 +3323,16 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
 
   const solid = (f, o) => ((state.cards[key(f, o)] || {}).lvl || 0) >= 3;
 
+  // Feature-detected, not assumed -- navigator.share exists on iOS/Android
+  // browsers and some desktop ones, not all (same pattern as the PWA
+  // install prompt elsewhere in this file). No account, no server round
+  // trip: it just hands plain text to whatever the OS share sheet offers.
+  const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const shareProgress = () => {
+    const text = `Level ${level} and a ${state.streakDays}-day streak learning the Amharic fidel — ${known.size} letters known so far. 🔥`;
+    navigator.share({ text, url: window.location.href }).catch(() => {});
+  };
+
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
       <Thesis />
@@ -3312,6 +3353,12 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
       {state.streakFreezes > 0 && (
         <div className="note" style={{ textAlign: "center", fontSize: 11, marginTop: -10, marginBottom: 4 }}>
           ❄️ {state.streakFreezes} freeze{state.streakFreezes > 1 ? "s" : ""} saved — a missed day won't break the streak
+        </div>
+      )}
+
+      {canShare && (
+        <div style={{ textAlign: "center", marginBottom: 4 }}>
+          <button className="speaker" onClick={shareProgress}>share your progress</button>
         </div>
       )}
 
