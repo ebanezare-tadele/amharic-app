@@ -38,8 +38,13 @@ jobs:
           python-version: "3.11"
       - name: Install ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      # "huggingface_hub<1.0" pinned after a real run: loading the
+      # tokenizer/processor 401'd on a request for "additional_chat_templates"
+      # -- an artifact of a newer huggingface_hub/transformers combo probing
+      # for chat-template metadata irrelevant to this (non-chat, ASR) model,
+      # against a public repo with nothing to authenticate.
       - name: Install transformers + torch (CPU)
-        run: pip install --quiet transformers torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+        run: pip install --quiet transformers "huggingface_hub<1.0" torch torchaudio --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
       - name: Run open-transcription content verification
