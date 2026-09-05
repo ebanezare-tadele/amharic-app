@@ -3413,12 +3413,14 @@ function Home({ state, dueCount, level, known, onStart, onReview, onSpeed, track
   // trip: it just hands plain text to whatever the OS share sheet offers.
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
   const shareProgress = () => {
-    // Whoever gets this is reading it as a text message, not opening the
-    // link on the spot -- the install tip has to travel in the message
-    // itself, not rely on the in-app banner they might never see. Covers
-    // both platforms since there's no way to know the recipient's device
-    // from here.
-    const text = `Level ${level} and a ${state.streakDays}-day streak learning the Amharic fidel — ${known.size} letters known so far. 🔥\n\nTip: add it to your home screen so it opens like an app -- iPhone: Share icon → Add to Home Screen. Android: tap Install when Chrome offers it.`;
+    // Whoever gets this has never seen the app before -- "Level 2, 4-day
+    // streak" means nothing without first saying what it even is. Leads
+    // with a one-line overview, then the personal stat as the hook, then
+    // the install tip -- all three travel in the message itself since the
+    // in-app banner and Callouts can't reach someone before they've opened
+    // the link (and the install tip specifically has to be read even by
+    // someone who never clicks through at all).
+    const text = `ፊደል — a free app for learning the Amharic alphabet (fidel), one shape at a time. I'm level ${level}, a ${state.streakDays}-day streak, ${known.size} letters down. 🔥\n\nTip: add it to your home screen so it opens like an app -- iPhone: Share icon → Add to Home Screen. Android: tap Install when Chrome offers it.`;
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
