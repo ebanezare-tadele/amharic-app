@@ -528,7 +528,12 @@ const CSS = `
   background: var(--ink);
   color: var(--bone);
   font-family: var(--ui);
-  min-height: 100vh;
+  min-height: 100vh; /* fallback for browsers without dvh support */
+  min-height: 100dvh; /* actual visible viewport -- 100vh assumes the tallest
+  possible viewport (as if the browser's own URL bar were hidden), so on
+  iOS Safari with the URL bar showing, 100vh is taller than what's really
+  on screen. That's exactly what pushed content below the fold requiring
+  a scroll to reach action buttons that should already be visible. */
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
@@ -539,6 +544,15 @@ const CSS = `
 
 .wrap { width: 100%; max-width: 540px; margin: 0 auto; padding: 0 16px; }
 .grow { flex: 1; }
+/* Screens with a sticky .verdict action bar (Trace, Reader, Lesson, ...) use
+   a two-level structure: an outer <div className="grow"> so the screen fills
+   the scrollable region, holding a content <div className="wrap"> followed by
+   the sticky bar. The content div should NOT also carry "grow" -- that was a
+   real bug (App.jsx history): flex:1 on the inner div force-stretched it to
+   fill the outer container even when actual content was short (a single
+   canvas, a single sentence), pushing the sticky bar's natural position below
+   the fold and forcing a scroll to reach action buttons that should already
+   be on screen. Content should size to itself; only the outer wrapper grows. */
 
 /* On an actual desktop monitor, a bare 540px column centered in a flat
    dark field reads as an unstyled mobile app dropped into a browser tab
@@ -952,7 +966,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
   const A = ANCHORS[F.id];
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 18 }}>
+      <div className="wrap" style={{ paddingTop: 18 }}>
         <div className="row-sp">
           <span className="eyebrow">Base letter {i + 1} of {fams.length}</span>
           <button onClick={onBack} style={{ color: "var(--dim)", fontSize: 18 }}>✕</button>
@@ -1029,7 +1043,7 @@ function SweepIntro({ order, onNext, onBack }) {
   const demo = [0, 1, 5, 7].map((f) => FAMS[f]);
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 18 }}>
+      <div className="wrap" style={{ paddingTop: 18 }}>
         <div className="row-sp">
           <span className="eyebrow">{ORDERS[order].am} · order {order + 1}</span>
           <button onClick={onBack} style={{ color: "var(--dim)", fontSize: 18 }}>✕</button>
@@ -1079,7 +1093,7 @@ function FamilyIntro({ fams, i, audio, onNext, onBack }) {
   const F = FAMS[fams[i]];
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 18 }}>
+      <div className="wrap" style={{ paddingTop: 18 }}>
         <div className="row-sp">
           <span className="eyebrow">New row {i + 1} of {fams.length}</span>
           <button onClick={onBack} style={{ color: "var(--dim)", fontSize: 18 }}>✕</button>
@@ -1241,7 +1255,7 @@ function Lesson({ spec, state, pool, audio, onDone, onExit }) {
       kind === "sweep" ? FAMS[3].chars[orders[0]] : kind === "review" ? "ደግ" : FAMS[fams[0]].chars[0];
     return (
       <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-        <div className="wrap grow" style={{ paddingTop: 40, textAlign: "center" }}>
+        <div className="wrap" style={{ paddingTop: 40, textAlign: "center" }}>
           <div className="gz" style={{ fontSize: 62, color: "var(--gold)" }}>{badge}</div>
           <div className="disp" style={{ fontSize: 30, marginTop: 10 }}>{spec.doneLabel}</div>
           <div className="row-sp" style={{ marginTop: 26 }}>
@@ -1297,7 +1311,7 @@ function Lesson({ spec, state, pool, audio, onDone, onExit }) {
 
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow">
+      <div className="wrap">
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0" }}>
           <button onClick={onExit} style={{ color: "var(--dim)", fontSize: 20, lineHeight: 1 }}>✕</button>
           <div className="xpbar">
@@ -1466,7 +1480,7 @@ function WordBuild({ pool, unlockedChars, onXp }) {
 
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 20 }}>
+      <div className="wrap" style={{ paddingTop: 20 }}>
         <div className="eyebrow">Spell it out</div>
         <div className="disp" style={{ fontSize: 34, margin: "4px 0 2px" }}>
           {w[2]}
@@ -2723,7 +2737,7 @@ function Trace({ letters, onXp }) {
 
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 14 }}>
+      <div className="wrap" style={{ paddingTop: 14 }}>
         <div style={{ display: "flex", gap: 6, background: "var(--ink2)", padding: 4, borderRadius: 12, border: "1px solid var(--line)", marginBottom: 14 }}>
           {[["trace", "Trace over it"], ["memory", "From memory"]].map(([id, label]) => (
             <button key={id} onClick={() => { setMode(id); clearInk(); }} style={{
@@ -2842,7 +2856,7 @@ function Reader({ known, audio }) {
 
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
-      <div className="wrap grow" style={{ paddingTop: 16 }}>
+      <div className="wrap" style={{ paddingTop: 16 }}>
         <div style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 12, paddingBottom: 2 }}>
           {CATS.map(([id, label]) => (
             <button
