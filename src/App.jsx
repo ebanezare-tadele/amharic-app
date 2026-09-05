@@ -639,6 +639,17 @@ const CSS = `
 
 /* ---- verdict bar ---- */
 .verdict {
+  /* margin-top: auto is the actual fix for the dead-space complaint --
+     its parent is a flex column (className="grow") that still stretches
+     to fill the scrollable region even when content is short (removing
+     that stretch entirely broke long-content screens). auto margin uses
+     any leftover space to push .verdict itself down to the container's
+     bottom edge, flush above the tab bar, with no gap either above or
+     below it and no scroll needed. position:sticky still does its normal
+     job once real content is tall enough to need scrolling -- auto
+     margins and sticky don't conflict, since sticky only affects the
+     element once its static (in-flow) position would scroll out of view. */
+  margin-top: auto;
   position: sticky; bottom: 0; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line); background: var(--ink2);
 }
