@@ -43,11 +43,11 @@ describe("officialKeyFromFilename", () => {
 });
 
 describe("officialAudioUrl / officialKeyFromFilename round-trip", () => {
-  // HearButton and Chant only ever offer the "official clip" tier for a
-  // (fam, order) pair that appears as a key derived from manifest.json's
-  // filenames. If these two functions ever drift out of sync, a manifest
-  // entry could silently stop being playable (key parsed one way, URL
-  // built another) with no visible error — this guards that.
+  // Not currently wired into any UI (see audio.js's own comment), but the
+  // generation/verification scripts still rely on this URL <-> key mapping
+  // staying consistent -- if these two functions ever drift out of sync, a
+  // manifest entry could resolve to the wrong file with no visible error.
+  // This guards that contract.
   const filenames = [
     "letter-0-0.mp3", "letter-33-6.mp3",
     "anchor-0.mp3", "anchor-33.mp3",

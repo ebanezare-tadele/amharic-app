@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { FAMS, ORDERS, CHAR_MAP, MARKS, ANCHORS, ARTIC } from "../content.js";
 import { key, pick, shuffle } from "../state.js";
 import { WORD_FAM } from "../audio.js";
-import { HearButton, Voice, Chant } from "./AudioWidgets.jsx";
+import { Voice, Chant } from "./AudioWidgets.jsx";
 
 function RubricRow({ fam, active, cards }) {
   return (
@@ -240,7 +240,6 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
         </div>
         <div className="disp" style={{ fontSize: 40, textAlign: "center" }}>{F.rom[0]}</div>
         <div className="note" style={{ textAlign: "center", marginTop: 2 }}>{ORDERS[0].say}</div>
-        <div style={{ textAlign: "center", marginTop: 12 }}><HearButton fam={F.id} order={0} audio={audio} /></div>
 
         {ARTIC[F.id] && (
           <div className="card" style={{ marginTop: 16, borderColor: "var(--gold)" }}>
@@ -263,7 +262,6 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
             <div className="eyebrow" style={{ marginBottom: 8 }}>Where you'll meet it</div>
             <div className="gz" style={{ fontSize: 34 }}>{A[0]}</div>
             <div className="note"><b style={{ color: "var(--bone)" }}>{A[1]}</b> — {A[2]}</div>
-            <div style={{ marginTop: 8 }}><HearButton fam={WORD_FAM.anchor} order={F.id} audio={audio} text={A[0]} /></div>
             {audio && (
               <div style={{ marginTop: 10 }}>
                 <Voice
@@ -289,7 +287,7 @@ function BaseIntro({ fams, i, audio, onNext, onBack }) {
           You already have this rhythm. Chant it once so the shape gets filed under a sound you know.
           The six marks come later.
         </p>
-        <Chant fam={F.id} audio={audio} compact />
+        <Chant fam={F.id} compact />
       </div>
       <div className="verdict">
         <button className="btn" onClick={onNext}>
@@ -350,7 +348,7 @@ function SweepIntro({ order, onNext, onBack }) {
   );
 }
 
-function FamilyIntro({ fams, i, audio, onNext, onBack }) {
+function FamilyIntro({ fams, i, onNext, onBack }) {
   const F = FAMS[fams[i]];
   return (
     <div className="grow" style={{ display: "flex", flexDirection: "column" }}>
@@ -365,10 +363,9 @@ function FamilyIntro({ fams, i, audio, onNext, onBack }) {
         <p className="note" style={{ marginTop: 4 }}>
           {F.note || "One shape, seven vowels. Learn the shape once, then learn the seven marks."}
         </p>
-        <div style={{ textAlign: "center", margin: "20px 0 6px" }}>
+        <div style={{ textAlign: "center", margin: "20px 0 18px" }}>
           <span className="gz" style={{ fontSize: 76, color: "var(--rubric)" }}>{F.chars[0]}</span>
         </div>
-        <div style={{ textAlign: "center", marginBottom: 18 }}><HearButton fam={F.id} order={0} audio={audio} /></div>
         {ORDERS.map((o, k) => (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 14, padding: "9px 0", borderTop: "1px solid var(--line)" }}>
             <span className="gz" style={{ fontSize: 30, width: 42, textAlign: "center" }}>{F.chars[k]}</span>
@@ -427,7 +424,7 @@ export function Lesson({ spec, state, pool, audio, onDone, onExit }) {
     };
     if (kind === "sweep") return <SweepIntro order={orders[0]} onNext={next} onBack={onExit} />;
     if (kind === "base") return <BaseIntro fams={fams} i={introI} audio={audio} onNext={next} onBack={onExit} />;
-    return <FamilyIntro fams={fams} i={introI} audio={audio} onNext={next} onBack={onExit} />;
+    return <FamilyIntro fams={fams} i={introI} onNext={next} onBack={onExit} />;
   }
 
   if (phase === "done") {
@@ -577,9 +574,6 @@ export function Lesson({ spec, state, pool, audio, onDone, onExit }) {
             {right ? "Correct" : "Not this one"}
           </div>
           <div className="vsub" style={{ marginBottom: 12 }}>{q.why}</div>
-          <div style={{ marginBottom: 12 }}>
-            <HearButton fam={q.fam} order={q.order} audio={audio} />
-          </div>
           <button className="btn" onClick={next}>Continue</button>
         </div>
       ) : (

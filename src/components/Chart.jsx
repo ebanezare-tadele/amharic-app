@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ORDERS, FAMS, ARTIC } from "../content.js";
 import { key } from "../state.js";
 import { WORD_FAM } from "../audio.js";
-import { Chant, Voice, HearButton } from "./AudioWidgets.jsx";
+import { Chant, Voice } from "./AudioWidgets.jsx";
 import { Callout } from "./Callout.jsx";
 
 /* ============================================================
@@ -36,8 +36,8 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
 
       {audio && (
         <div className="note" style={{ marginBottom: 14, fontSize: 11.5 }}>
-          Tap any letter (or an anchor word/phrase further down) to record your own or a relative's
-          pronunciation — it stays on this device and is what makes its "hear it" button appear.
+          Tap any letter to record your own or a relative's pronunciation — it stays on this device and
+          is what makes its ► play button appear.
           {letterAudioCount > 0 && (
             <span style={{ color: "var(--verd)" }}> {letterAudioCount} letter{letterAudioCount === 1 ? "" : "s"} recorded.</span>
           )}
@@ -115,12 +115,12 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
                   <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{ARTIC[sel.f]}</div>
                 )}
                 <div className="rule" style={{ margin: "12px 0" }} />
-                <Chant fam={sel.f} audio={audio} />
+                <Chant fam={sel.f} />
                 <div className="rule" style={{ margin: "12px 0" }} />
                 <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
                 <Callout id="cb-voice" seenIntro={seenIntro} onSeen={onSeen}>
-                  Record here — your voice, or a relative's — and it plays back everywhere this letter shows
-                  up, ahead of the built-in clip.
+                  Record here — your voice, or a relative's — and it plays back everywhere this letter
+                  shows up.
                 </Callout>
                 {audio && (
                   <Voice
@@ -130,9 +130,6 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
                     onSaved={audio.onSaved}
                   />
                 )}
-                <div style={{ marginTop: 8 }}>
-                  <HearButton fam={sel.f} order={sel.o} audio={audio} />
-                </div>
               </div>
             )}
           </div>

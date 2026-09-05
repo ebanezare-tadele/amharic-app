@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { FAMS, CHAR_MAP } from "../content.js";
 import { wordsFor, pick, shuffle } from "../state.js";
 import { ALL } from "./Lesson.jsx";
-import { HearButton, Voice } from "./AudioWidgets.jsx";
+import { Voice } from "./AudioWidgets.jsx";
 
 /* ============================================================
    WORD BUILDER
@@ -278,10 +278,9 @@ export function Speed({ pool, best, onEnd }) {
 
 /* ============================================================
    WORD ENTRY
-   One anchor word or phrase, with the same way to hear it that
-   letters get (HearButton) and the same way to record one
-   (Voice) — both filed under a pseudo-family id (WORD_FAM) in
-   the same addressing letters use.
+   One anchor word or phrase, with the same way to record one
+   (Voice) that letters get — filed under a pseudo-family id
+   (WORD_FAM) in the same addressing letters use.
    ============================================================ */
 
 export function WordEntry({ text, rom, gloss, fam, order, audio }) {
@@ -292,7 +291,6 @@ export function WordEntry({ text, rom, gloss, fam, order, audio }) {
         <b style={{ color: "var(--bone)" }}>{rom}</b> — {gloss}
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
-        <HearButton fam={fam} order={order} audio={audio} text={text} />
         {audio && (
           <Voice
             fam={fam}

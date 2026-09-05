@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import "./App.css";
 import { getSavedSyncCode, gatherBundle, pushBundle } from "./lib/progressSync.js";
-import { officialKeyFromFilename } from "./audio.js";
 import { applyTodayPatch, emptyToday, rollStreak } from "./lib/gamification.js";
 import { FAMS, UNITS, BASE_BATCHES, SWEEPS, ORDERS } from "./content.js";
 import { key, DAY, INTERVALS, loadState, saveState, flushSave, todayStamp, emptyState, setSaveFailureNotifier } from "./state.js";
@@ -29,7 +28,6 @@ export default function AmharicFidel() {
   const [tab, setTab] = useState("learn");
   const [track, setTrack] = useState("bases");
   const [haveAudio, setHaveAudio] = useState(new Set());
-  const [officialHave, setOfficialHave] = useState(new Set());
   const [wordTab, setWordTab] = useState("read");
   const [lesson, setLesson] = useState(null);
   const [saveFailed, setSaveFailed] = useState(false);
@@ -52,26 +50,6 @@ export default function AmharicFidel() {
       if (!state.seenIntro.includes("app-tour")) setShowTour(true);
     }
   }, [state]);
-
-  // Whatever verified official clips actually exist, if any — see
-  // officialAudioUrl/officialKeyFromFilename above. A missing or
-  // unparseable manifest just leaves this empty rather than throwing,
-  // same graceful-degradation behavior as everything else audio-related:
-  // "hear it" simply won't offer that tier for anyone until a real,
-  // verified batch has actually been generated and deployed.
-  useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}audio/official/manifest.json`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((names) => {
-        const keys = new Set();
-        (Array.isArray(names) ? names : []).forEach((n) => {
-          const k = officialKeyFromFilename(n);
-          if (k) keys.add(k);
-        });
-        setOfficialHave(keys);
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     loadState().then((s) => {
@@ -209,7 +187,6 @@ export default function AmharicFidel() {
   });
   const audio = {
     have: haveAudio,
-    official: officialHave,
     onSaved: (idx) => setHaveAudio(new Set(idx)),
   };
 

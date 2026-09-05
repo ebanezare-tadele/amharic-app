@@ -1,8 +1,8 @@
 // Personal recorded-clip storage (Voice) -- record a letter or word once
-// and it plays back everywhere that letter/word appears (HearButton,
-// Chant, Chart, Reader). Keyed the same way progress cards are: "fam.order".
-// No React here; used by several components, so factored out on its own
-// rather than tied to Voice specifically.
+// and play it back from Voice itself or from Reader's tap-a-letter panel.
+// Keyed the same way progress cards are: "fam.order". No React here; used
+// by more than one component, so factored out on its own rather than tied
+// to Voice specifically.
 
 const audCache = new Map();
 const AUD_IDX_KEY = "aud:index";
