@@ -28,3 +28,11 @@ dist-ssr
 scripts/official-audio-out/
 scripts/amharic-audio.zip
 scripts/__pycache__/
+
+# Output of scripts/export-verification-texts.mjs and the
+# verify_audio_content*.py scripts (run locally or via the
+# verify-audio-content-*.yml Actions workflows, which regenerate these
+# fresh every run) — derived from content.mjs/the shipped manifest, never
+# committed.
+scripts/verification-texts.json
+scripts/verification-report*.json
