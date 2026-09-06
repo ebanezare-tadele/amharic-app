@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FAMS, GEEZ_NUM, ANCHORS, PHRASES } from "../content.js";
 import { WORD_FAM } from "../audio.js";
+import { spellInFidel } from "../lib/transliterate.js";
 import { WordEntry } from "./Drills.jsx";
 import { SyncPanel, ComparePanel } from "./Sync.jsx";
 import { SectionHeader } from "./SectionHeader.jsx";
@@ -45,6 +46,8 @@ export function More({ cards, audio, level, xp, streakDays, onReset }) {
   const [open, setOpen] = useState({ history: false, quirks: false, anchors: false, phrases: false });
   const toggle = (id) => setOpen((s) => ({ ...s, [id]: !s[id] }));
   const [selNum, setSelNum] = useState(null);
+  const [nameInput, setNameInput] = useState("");
+  const spelled = nameInput.trim() ? spellInFidel(nameInput) : [];
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>Ge'ez numerals</div>
@@ -103,6 +106,48 @@ export function More({ cards, audio, level, xp, streakDays, onReset }) {
         <span className="gz" style={{ fontSize: 20, color: "var(--bone)" }}>፣</span>{"  "}comma ·{" "}
         <span className="gz" style={{ fontSize: 20, color: "var(--bone)" }}>፡</span>{"  "}the old word divider, now replaced by a plain space
       </div>
+
+      <div className="rule" />
+      <div className="eyebrow" style={{ marginBottom: 8 }}>Spell it in fidel</div>
+      <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
+        Type a name or word to see it broken into fidel syllables. Each fidel row keeps the same
+        consonant sound taught on the chart, and each vowel letter maps to the same vowel sound
+        used everywhere else in this app (a is "father," e is "cafe," i is "see," o is "go," u is
+        "boot"). English spelling is irregular though -- silent letters, a "ch" that's really a
+        hard c -- so treat this as an approximate phonetic spelling for practice, not the one true
+        way to write it.
+      </p>
+      <input
+        type="text"
+        value={nameInput}
+        onChange={(e) => setNameInput(e.target.value)}
+        placeholder="e.g. David"
+        maxLength={40}
+        style={{
+          width: "100%", background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9,
+          padding: "10px 12px", color: "var(--bone)", fontSize: 14, marginBottom: 10,
+        }}
+      />
+      {spelled.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+          {spelled.map((word, wi) => (
+            <div key={wi} style={{ display: "flex", gap: 4 }}>
+              {word.map((s, si) => (
+                <div
+                  key={si}
+                  style={{
+                    background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9,
+                    padding: "6px 9px", textAlign: "center", minWidth: 40,
+                  }}
+                >
+                  <div className="gz" style={{ fontSize: 24 }}>{s.glyph}</div>
+                  <div className="note" style={{ fontSize: 10 }}>{s.rom}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="rule" />
       <SectionHeader

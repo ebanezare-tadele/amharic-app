@@ -32,3 +32,20 @@ test("More tab: tapping a numeral opens its detail panel, closing it removes it"
   await page.locator(".card button:has-text(\"✕\")").click();
   await expect(page.locator("text=The hundred.")).toHaveCount(0);
 });
+
+test("More tab: typing a name renders its fidel spelling", async ({ page }) => {
+  await page.goto("./");
+  await page.locator('button:has-text("Skip")').click().catch(() => {});
+  await page.locator(".tab", { hasText: "more" }).first().click();
+
+  await expect(page.locator("text=Spell it in fidel")).toBeVisible();
+  const input = page.locator('input[placeholder="e.g. David"]');
+  await expect(page.locator(".gz", { hasText: "ጃ" })).toHaveCount(0);
+
+  await input.fill("Jack");
+  await expect(page.locator(".gz", { hasText: "ጃ" })).toBeVisible();
+  await expect(page.locator(".gz", { hasText: "ክ" })).toBeVisible();
+
+  await input.fill("");
+  await expect(page.locator(".gz", { hasText: "ጃ" })).toHaveCount(0);
+});
