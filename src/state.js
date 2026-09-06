@@ -36,6 +36,7 @@ export const emptyState = () => ({
   unitsDone: [],
   basesDone: [],
   sweepsDone: [],
+  numeralsDone: [],
   streakDays: 0,
   streakFreezes: 0,
   lastDay: null,

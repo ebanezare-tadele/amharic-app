@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { BASE_BATCHES, SWEEPS, UNITS, FAMS, ORDERS } from "../content.js";
+import { BASE_BATCHES, SWEEPS, UNITS, FAMS, ORDERS, NUMERAL_BATCHES, GEEZ_NUM } from "../content.js";
+import { WORD_FAM } from "../audio.js";
 import { key, DAY, todayStamp } from "../state.js";
 import { ALL } from "./Lesson.jsx";
 import { Callout } from "./Callout.jsx";
@@ -308,15 +309,16 @@ const BADGES = [
   { id: "streak", glyph: "7", label: "Week streak", hint: "Open the app seven days running.", need: (c) => c.state.streakDays >= 7 },
   { id: "speed", glyph: "15", label: "Quick draw", hint: "Score 15 or higher in the speed round.", need: (c) => c.state.bestSpeed >= 15 },
   { id: "voice", glyph: "●", label: "Family voice", hint: "Record your first letter — yours, or a relative's.", need: (c) => c.audioCount >= 1 },
+  { id: "numerals", glyph: "፻", label: "Numerals", hint: "Finish both numeral stages — one through a hundred.", need: (c) => c.allNumerals },
 ];
 
-export function Badges({ state, known, level, allBases, audioCount }) {
+export function Badges({ state, known, level, allBases, audioCount, allNumerals }) {
   const [sel, setSel] = useState(null);
   const masteredCount = useMemo(
     () => Object.values(state.cards).filter((c) => (c.lvl || 0) >= 5).length,
     [state.cards]
   );
-  const ctx = { known, level, allBases, masteredCount, state, audioCount };
+  const ctx = { known, level, allBases, masteredCount, state, audioCount, allNumerals };
   const selBadge = BADGES.find((b) => b.id === sel);
   return (
     <div>
@@ -407,6 +409,9 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
   const allBases = BASE_BATCHES.every((b) => bDone.has(b.id));
 
   const solid = (f, o) => ((state.cards[key(f, o)] || {}).lvl || 0) >= 3;
+  const solidNum = (idx) => ((state.cards[key(WORD_FAM.numeral, idx)] || {}).lvl || 0) >= 3;
+  const numDone = new Set(state.numeralsDone || []);
+  const allNumerals = NUMERAL_BATCHES.every((b) => numDone.has(b.id));
 
   // Feature-detected, not assumed -- navigator.share exists on iOS/Android
   // browsers and some desktop ones, not all (same pattern as the PWA
@@ -426,7 +431,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
   // Purely a per-visit UI preference (not persisted) -- collapsing a
   // stage just saves scroll room while you're looking at the other one,
   // it's not a setting worth remembering across sessions.
-  const [openStages, setOpenStages] = useState({ stage1: true, stage2: false, rows: true });
+  const [openStages, setOpenStages] = useState({ stage1: true, stage2: false, rows: true, stage3: false });
   const toggleStage = (id) => setOpenStages((s) => ({ ...s, [id]: !s[id] }));
 
   return (
@@ -600,6 +605,40 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
       )}
 
       <div className="rule" />
+      <SectionHeader
+        open={openStages.stage3}
+        onToggle={() => toggleStage("stage3")}
+        title="Stage three · Ge'ez numerals"
+        done={NUMERAL_BATCHES.filter((b) => numDone.has(b.id)).length}
+        total={NUMERAL_BATCHES.length}
+        style={{ margin: "18px 0 10px" }}
+      />
+      {openStages.stage3 && (
+        <>
+          <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
+            A separate, parallel track — no vowel marks, no unlocking by letter progress. One through
+            nine first, then the tens and the hundred.
+          </p>
+          {NUMERAL_BATCHES.map((b, i) => {
+            const open = i === 0 || numDone.has(NUMERAL_BATCHES[i - 1].id);
+            const n = b.indices.filter((idx) => solidNum(idx)).length;
+            return (
+              <LessonCard
+                key={b.id}
+                open={open}
+                done={numDone.has(b.id)}
+                fidel={b.indices.map((idx) => GEEZ_NUM[idx][0]).join("")}
+                title={b.title}
+                blurb={b.blurb}
+                count={`${n}/${b.indices.length}`}
+                onClick={() => onStart({ kind: "numeral", id: b.id, indices: b.indices, blurb: b.blurb, doneLabel: b.doneLabel })}
+              />
+            );
+          })}
+        </>
+      )}
+
+      <div className="rule" />
 
       <button className="card" onClick={onSpeed} disabled={known.size < 6}>
         <div className="card-head"><span className="card-fidel">ፍጥነት</span></div>
@@ -612,7 +651,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
         </div>
       </button>
 
-      <Badges state={state} known={known} level={level} allBases={allBases} audioCount={audioCount} />
+      <Badges state={state} known={known} level={level} allBases={allBases} audioCount={audioCount} allNumerals={allNumerals} />
 
       <p className="note" style={{ marginTop: 14, textAlign: "center", fontSize: 11.5 }}>
         Both tracks feed the same chart, the same review queue, and the same writing practice. Switching

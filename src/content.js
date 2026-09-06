@@ -398,3 +398,11 @@ export const GEEZ_NUM = [
   ["፷", 60, "silsa"], ["፸", 70, "seba"], ["፹", 80, "semanya"], ["፺", 90, "zetena"],
   ["፻", 100, "meto"],
 ];
+
+// Stage three's two batches over GEEZ_NUM's indices -- ones first (the
+// simplest case: a numeral just is its glyph), then tens-and-hundred
+// (where the composition rule from the More tab's intro actually matters).
+export const NUMERAL_BATCHES = [
+  { id: "num1", indices: [0, 1, 2, 3, 4, 5, 6, 7, 8], title: "፩ ፪ ፫ ፬ ፭ ፮ ፯ ፰ ፱", blurb: "The ones — one through nine.", doneLabel: "Ones learned" },
+  { id: "num2", indices: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18], title: "፲ ፳ ፴ ፵ ፶ ፷ ፸ ፹ ፺ ፻", blurb: "Tens, and the hundred.", doneLabel: "Tens & hundred learned" },
+];

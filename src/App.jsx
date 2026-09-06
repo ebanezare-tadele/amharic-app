@@ -6,6 +6,7 @@ import { FAMS, UNITS, BASE_BATCHES, SWEEPS, ORDERS } from "./content.js";
 import { key, DAY, INTERVALS, loadState, saveState, flushSave, todayStamp, emptyState, setSaveFailureNotifier } from "./state.js";
 import { loadAudIndex } from "./lib/clipStorage.js";
 import { Lesson } from "./components/Lesson.jsx";
+import { NumeralLesson } from "./components/Numerals.jsx";
 import { Chart } from "./components/Chart.jsx";
 import { More } from "./components/More.jsx";
 import { Reader } from "./components/Reader.jsx";
@@ -63,6 +64,7 @@ export default function AmharicFidel() {
       s.today = applyTodayPatch(s.today, t, {}).today;
       s.basesDone = s.basesDone || [];
       s.sweepsDone = s.sweepsDone || [];
+      s.numeralsDone = s.numeralsDone || [];
       if (!s.startDate) s.startDate = Date.now();
       setState(s);
       if (s.track) setTrack(s.track);
@@ -80,7 +82,7 @@ export default function AmharicFidel() {
   useEffect(() => {
     if (!state) return;
     const sig = JSON.stringify([
-      state.basesDone, state.sweepsDone, state.unitsDone,
+      state.basesDone, state.sweepsDone, state.unitsDone, state.numeralsDone,
       state.bestSpeed, state.startDate, state.cards, state.xp, track,
     ]);
     const structural = sig !== lastSig.current;
@@ -203,28 +205,35 @@ export default function AmharicFidel() {
     setState((s) => (s.seenIntro.includes(id) ? s : { ...s, seenIntro: [...s.seenIntro, id] }));
 
   if (lesson) {
+    const onLessonDone = (results, xp) => {
+      grade(results);
+      setState((s) => {
+        const correct = results.filter((r) => r.ok).length;
+        const { today, bonusXp } = bumpToday(s, { xp, lessonsDone: 1, correct });
+        const n = { ...s, xp: s.xp + xp + bonusXp, today };
+        if (lesson.kind === "base" && !n.basesDone.includes(lesson.id)) n.basesDone = [...n.basesDone, lesson.id];
+        if (lesson.kind === "sweep" && !n.sweepsDone.includes(lesson.id)) n.sweepsDone = [...n.sweepsDone, lesson.id];
+        if (lesson.kind === "unit" && !n.unitsDone.includes(lesson.id)) n.unitsDone = [...n.unitsDone, lesson.id];
+        if (lesson.kind === "numeral" && !n.numeralsDone.includes(lesson.id)) n.numeralsDone = [...n.numeralsDone, lesson.id];
+        return n;
+      });
+      setLesson(null);
+    };
+
     return (
       <div className="fd">
-        <Lesson
-          spec={lesson}
-          state={state}
-          pool={pool}
-          audio={audio}
-          onExit={() => setLesson(null)}
-          onDone={(results, xp) => {
-            grade(results);
-            setState((s) => {
-              const correct = results.filter((r) => r.ok).length;
-              const { today, bonusXp } = bumpToday(s, { xp, lessonsDone: 1, correct });
-              const n = { ...s, xp: s.xp + xp + bonusXp, today };
-              if (lesson.kind === "base" && !n.basesDone.includes(lesson.id)) n.basesDone = [...n.basesDone, lesson.id];
-              if (lesson.kind === "sweep" && !n.sweepsDone.includes(lesson.id)) n.sweepsDone = [...n.sweepsDone, lesson.id];
-              if (lesson.kind === "unit" && !n.unitsDone.includes(lesson.id)) n.unitsDone = [...n.unitsDone, lesson.id];
-              return n;
-            });
-            setLesson(null);
-          }}
-        />
+        {lesson.kind === "numeral" ? (
+          <NumeralLesson spec={lesson} onExit={() => setLesson(null)} onDone={onLessonDone} />
+        ) : (
+          <Lesson
+            spec={lesson}
+            state={state}
+            pool={pool}
+            audio={audio}
+            onExit={() => setLesson(null)}
+            onDone={onLessonDone}
+          />
+        )}
       </div>
     );
   }

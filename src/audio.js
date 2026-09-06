@@ -1,7 +1,10 @@
 // Pure audio-addressing logic, split out of App.jsx so it can be unit
 // tested without pulling in React/DOM/SpeechSynthesis.
 
-export const WORD_FAM = { anchor: 900, phrase: 901 };
+// numeral is only ever used to key state.cards for Stage 3's own per-numeral
+// mastery levels (src/components/Numerals.jsx) -- it never appears in the
+// letter-review pool/due queue, and there's no Voice/Chant recording for it.
+export const WORD_FAM = { anchor: 900, phrase: 901, numeral: 902 };
 
 // Real recordings from Addis AI (Voice 2, am-hamen), generated once
 // (scripts/generate-official-audio.mjs) and baked in as static files
