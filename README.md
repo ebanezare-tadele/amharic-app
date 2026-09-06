@@ -41,7 +41,7 @@ longer audio.
 
 ## Syncing progress across devices (optional)
 
-Off by default. Turned on from the Chart tab ("Sync across devices," near
+Off by default. Turned on from the More tab ("Sync across devices," near
 "start over"): tap **create a sync code** on one device, then enter that
 same code on another to bring your progress and recordings over. From
 then on, changes on a linked device push automatically — no further
@@ -60,13 +60,29 @@ to read or write is through two `SECURITY DEFINER` SQL functions,
 `get_progress(code)` / `put_progress(code, state)`, each scoped to the
 one row matching that exact code. `put_progress` also rejects any
 payload over 10MB, so calling the RPC directly with an arbitrary code
-can't be used to grow the database without bound. That schema was
-applied directly to the Supabase project via its migration tooling
-rather than living as a file in this repo — nothing in this app's own
-source needs to define it. This whole matrix (direct table access
-denied, cross-code isolation, malformed/oversized payload handling) was
-verified live against the database as the `anon` role, not just assumed
-from the schema.
+can't be used to grow the database without bound.
+
+All three RPCs (`get_progress`, `put_progress`, `get_compare_stats`
+below) are also rate-limited, since there's no account/auth layer here
+to hang a limit off of otherwise -- just the code-as-credential design
+itself. Each is capped per caller IP (30/min for `put_progress`, 60/min
+for the two read-only ones), and `put_progress` is additionally capped
+per sync code (20/min) so one code can't be hammered regardless of
+which IP the calls come from. The caller's real IP is available via
+`x-forwarded-for`/`cf-connecting-ip`, which Supabase's own edge proxy
+sets on every request before it reaches Postgres -- confirmed with a
+real call through the live REST endpoint, not assumed from docs. None
+of these limits matter for normal use: the app debounces its own
+auto-push to roughly one call every couple of seconds at most -- they
+only stop a runaway loop, a bug, or a script from hammering the
+database directly.
+
+That schema was applied directly to the Supabase project via its
+migration tooling rather than living as a file in this repo -- nothing
+in this app's own source needs to define it. This whole matrix (direct
+table access denied, cross-code isolation, malformed/oversized payload
+handling, both flavors of rate limit) was verified live against the
+database as the `anon` role, not just assumed from the schema.
 
 The client talks to Supabase's REST endpoint with a plain `fetch()` — no
 `@supabase/supabase-js` dependency — since the app only ever needs two
@@ -84,7 +100,7 @@ on two devices at once.
 ### Comparing progress with someone else (optional, read-only)
 
 Also off by default, and entirely separate from syncing above — this
-never touches your own device's data or theirs. From the Chart tab, add
+never touches your own device's data or theirs. From the More tab, add
 someone else's sync code to a watch list to see their level, mastered-
 letter count, and streak alongside your own.
 
@@ -251,12 +267,18 @@ weigh deliberately per feature rather than let creep in.
 
 ## Onboarding: the first-launch tour
 
-New, not part of the original artifact — a five-step walkthrough (`Tour`
-in `src/App.jsx`) shown once, before Home, on first launch: what the app
-is, then one step per tab (Learn, Chart, Read & Write), ending on "Start
-learning." Skippable at any step. Tracked in `state.seenIntro`, a field
-the original artifact already had but never used — so this needed no new
-persistence plumbing, just a use for a field that was already there.
+New, not part of the original artifact — a six-step walkthrough
+(`Spotlight` in `src/components/Home.jsx`) shown once, on first launch,
+on top of the real Home screen rather than replacing it: it dims
+everything but a highlight ring around whatever it's talking about
+(level/XP, the tab bar, daily quests, the lesson path), found via
+`data-tour` attributes on the actual elements. An earlier version
+(`Tour`) showed generic slides before Home rendered at all; replaced
+after a real complaint that it hid the app itself behind onboarding.
+Skippable at any step, and re-openable anytime via the "?" button next
+to the XP bar. Tracked in `state.seenIntro`, a field the original
+artifact already had but never used — so this needed no new persistence
+plumbing, just a use for a field that was already there.
 
 Alongside it, a few small in-place tips (`Callout`) point out things that
 aren't otherwise explained where they'd actually matter: what "level" and
@@ -271,15 +293,16 @@ onboarding for the app itself, layered on top.
 
 Also new, also layered on top rather than editing what was there:
 
-- **"Where this comes from"** (Chart tab, after the numerals/punctuation
-  reference material) — a short, researched history of the Ge'ez script:
-  its descent from the Ancient South Arabian abjad, the 4th-century shift
-  to an abugida (vowel-marking system) tied to King Ezana's Aksum stele,
-  where the word "abugida" itself comes from, and Amharic's 13th-century
-  split from Ge'ez. Every claim here was checked against multiple sources
-  before going in — historical content read by learners as fact doesn't
-  get to be a guess. The five "silent twin" letters' notes (`FAMS` in
-  `src/App.jsx`) got the same treatment: each now says what sound Ge'ez
+- **"Where this comes from"** (More tab, one of several sections
+  collapsed by default to keep that tab short) — a short, researched
+  history of the Ge'ez script: its descent from the Ancient
+  South Arabian abjad, the 4th-century shift to an abugida (vowel-marking
+  system) tied to King Ezana's Aksum stele, where the word "abugida"
+  itself comes from, and Amharic's 13th-century split from Ge'ez. Every
+  claim here was checked against multiple sources before going in —
+  historical content read by learners as fact doesn't get to be a guess.
+  The five "silent twin" letters' notes (`FAMS` in `src/content.js`) got
+  the same treatment: each now says what sound Ge'ez
   actually distinguished before Amharic merged it away, not just that a
   merger happened.
 - **Badges** (`Badges` component, bottom of Home) — eight milestones
