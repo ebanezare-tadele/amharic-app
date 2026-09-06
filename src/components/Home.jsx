@@ -287,12 +287,24 @@ export function InstallHelp({ open, onToggle }) {
               <Step n={1}>Tap the <b>Share</b> icon (the square with an arrow pointing up)</Step>
               <Step n={2}>Tap <b>Add to Home Screen</b></Step>
               <Step n={3}>Tap <b>Add</b> — it opens like its own app from here on, even offline</Step>
-              <div className="note" style={{ marginTop: 8, fontSize: 11.5 }}>
-                Works best in <b>Safari</b> specifically. Using <b>Chrome</b> instead, it offers an
-                <b> "Open as Web App"</b> toggle with a real tradeoff either way: on, the icon opens as its
-                own app but can get stuck on an older version for a while (a known iOS limitation, not
-                something this app controls) — off, it always shows the latest version but just reopens a
-                normal Chrome tab each time, not a standalone app.
+
+              <div className="note" style={{ marginTop: 10, fontSize: 11.5 }}>
+                <b style={{ color: "var(--bone)" }}>These steps are for Safari — use it if you can.</b> Chrome
+                works too, but its <b>"Open as Web App"</b> toggle is a real choice, not a fix:
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-start", marginTop: 8 }}>
+                <span className="pill" style={{ flexShrink: 0 }}>Toggle ON</span>
+                <span className="note" style={{ fontSize: 11.5 }}>
+                  Opens like a real app — but can get stuck on an older version for a while. That's a known
+                  iOS limitation, not something this app controls.
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-start", marginTop: 6 }}>
+                <span className="pill" style={{ flexShrink: 0 }}>Toggle OFF</span>
+                <span className="note" style={{ fontSize: 11.5 }}>
+                  Always shows the latest version — but just reopens a normal Chrome tab each time, not a
+                  standalone app.
+                </span>
               </div>
             </>
           ) : prompt ? (
