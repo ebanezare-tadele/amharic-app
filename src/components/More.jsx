@@ -7,6 +7,22 @@ import { SectionHeader } from "./SectionHeader.jsx";
 
 const ANCHOR_COUNT = FAMS.filter((f) => ANCHORS[f.id] && ANCHORS[f.id][0]).length;
 
+// Explains the tapped numeral's role in the same left-to-right composition
+// rule already given in the intro paragraph above the grid (23 = ፳፫ = 20+3,
+// 155 = ፻፶፭ = 100+50+5) -- reusing those two already-checked examples rather
+// than inventing a new compound word/reading for every other numeral, which
+// would mean generating real Amharic vocabulary without a source to verify
+// it against.
+function numeralNote(value) {
+  if (value === 100) {
+    return 'The hundred. Combines with a tens and a ones glyph the same way smaller numbers do — 155 is ፻፶፭: 100 + 50 + 5 (meto hamsa amist).';
+  }
+  if (value >= 10) {
+    return "A tens value — said on its own for a round number like this one. Followed by a ones glyph, it becomes the tens digit of a bigger number — 23 is ፳፫: 20 + 3 (haya sost).";
+  }
+  return "A ones digit — alone it's just this number. Placed after a tens or hundred glyph, it becomes the last digit of a bigger number — 23 is ፳፫: 20 + 3 (haya sost).";
+}
+
 /* ============================================================
    MORE
    Everything about the fidel that isn't the interactive grid
@@ -28,6 +44,7 @@ export function More({ cards, audio, level, xp, streakDays, onReset }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const [open, setOpen] = useState({ history: false, quirks: false, anchors: false, phrases: false });
   const toggle = (id) => setOpen((s) => ({ ...s, [id]: !s[id] }));
+  const [selNum, setSelNum] = useState(null);
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>Ge'ez numerals</div>
@@ -39,13 +56,45 @@ export function More({ cards, audio, level, xp, streakDays, onReset }) {
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {GEEZ_NUM.map(([g, n, r]) => (
-          <div key={n} style={{ background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9, padding: "7px 10px", textAlign: "center", minWidth: 52 }}>
+          <button
+            key={n}
+            onClick={() => setSelNum(selNum === n ? null : n)}
+            style={{
+              background: "var(--ink2)",
+              border: "1px solid " + (selNum === n ? "var(--rubric)" : "var(--line)"),
+              borderRadius: 9, padding: "7px 10px", textAlign: "center", minWidth: 52,
+            }}
+          >
             <div className="gz" style={{ fontSize: 20 }}>{g}</div>
             <div style={{ fontSize: 11, fontWeight: 600, color: "var(--bone)" }}>{r}</div>
             <div className="note" style={{ fontSize: 10 }}>{n}</div>
-          </div>
+          </button>
         ))}
       </div>
+
+      {selNum != null && (() => {
+        const entry = GEEZ_NUM.find(([, n]) => n === selNum);
+        if (!entry) return null;
+        const [g, n, r] = entry;
+        return (
+          <div className="card" style={{ margin: "10px 0 0", borderColor: "var(--rubric)" }}>
+            <div className="row-sp" style={{ alignItems: "flex-start" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <span className="gz" style={{ fontSize: 44, color: "var(--rubric)" }}>{g}</span>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 600 }}>{r}</div>
+                  <div className="note">{n}</div>
+                </div>
+              </div>
+              <button onClick={() => setSelNum(null)} style={{ color: "var(--dim)", fontSize: 18, padding: 4 }}>
+                ✕
+              </button>
+            </div>
+            <div className="rule" style={{ margin: "12px 0" }} />
+            <div className="note">{numeralNote(n)}</div>
+          </div>
+        );
+      })()}
 
       <div className="rule" />
       <div className="eyebrow" style={{ marginBottom: 8 }}>Punctuation</div>
