@@ -6,7 +6,7 @@ import { ALL } from "./Lesson.jsx";
 import { Callout } from "./Callout.jsx";
 import { SectionHeader } from "./SectionHeader.jsx";
 import { questsForDay, emptyToday, MAX_FREEZES } from "../lib/gamification.js";
-import { onInstallPromptAvailable, isStandalone, isIOSDevice } from "../lib/installPrompt.js";
+import { onInstallPromptAvailable, isIOSDevice } from "../lib/installPrompt.js";
 
 /* ============================================================
    THE SIX MONTHS
@@ -217,23 +217,28 @@ export function Spotlight({ onDone }) {
 }
 
 /* ============================================================
-   INSTALL BANNER
+   INSTALL HELP
+   How to get ፊደል onto your actual home screen -- previously a
+   one-shot inline banner on Home that vanished for good the moment
+   anyone dismissed it (or scrolled past it once and never came
+   back). Now an overlay, same as Spotlight below: still opens
+   automatically the first time, but also stays reachable forever
+   after via the persistent top-bar button (App.jsx), from any tab
+   -- someone who dismissed it, or who only wonders "wait, can I
+   save this?" three sessions in, has an obvious, permanent way back
+   in instead of one vanished chance.
+
    Chrome/Edge/Android expose a real programmatic install prompt
    (beforeinstallprompt, captured in src/lib/installPrompt.js as
    early as possible since it can fire before this even mounts) —
    there, this is one tap. iOS Safari has no such API at all; the
    only path is the manual Share -> Add to Home Screen menu, so
-   there it shows those steps instead of a button. Dismissed the
-   same one-time way as Callout below (state.seenIntro), and never
-   shown at all once actually running standalone (already
-   installed) or on a platform that offers neither path.
+   there it shows those steps instead of a button.
    ============================================================ */
 
-export function InstallBanner({ seenIntro, onSeen }) {
+export function InstallHelp({ onClose }) {
   const [prompt, setPrompt] = useState(null);
   useEffect(() => onInstallPromptAvailable(setPrompt), []);
-
-  if (seenIntro.includes("cb-install") || isStandalone()) return null;
 
   const ios = isIOSDevice();
   // Used to return null here on Android/desktop Chrome whenever
@@ -250,45 +255,48 @@ export function InstallBanner({ seenIntro, onSeen }) {
     if (!prompt) return;
     prompt.prompt();
     await prompt.userChoice;
-    onSeen("cb-install");
+    onClose();
   };
 
   return (
-    <div className="card" style={{ borderColor: "var(--gold)", padding: "12px 14px" }}>
-      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-        <div style={{ flex: 1 }}>
-          <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Add to Home Screen</div>
-          <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>
-            {ios ? (
-              <>
-                Opens faster and works offline as its own app. Works best in <b>Safari</b> specifically —
-                tap the <b>Share</b> button (the square with an arrow), then <b>Add to Home Screen</b>. On
-                Chrome, if it offers an <b>"Open as Web App"</b> toggle, turn it off — a real user hit this:
-                left on, the icon kept opening fresh tabs instead of reopening reliably (Chrome on iPhone
-                can't actually host a standalone app the way Safari can).
-              </>
-            ) : prompt ? (
-              <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>
-            ) : (
-              <>
-                Look for <b>Install app</b> in Chrome's <b>⋮</b> menu — not "Add to Home screen," which just
-                saves a bookmark that reopens in the browser (and can pile up new tabs) instead of its own app
-                window. If Chrome only offers "Add to Home screen" right now, it hasn't decided to offer the
-                real install yet — that's Chrome's own call, not something this app can force, and it usually
-                comes after a couple more visits.
-              </>
-            )}
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+      <div style={{ position: "fixed", inset: 0, background: "rgba(6,9,20,0.84)" }} onClick={onClose} />
+      <div className="card" style={{ position: "relative", borderColor: "var(--gold)", maxWidth: 380, width: "100%" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+          <div style={{ flex: 1 }}>
+            <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Save ፊደል to your home screen</div>
+            <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>
+              {ios ? (
+                <>
+                  Opens faster and works offline as its own app. Works best in <b>Safari</b> specifically —
+                  tap the <b>Share</b> button (the square with an arrow), then <b>Add to Home Screen</b>. On
+                  Chrome, if it offers an <b>"Open as Web App"</b> toggle, turn it off — a real user hit this:
+                  left on, the icon kept opening fresh tabs instead of reopening reliably (Chrome on iPhone
+                  can't actually host a standalone app the way Safari can).
+                </>
+              ) : prompt ? (
+                <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>
+              ) : (
+                <>
+                  Look for <b>Install app</b> in Chrome's <b>⋮</b> menu — not "Add to Home screen," which just
+                  saves a bookmark that reopens in the browser (and can pile up new tabs) instead of its own app
+                  window. If Chrome only offers "Add to Home screen" right now, it hasn't decided to offer the
+                  real install yet — that's Chrome's own call, not something this app can force, and it usually
+                  comes after a couple more visits.
+                </>
+              )}
+            </div>
           </div>
+          <button onClick={onClose} style={{ color: "var(--dim)", fontSize: 16, lineHeight: 1, padding: 2 }}>
+            ✕
+          </button>
         </div>
-        <button onClick={() => onSeen("cb-install")} style={{ color: "var(--dim)", fontSize: 16, lineHeight: 1, padding: 2 }}>
-          ✕
-        </button>
+        {!ios && prompt && (
+          <button className="btn" style={{ marginTop: 10, width: "100%" }} onClick={install}>
+            Install ፊደል
+          </button>
+        )}
       </div>
-      {!ios && prompt && (
-        <button className="btn" style={{ marginTop: 10, width: "100%" }} onClick={install}>
-          Install ፊደል
-        </button>
-      )}
     </div>
   );
 }
@@ -424,7 +432,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
     // flex) plus both platforms' home-screen instructions, since this
     // travels in the message itself and the in-app banner/Callouts can't
     // reach someone before they've opened the link at all.
-    const text = `Welcome to ፊደል Amharic Fidel!\n\nRead Amharic in a few minutes a day. Daily challenges, tracing practice, spaced review that catches what you forget, and a reader for real text.\n\nAdd it to your home screen so it opens like an app:\niPhone (Safari): Share icon, then Add to Home Screen.\niPhone (Chrome): Share icon, then Add to Home Screen -- turn OFF "Open as Web App" if it asks, or the icon will reopen as a fresh tab each time instead of a stable app.\nAndroid (Chrome): three-dot menu, then Add to Home Screen`;
+    const text = `ፊደል — read Amharic in a few minutes a day. Daily lessons, spaced review that catches what you forget, tracing practice, and a reader for real text.\n\nAdd it to your home screen and it opens like a real app, even offline:\n• iPhone (Safari): Share icon → Add to Home Screen\n• iPhone (Chrome): Share icon → Add to Home Screen (turn off "Open as Web App" if it asks, or the icon reopens a fresh tab every time instead of the app)\n• Android (Chrome): ⋮ menu → Add to Home Screen`;
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
@@ -471,14 +479,6 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
       </Callout>
 
       <DailyQuests today={state.today} />
-
-      {/* Shown from the very first open, on purpose -- someone arriving
-          via a shared link is exactly who most needs to know this can go
-          on their home screen, not someone who's already invested time.
-          Still fully dismissible and never shown again once seen. */}
-      <div style={{ marginBottom: 16 }}>
-        <InstallBanner seenIntro={seenIntro} onSeen={onSeen} />
-      </div>
 
       {dueCount > 0 && (
         <button className="card" style={{ borderColor: "var(--rubric)" }} onClick={onReview}>

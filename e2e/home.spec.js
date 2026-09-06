@@ -35,3 +35,21 @@ test("the ? button reopens the Spotlight tour", async ({ page }) => {
   await page.locator('button:has-text("Skip")').click();
   await expect(page.locator("text=Welcome to ፊደል")).toHaveCount(0);
 });
+
+test("the persistent Save button opens install help from any tab, and it stays reachable after closing", async ({ page }) => {
+  await page.goto("./");
+  await skipTour(page);
+
+  const saveBtn = page.locator('button[title="How to save this app to your home screen"]');
+  await expect(saveBtn).toBeVisible();
+
+  await saveBtn.click();
+  await expect(page.locator("text=Save ፊደል to your home screen")).toBeVisible();
+  await page.locator('.card:has-text("Save ፊደል to your home screen") button:has-text("✕")').click();
+  await expect(page.locator("text=Save ፊደል to your home screen")).toHaveCount(0);
+
+  // Still reachable from a different tab, not just Home.
+  await page.locator(".tab", { hasText: "chart" }).first().click();
+  await saveBtn.click();
+  await expect(page.locator("text=Save ፊደል to your home screen")).toBeVisible();
+});

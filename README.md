@@ -144,10 +144,13 @@ Both platforms then get a standalone app (no browser chrome), the ፊ icon,
 and offline access after the first load, via the service worker generated
 by `vite-plugin-pwa` (`src/../vite.config.js`).
 
-The install banner (dismissible, on the Learn tab) shows from the very
-first visit, not just once someone's made progress — the person most
-likely to need "you can add this to your home screen" is someone opening
-a link a friend just shared, not someone already invested.
+Install help shows automatically on the very first visit (not just once
+someone's made progress — the person most likely to need "you can add
+this to your home screen" is someone opening a link a friend just
+shared, not someone already invested), and stays reachable forever
+after via a persistent "Save" button in the top bar, next to the "?"
+tour button — dismissing the first-visit popup doesn't lose the feature
+the way the old one-shot Learn-tab banner used to.
 
 ### Getting into an actual app store (future, not started)
 
