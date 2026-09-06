@@ -6,7 +6,7 @@ import { ALL } from "./Lesson.jsx";
 import { Callout } from "./Callout.jsx";
 import { SectionHeader } from "./SectionHeader.jsx";
 import { questsForDay, emptyToday, MAX_FREEZES } from "../lib/gamification.js";
-import { onInstallPromptAvailable, isIOSDevice } from "../lib/installPrompt.js";
+import { onInstallPromptAvailable, isStandalone, isIOSDevice } from "../lib/installPrompt.js";
 
 /* ============================================================
    THE SIX MONTHS
@@ -219,14 +219,15 @@ export function Spotlight({ onDone }) {
 /* ============================================================
    INSTALL HELP
    How to get ፊደል onto your actual home screen -- previously a
-   one-shot inline banner on Home that vanished for good the moment
-   anyone dismissed it (or scrolled past it once and never came
-   back). Now an overlay, same as Spotlight below: still opens
-   automatically the first time, but also stays reachable forever
-   after via the persistent top-bar button (App.jsx), from any tab
-   -- someone who dismissed it, or who only wonders "wait, can I
-   save this?" three sessions in, has an obvious, permanent way back
-   in instead of one vanished chance.
+   one-shot inline banner that vanished for good the moment anyone
+   dismissed it, then briefly a top-bar icon opening a dark modal
+   (too heavy, and its instructions read as one dense paragraph
+   instead of actual steps). Now a plain collapsible card living in
+   Home's own content, same open/close pattern as Stage two and
+   More's sections -- opens by default the first time, collapses
+   after that but never disappears, tap the header anytime to bring
+   the steps back. Hidden entirely once actually installed
+   (isStandalone()).
 
    Chrome/Edge/Android expose a real programmatic install prompt
    (beforeinstallprompt, captured in src/lib/installPrompt.js as
@@ -236,9 +237,28 @@ export function Spotlight({ onDone }) {
    there it shows those steps instead of a button.
    ============================================================ */
 
-export function InstallHelp({ onClose }) {
+function Step({ n, children }) {
+  return (
+    <div style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "5px 0" }}>
+      <span
+        style={{
+          flexShrink: 0, width: 20, height: 20, borderRadius: "50%", background: "var(--gold)",
+          color: "var(--ink)", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center",
+          justifyContent: "center", marginTop: 1,
+        }}
+      >
+        {n}
+      </span>
+      <span className="note" style={{ color: "var(--bone)", fontSize: 12.5, lineHeight: 1.45 }}>{children}</span>
+    </div>
+  );
+}
+
+export function InstallHelp({ open, onToggle }) {
   const [prompt, setPrompt] = useState(null);
   useEffect(() => onInstallPromptAvailable(setPrompt), []);
+
+  if (isStandalone()) return null;
 
   const ios = isIOSDevice();
   // Used to return null here on Android/desktop Chrome whenever
@@ -255,48 +275,47 @@ export function InstallHelp({ onClose }) {
     if (!prompt) return;
     prompt.prompt();
     await prompt.userChoice;
-    onClose();
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div style={{ position: "fixed", inset: 0, background: "rgba(6,9,20,0.84)" }} onClick={onClose} />
-      <div className="card" style={{ position: "relative", borderColor: "var(--gold)", maxWidth: 380, width: "100%" }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-          <div style={{ flex: 1 }}>
-            <div className="eyebrow" style={{ color: "var(--gold)", marginBottom: 4 }}>Save ፊደል to your home screen</div>
-            <div className="note" style={{ color: "var(--bone)", fontSize: 12.5 }}>
-              {ios ? (
-                <>
-                  Opens faster and works offline as its own app. Works best in <b>Safari</b> specifically —
-                  tap the <b>Share</b> button (the square with an arrow), then <b>Add to Home Screen</b>. On
-                  Chrome, if it offers an <b>"Open as Web App"</b> toggle, turn it off — a real user hit this:
-                  left on, the icon kept opening fresh tabs instead of reopening reliably (Chrome on iPhone
-                  can't actually host a standalone app the way Safari can).
-                </>
-              ) : prompt ? (
-                <>Opens faster and works offline as its own app, off your home screen — no browser bar.</>
-              ) : (
-                <>
-                  Look for <b>Install app</b> in Chrome's <b>⋮</b> menu — not "Add to Home screen," which just
-                  saves a bookmark that reopens in the browser (and can pile up new tabs) instead of its own app
-                  window. If Chrome only offers "Add to Home screen" right now, it hasn't decided to offer the
-                  real install yet — that's Chrome's own call, not something this app can force, and it usually
-                  comes after a couple more visits.
-                </>
-              )}
-            </div>
-          </div>
-          <button onClick={onClose} style={{ color: "var(--dim)", fontSize: 16, lineHeight: 1, padding: 2 }}>
-            ✕
-          </button>
+    <div style={{ marginBottom: 16 }}>
+      <SectionHeader open={open} onToggle={onToggle} title="⬇ Save ፊደል to your home screen" style={{ borderColor: "var(--gold)" }} />
+      {open && (
+        <div className="card" style={{ borderColor: "var(--gold)", marginTop: 8, marginBottom: 0 }}>
+          {ios ? (
+            <>
+              <Step n={1}>Tap the <b>Share</b> icon (the square with an arrow pointing up)</Step>
+              <Step n={2}>Tap <b>Add to Home Screen</b></Step>
+              <Step n={3}>Tap <b>Add</b> — it opens like its own app from here on, even offline</Step>
+              <div className="note" style={{ marginTop: 8, fontSize: 11.5 }}>
+                Using <b>Chrome</b> on iPhone instead of Safari? If it offers to turn off <b>"Open as Web
+                App,"</b> do it — left on, the icon reopens a fresh browser tab every time instead of the app.
+              </div>
+            </>
+          ) : prompt ? (
+            <>
+              <div className="note" style={{ fontSize: 12.5, marginBottom: 10 }}>
+                Opens faster and works offline as its own app, off your home screen — no browser bar.
+              </div>
+              <button className="btn" style={{ width: "100%" }} onClick={install}>
+                Install ፊደል
+              </button>
+            </>
+          ) : (
+            <>
+              <Step n={1}>Open the <b>⋮</b> menu, top right</Step>
+              <Step n={2}>
+                Look for <b>Install app</b> — not "Add to Home screen," which just saves a bookmark that
+                reopens in the browser instead of its own app window
+              </Step>
+              <Step n={3}>
+                Don't see it yet? It usually shows up after a couple more visits — that's Chrome's own call,
+                not something this app can force
+              </Step>
+            </>
+          )}
         </div>
-        {!ios && prompt && (
-          <button className="btn" style={{ marginTop: 10, width: "100%" }} onClick={install}>
-            Install ፊደል
-          </button>
-        )}
-      </div>
+      )}
     </div>
   );
 }
@@ -438,9 +457,20 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
 
   // Purely a per-visit UI preference (not persisted) -- collapsing a
   // stage just saves scroll room while you're looking at the other one,
-  // it's not a setting worth remembering across sessions.
-  const [openStages, setOpenStages] = useState({ stage1: true, stage2: false, rows: true, stage3: false });
+  // it's not a setting worth remembering across sessions. install starts
+  // open only the first time (before cb-install is marked seen) so it's
+  // impossible to miss on arrival, then collapses like everything else
+  // here -- but unlike the old banner it never disappears, just tucks
+  // back under its own header, same as Stage two/More's sections.
+  const [openStages, setOpenStages] = useState(() => ({
+    stage1: true, stage2: false, rows: true, stage3: false,
+    install: !seenIntro.includes("cb-install"),
+  }));
   const toggleStage = (id) => setOpenStages((s) => ({ ...s, [id]: !s[id] }));
+  const toggleInstall = () => {
+    toggleStage("install");
+    onSeen("cb-install");
+  };
 
   return (
     <div className="wrap" style={{ paddingTop: 18, paddingBottom: 30 }}>
@@ -479,6 +509,8 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
       </Callout>
 
       <DailyQuests today={state.today} />
+
+      <InstallHelp open={openStages.install} onToggle={toggleInstall} />
 
       {dueCount > 0 && (
         <button className="card" style={{ borderColor: "var(--rubric)" }} onClick={onReview}>

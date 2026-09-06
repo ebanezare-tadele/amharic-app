@@ -36,20 +36,21 @@ test("the ? button reopens the Spotlight tour", async ({ page }) => {
   await expect(page.locator("text=Welcome to ፊደል")).toHaveCount(0);
 });
 
-test("the persistent Save button opens install help from any tab, and it stays reachable after closing", async ({ page }) => {
+test("install help opens by default on a first visit, then collapses without ever disappearing", async ({ page }) => {
   await page.goto("./");
   await skipTour(page);
 
-  const saveBtn = page.locator('button[title="How to save this app to your home screen"]');
-  await expect(saveBtn).toBeVisible();
+  const installHeader = page.locator("button", { hasText: "Save ፊደል to your home screen" });
+  await expect(installHeader).toBeVisible();
+  await expect(installHeader).toContainText("▾");
+  await expect(page.locator("text=Open the ⋮ menu")).toBeVisible();
 
-  await saveBtn.click();
-  await expect(page.locator("text=Save ፊደል to your home screen")).toBeVisible();
-  await page.locator('.card:has-text("Save ፊደል to your home screen") button:has-text("✕")').click();
-  await expect(page.locator("text=Save ፊደል to your home screen")).toHaveCount(0);
+  await installHeader.click();
+  await expect(installHeader).toContainText("▸");
+  await expect(page.locator("text=Open the ⋮ menu")).toHaveCount(0);
 
-  // Still reachable from a different tab, not just Home.
-  await page.locator(".tab", { hasText: "chart" }).first().click();
-  await saveBtn.click();
-  await expect(page.locator("text=Save ፊደል to your home screen")).toBeVisible();
+  // Collapsed, not gone -- reopening it still works.
+  await installHeader.click();
+  await expect(installHeader).toContainText("▾");
+  await expect(page.locator("text=Open the ⋮ menu")).toBeVisible();
 });

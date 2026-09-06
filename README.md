@@ -144,13 +144,15 @@ Both platforms then get a standalone app (no browser chrome), the ፊ icon,
 and offline access after the first load, via the service worker generated
 by `vite-plugin-pwa` (`src/../vite.config.js`).
 
-Install help shows automatically on the very first visit (not just once
-someone's made progress — the person most likely to need "you can add
-this to your home screen" is someone opening a link a friend just
-shared, not someone already invested), and stays reachable forever
-after via a persistent "Save" button in the top bar, next to the "?"
-tour button — dismissing the first-visit popup doesn't lose the feature
-the way the old one-shot Learn-tab banner used to.
+Install help lives as a collapsible card on Home itself (right after
+Daily Quests), same open/close pattern as Stage two or the More tab's
+sections rather than a separate top-bar button or a dark modal. It
+opens by default on the very first visit — the person most likely to
+need "you can add this to your home screen" is someone opening a link
+a friend just shared, not someone already invested — then collapses to
+a single row after that, but tapping its header brings the steps back
+anytime; it never disappears the way the old one-shot banner used to.
+Hidden entirely once the app is actually running standalone.
 
 ### Getting into an actual app store (future, not started)
 

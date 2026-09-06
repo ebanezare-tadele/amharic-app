@@ -5,7 +5,6 @@ import { applyTodayPatch, emptyToday, rollStreak } from "./lib/gamification.js";
 import { FAMS, UNITS, BASE_BATCHES, SWEEPS, ORDERS } from "./content.js";
 import { key, DAY, INTERVALS, loadState, saveState, flushSave, todayStamp, emptyState, setSaveFailureNotifier } from "./state.js";
 import { loadAudIndex } from "./lib/clipStorage.js";
-import { isStandalone } from "./lib/installPrompt.js";
 import { Lesson } from "./components/Lesson.jsx";
 import { NumeralLesson } from "./components/Numerals.jsx";
 import { Chart } from "./components/Chart.jsx";
@@ -13,7 +12,7 @@ import { More } from "./components/More.jsx";
 import { Reader } from "./components/Reader.jsx";
 import { WordBuild, Speed } from "./components/Drills.jsx";
 import { Trace } from "./components/Practice.jsx";
-import { Home, Spotlight, InstallHelp } from "./components/Home.jsx";
+import { Home, Spotlight } from "./components/Home.jsx";
 
 /* ============================================================
    THE FIDEL (ፊደል)
@@ -34,7 +33,6 @@ export default function AmharicFidel() {
   const [lesson, setLesson] = useState(null);
   const [saveFailed, setSaveFailed] = useState(false);
   const [showTour, setShowTour] = useState(false);
-  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const introChecked = useRef(false);
 
   useEffect(() => {
@@ -46,16 +44,11 @@ export default function AmharicFidel() {
   // Spotlight overlay auto-opens on top of it once state has actually
   // loaded (state starts null; see loadState() above). introChecked
   // guards against re-opening on every later state change once this
-  // has run once. Install help only auto-opens here if the tour ISN'T
-  // about to (never stack two overlays on first load) -- a brand-new
-  // user sees the tour first and finds install help afterward via the
-  // always-visible top-bar button; a returning user who's already past
-  // the tour but never dismissed this gets it automatically like before.
+  // has run once.
   useEffect(() => {
     if (state && !introChecked.current) {
       introChecked.current = true;
       if (!state.seenIntro.includes("app-tour")) setShowTour(true);
-      else if (!state.seenIntro.includes("cb-install") && !isStandalone()) setShowInstallHelp(true);
     }
   }, [state]);
 
@@ -252,19 +245,6 @@ export default function AmharicFidel() {
         <span className="chip">lv <b>{level}</b></span>
         <div className="xpbar"><div className="xpfill" style={{ width: `${pct}%` }} /></div>
         <span className="chip"><b>{state.xp}</b> xp</span>
-        {!isStandalone() && (
-          <button
-            onClick={() => setShowInstallHelp(true)}
-            title="How to save this app to your home screen"
-            style={{
-              display: "flex", alignItems: "center", gap: 3, color: "var(--gold)", fontSize: 11,
-              fontWeight: 700, border: "1px solid var(--gold)", borderRadius: 999, padding: "4px 8px",
-              flexShrink: 0, whiteSpace: "nowrap",
-            }}
-          >
-            <span aria-hidden="true">⬇</span> Save
-          </button>
-        )}
         <button
           onClick={() => setShowTour(true)}
           title="Show the tour again"
@@ -394,15 +374,6 @@ export default function AmharicFidel() {
           onDone={() => {
             setShowTour(false);
             markSeen("app-tour");
-          }}
-        />
-      )}
-
-      {showInstallHelp && (
-        <InstallHelp
-          onClose={() => {
-            setShowInstallHelp(false);
-            markSeen("cb-install");
           }}
         />
       )}
