@@ -448,6 +448,18 @@ check on every foreground — tab focus or the app coming back from the
 background — so a change is picked up the next time it's actually
 opened, not whenever the browser's own clock gets around to it.
 
+That covered warm foregrounds, but missed the most common case for an
+installed home-screen app specifically: a cold start. The OS kills a
+backgrounded PWA's process far more readily than it kills a browser
+tab, so most real opens relaunch fresh rather than resume — and a
+freshly-loaded page is *born* visible and focused, so neither
+`visibilitychange` nor `focus` ever fires; there's no "change" for
+either listener to catch. `main.jsx` now also calls the same check
+immediately on registration, not only on those two later transitions,
+so every open — cold or warm — forces the check instead of silently
+depending on the browser's own slower internal timing for however long
+the app happens to stay backgrounded-not-killed.
+
 Net effect: push a change, and the next time the installed app is
 opened, it's current.
 

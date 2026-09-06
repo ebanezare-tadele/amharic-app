@@ -22,6 +22,15 @@ registerSW({
   onRegisteredSW(_url, registration) {
     if (!registration) return
     const check = () => registration.update().catch(() => {})
+    // A cold start -- the common case for a home-screen PWA, since the OS
+    // kills backgrounded web-app processes far more readily than it kills
+    // a browser tab -- never fires visibilitychange or focus: the page is
+    // born already visible and focused, so there's no "change"/"gained
+    // focus" transition for either listener below to catch. Without this,
+    // most real opens of the installed app skipped the explicit check
+    // entirely and fell back to the browser's own much slower internal
+    // timing -- exactly the gap this whole mechanism exists to close.
+    check()
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') check()
     })
