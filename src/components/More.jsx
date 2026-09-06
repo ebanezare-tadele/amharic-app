@@ -108,46 +108,51 @@ export function More({ cards, audio, level, xp, streakDays, onReset }) {
       </div>
 
       <div className="rule" />
-      <div className="eyebrow" style={{ marginBottom: 8 }}>Spell it in fidel</div>
-      <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
-        Type a name or word to see it broken into fidel syllables. Each fidel row keeps the same
-        consonant sound taught on the chart, and each vowel letter maps to the same vowel sound
-        used everywhere else in this app (a is "father," e is "cafe," i is "see," o is "go," u is
-        "boot"). English spelling is irregular though -- silent letters, a "ch" that's really a
-        hard c -- so treat this as an approximate phonetic spelling for practice, not the one true
-        way to write it.
-      </p>
-      <input
-        type="text"
-        value={nameInput}
-        onChange={(e) => setNameInput(e.target.value)}
-        placeholder="e.g. David"
-        maxLength={40}
-        style={{
-          width: "100%", background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9,
-          padding: "10px 12px", color: "var(--bone)", fontSize: 14, marginBottom: 10,
-        }}
-      />
-      {spelled.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-          {spelled.map((word, wi) => (
-            <div key={wi} style={{ display: "flex", gap: 4 }}>
-              {word.map((s, si) => (
-                <div
-                  key={si}
-                  style={{
-                    background: "var(--ink2)", border: "1px solid var(--line)", borderRadius: 9,
-                    padding: "6px 9px", textAlign: "center", minWidth: 40,
-                  }}
-                >
-                  <div className="gz" style={{ fontSize: 24 }}>{s.glyph}</div>
-                  <div className="note" style={{ fontSize: 10 }}>{s.rom}</div>
-                </div>
-              ))}
-            </div>
-          ))}
+      <div className="card" style={{ borderColor: "var(--gold)" }}>
+        <div className="row-sp" style={{ marginBottom: 8 }}>
+          <span className="eyebrow" style={{ color: "var(--gold)" }}>Spell it in fidel</span>
+          <span className="gz" style={{ fontSize: 20, color: "var(--gold)" }}>ስም</span>
         </div>
-      )}
+        <p className="note" style={{ marginBottom: 10, fontSize: 11.5 }}>
+          Type a name or word to see it broken into fidel syllables. Each fidel row keeps the same
+          consonant sound taught on the chart, and each vowel letter maps to the same vowel sound
+          used everywhere else in this app (a is "father," e is "cafe," i is "see," o is "go," u is
+          "boot"). English spelling is irregular though -- silent letters, a "ch" that's really a
+          hard c -- so treat this as an approximate phonetic spelling for practice, not the one true
+          way to write it.
+        </p>
+        <input
+          type="text"
+          value={nameInput}
+          onChange={(e) => setNameInput(e.target.value)}
+          placeholder="e.g. David"
+          maxLength={40}
+          style={{
+            width: "100%", background: "var(--ink3)", border: "1px solid var(--line)", borderRadius: 9,
+            padding: "10px 12px", color: "var(--bone)", fontSize: 14, marginBottom: spelled.length ? 10 : 0,
+          }}
+        />
+        {spelled.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+            {spelled.map((word, wi) => (
+              <div key={wi} style={{ display: "flex", gap: 4 }}>
+                {word.map((s, si) => (
+                  <div
+                    key={si}
+                    style={{
+                      background: "var(--ink3)", border: "1px solid var(--gold)", borderRadius: 9,
+                      padding: "6px 9px", textAlign: "center", minWidth: 40,
+                    }}
+                  >
+                    <div className="gz" style={{ fontSize: 24, color: "var(--gold)" }}>{s.glyph}</div>
+                    <div className="note" style={{ fontSize: 10 }}>{s.rom}</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="rule" />
       <SectionHeader
