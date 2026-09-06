@@ -130,15 +130,21 @@ trigger it differently:
 
   Correction from an earlier version of this doc: Chrome and other iOS
   browsers *can* also trigger "Add to Home Screen" — it's an OS-level
-  share-sheet action, not exclusive to Safari's own UI. But confirmed
-  from a real report: Chrome's version of that dialog includes an "Open
-  as Web App" toggle that, left on, made the icon reopen as a fresh tab
-  every time instead of a stable app — because Chrome on iOS isn't
-  actually able to host a standalone web app the way Safari can (it's
-  a WebKit wrapper without that capability, whatever the toggle implies).
-  If you use Chrome anyway, turn that toggle **off**. Safari doesn't have
-  this problem, hence the recommendation. Worth mentioning to family when
-  you send the link.
+  share-sheet action, not exclusive to Safari's own UI. But Chrome's
+  version of that dialog includes an "Open as Web App" toggle with a
+  real tradeoff either way, confirmed from two separate real reports:
+  **on**, the icon runs as an actual standalone app (no browser chrome)
+  but inherits Chrome-on-iOS's own flakiness there — it's reopened as a
+  fresh tab instead of a stable instance for one user, and gotten stuck
+  serving an old cached version through several real deploys for
+  another (see "Updates apply automatically" below) — while **off**, it
+  reliably shows the current version because it isn't really running
+  standalone at all, just reopening a normal Chrome tab each time (full
+  browser chrome, tabs, everything). Neither is "fixed" by turning the
+  toggle one way; it's a real choice between "looks like an app,
+  sometimes stale" and "always fresh, doesn't look like an app." Safari
+  hits neither problem, hence the recommendation — worth mentioning to
+  family when you send the link.
 
 Both platforms then get a standalone app (no browser chrome), the ፊ icon,
 and offline access after the first load, via the service worker generated
@@ -487,6 +493,18 @@ itself works correctly against that build. What this sandbox can't
 confirm is the exact reload timing on a real device across an actual
 deploy boundary — if it ever seems to lag, force-quitting and reopening
 (not just backgrounding) is the reliable fallback.
+
+Confirmed against a real iOS device that this has a real ceiling
+regardless: a standalone home-screen icon (Safari's or Chrome's "Open
+as Web App" on) can still sit on a stale version for a while even after
+a force-quit and relaunch — this is a documented WebKit limitation in
+how standalone web apps activate a new service worker, not something
+fixable from this app's own JS (skipWaiting + clientsClaim + forcing
+the check on every open, including cold starts, is genuinely the full
+toolkit here). Deleting the home-screen icon and re-adding it fresh is
+the reliable recourse when it happens — see "Installing as an app"
+above for the Chrome-specific "Open as Web App" tradeoff this connects
+to.
 
 ## Structure
 

@@ -288,8 +288,11 @@ export function InstallHelp({ open, onToggle }) {
               <Step n={2}>Tap <b>Add to Home Screen</b></Step>
               <Step n={3}>Tap <b>Add</b> — it opens like its own app from here on, even offline</Step>
               <div className="note" style={{ marginTop: 8, fontSize: 11.5 }}>
-                Using <b>Chrome</b> on iPhone instead of Safari? If it offers to turn off <b>"Open as Web
-                App,"</b> do it — left on, the icon reopens a fresh browser tab every time instead of the app.
+                Works best in <b>Safari</b> specifically. Using <b>Chrome</b> instead, it offers an
+                <b> "Open as Web App"</b> toggle with a real tradeoff either way: on, the icon opens as its
+                own app but can get stuck on an older version for a while (a known iOS limitation, not
+                something this app controls) — off, it always shows the latest version but just reopens a
+                normal Chrome tab each time, not a standalone app.
               </div>
             </>
           ) : prompt ? (
@@ -451,7 +454,7 @@ export function Home({ state, dueCount, level, known, onStart, onReview, onSpeed
     // flex) plus both platforms' home-screen instructions, since this
     // travels in the message itself and the in-app banner/Callouts can't
     // reach someone before they've opened the link at all.
-    const text = `ፊደል — read Amharic in a few minutes a day. Daily lessons, spaced review that catches what you forget, tracing practice, and a reader for real text.\n\nAdd it to your home screen and it opens like a real app, even offline:\n• iPhone (Safari): Share icon → Add to Home Screen\n• iPhone (Chrome): Share icon → Add to Home Screen (turn off "Open as Web App" if it asks, or the icon reopens a fresh tab every time instead of the app)\n• Android (Chrome): ⋮ menu → Add to Home Screen`;
+    const text = `ፊደል — read Amharic in a few minutes a day. Daily lessons, spaced review that catches what you forget, tracing practice, and a reader for real text.\n\nAdd it to your home screen and it opens like a real app, even offline:\n• iPhone (Safari, recommended): Share icon → Add to Home Screen\n• iPhone (Chrome): Share icon → Add to Home Screen — Safari works more reliably for this, if you have a choice\n• Android (Chrome): ⋮ menu → Add to Home Screen`;
     navigator.share({ text, url: window.location.href }).catch(() => {});
   };
 
