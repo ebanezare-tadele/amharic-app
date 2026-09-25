@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { FAMS } from "../content.js";
 import { officialAudioUrl } from "../audio.js";
 import { getClip, putClip, deleteClip } from "../lib/clipStorage.js";
+import { unlockAudio, playUrl, stopAudio } from "../lib/player.js";
 
 /* ============================================================
    HEAR BUTTON
@@ -54,21 +55,12 @@ export function HearButton({ fam, order, audio, text }) {
   };
 
   const play = async () => {
+    unlockAudio();
     if (have) {
       const recorded = await getClip(fam, order);
-      if (recorded) {
-        try {
-          await new Audio(recorded).play();
-          return;
-        } catch (e) {}
-      }
+      if (recorded && (await playUrl(recorded))) return;
     }
-    if (haveOfficial) {
-      try {
-        await new Audio(officialAudioUrl(fam, order)).play();
-        return;
-      } catch (e) {}
-    }
+    if (haveOfficial && (await playUrl(officialAudioUrl(fam, order)))) return;
     speak();
   };
 
@@ -93,13 +85,10 @@ export function Voice({ fam, order, have, onSaved }) {
   const fileRef = useRef(null);
 
   const play = async () => {
+    unlockAudio();
     const url = await getClip(fam, order);
     if (!url) return setErr("Nothing recorded for this letter yet.");
-    try {
-      await new Audio(url).play();
-    } catch (e) {
-      setErr("Playback blocked. Tap once anywhere first, then try again.");
-    }
+    if (!(await playUrl(url))) setErr("Couldn't play that clip. Try tapping play again.");
   };
 
   const commit = async (url) => {
@@ -241,16 +230,28 @@ export function Chant({ fam, audio, compact }) {
   // stop touching state instead of racing a newer one.
   const playToken = useRef(0);
 
-  useEffect(() => () => { clearInterval(timer.current); playToken.current++; }, []);
+  // Stop a row that's still sounding when this unmounts or switches
+  // family -- but only if it's this Chant's own run, not some other
+  // "hear it" that started since.
+  const sounding = useRef(false);
+  const halt = () => {
+    playToken.current++;
+    if (sounding.current) {
+      sounding.current = false;
+      stopAudio();
+    }
+  };
+
+  useEffect(() => () => { clearInterval(timer.current); halt(); }, []);
   useEffect(() => {
     setI(-1);
     clearInterval(timer.current);
-    playToken.current++;
+    halt();
   }, [fam]);
 
   const play = () => {
     clearInterval(timer.current);
-    playToken.current++;
+    halt();
     let n = 0;
     setI(0);
     timer.current = setInterval(() => {
@@ -272,8 +273,11 @@ export function Chant({ fam, audio, compact }) {
   // Sequenced off each clip's own "ended" event rather than a fixed
   // interval, since clip lengths vary.
   const playSound = async () => {
+    unlockAudio();
     clearInterval(timer.current);
-    const token = ++playToken.current;
+    halt();
+    const token = playToken.current;
+    sounding.current = true;
     for (let o = 0; o < 7; o++) {
       if (playToken.current !== token) return;
       setI(o);
@@ -283,12 +287,7 @@ export function Chant({ fam, audio, compact }) {
       const haveOfficial = !recorded && audio && audio.official && audio.official.has(`${fam}.${o}`);
       const url = recorded || (haveOfficial ? officialAudioUrl(fam, o) : null);
       if (url) {
-        await new Promise((resolve) => {
-          const el = new Audio(url);
-          el.addEventListener("ended", resolve);
-          el.addEventListener("error", resolve);
-          el.play().catch(resolve);
-        });
+        await playUrl(url);
       } else if (voice) {
         await new Promise((resolve) => {
           const u = new SpeechSynthesisUtterance(F.chars[o]);
@@ -301,7 +300,10 @@ export function Chant({ fam, audio, compact }) {
         });
       }
     }
-    if (playToken.current === token) setI(-1);
+    if (playToken.current === token) {
+      sounding.current = false;
+      setI(-1);
+    }
   };
 
   const canHear = voice || F.chars.some((_, o) => audio && (audio.have.has(`${fam}.${o}`) || (audio.official && audio.official.has(`${fam}.${o}`))));
