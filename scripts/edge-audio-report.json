@@ -668,6 +668,7 @@
     "id": "row_8",
     "category": "row",
     "verdict": "FAIL",
+    "expected": "ወ፣ ዉ፣ ዊ፣ ዋ፣ ዌ፣ ው፣ ዎ።",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -753,7 +754,7 @@
             "transcription": "ኦ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዊ",
@@ -785,7 +786,7 @@
             "transcription": "ጠ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዎ",
@@ -793,13 +794,13 @@
             "transcription": "ኤ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           }
         ],
         "transcription": "ኦ ኦ ሊ ቋ ኤ ኦ ኦ",
         "similarity": 0.0,
         "consonant_hits": "0/7",
-        "mms_consonant_hits": "3/7"
+        "mms_consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -819,7 +820,7 @@
             "transcription": "ኤ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዊ",
@@ -865,7 +866,7 @@
         "transcription": "ወፍ ኦ ዊ ኋ ኤ ኦ ኦ",
         "similarity": 0.2667,
         "consonant_hits": "2/7",
-        "mms_consonant_hits": "3/7"
+        "mms_consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -885,7 +886,7 @@
             "transcription": "እ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዊ",
@@ -917,7 +918,7 @@
             "transcription": "ኦ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዎ",
@@ -925,26 +926,21 @@
             "transcription": "እ",
             "mms": "o",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           }
         ],
         "transcription": "ኦ ኦ ሊዊ ቋ ኤ ኦ ኦ",
         "similarity": 0.1333,
         "consonant_hits": "0/7",
-        "mms_consonant_hits": "5/7",
-        "dropped": [
-          "ዊ",
-          "ዌ"
-        ]
+        "mms_consonant_hits": "2/7"
       }
-    ],
-    "expected": "ወ፣ ዉ፣ ዊ፣ ዋ፣ ዌ፣ ው፣ ዎ።",
-    "note": "Withdrawn after the run: passed only because MMS vowels (o/e/i) were counted as w/y; dvoice heard no glide."
+    ]
   },
   {
     "id": "row_9",
     "category": "row",
     "verdict": "FAIL",
+    "expected": "የ፣ ዩ፣ ዪ፣ ያ፣ ዬ፣ ይ፣ ዮ።",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -1038,7 +1034,7 @@
             "transcription": "ኤት",
             "mms": "il",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ያ",
@@ -1062,7 +1058,7 @@
             "transcription": "ኤ",
             "mms": "il",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዮ",
@@ -1076,7 +1072,7 @@
         "transcription": "የ ይው ኢህ ያ ይህ ኢህ ኤ ው",
         "similarity": 0.2105,
         "consonant_hits": "3/7",
-        "mms_consonant_hits": "4/7"
+        "mms_consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -1104,7 +1100,7 @@
             "transcription": "ኤ",
             "mms": "it",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ያ",
@@ -1128,7 +1124,7 @@
             "transcription": "ኤ",
             "mms": "i",
             "dvoice_ok": false,
-            "mms_ok": true
+            "mms_ok": false
           },
           {
             "letter": "ዮ",
@@ -1142,14 +1138,75 @@
         "transcription": "የ ይሁ ኢ ያ ኢህ ኢ ኤው",
         "similarity": 0.2353,
         "consonant_hits": "4/7",
-        "mms_consonant_hits": "4/4",
-        "dropped": [
-          "ዬ"
-        ]
+        "mms_consonant_hits": "2/4"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "የ",
+            "duration": 0.408,
+            "transcription": "ይ",
+            "mms": "ዬ",
+            "dvoice_ok": true,
+            "mms_ok": true
+          },
+          {
+            "letter": "ዩ",
+            "duration": 0.456,
+            "transcription": "ሊው",
+            "mms": "you",
+            "dvoice_ok": false,
+            "mms_ok": true
+          },
+          {
+            "letter": "ዪ",
+            "duration": 0.408,
+            "transcription": "ኤ",
+            "mms": "i",
+            "dvoice_ok": false,
+            "mms_ok": false
+          },
+          {
+            "letter": "ያ",
+            "duration": 0.408,
+            "transcription": "የ",
+            "mms": "y",
+            "dvoice_ok": true,
+            "mms_ok": true
+          },
+          {
+            "letter": "ዬ",
+            "duration": 0.432,
+            "transcription": "ይህ",
+            "mms": "i",
+            "dvoice_ok": true,
+            "mms_ok": false
+          },
+          {
+            "letter": "ይ",
+            "duration": 0.36,
+            "transcription": "ኤ",
+            "mms": "iy",
+            "dvoice_ok": false,
+            "mms_ok": false
+          },
+          {
+            "letter": "ዮ",
+            "duration": 0.408,
+            "transcription": "ዴው",
+            "mms": "bel",
+            "dvoice_ok": false,
+            "mms_ok": false
+          }
+        ],
+        "transcription": "የ ኢው ኢህ  ህ ኢ ኢው",
+        "similarity": 0.125,
+        "consonant_hits": "3/7",
+        "mms_consonant_hits": "3/7"
       }
-    ],
-    "expected": "የ፣ ዩ፣ ዪ፣ ያ፣ ዬ፣ ይ፣ ዮ።",
-    "note": "Withdrawn after the run: passed only because MMS vowels (o/e/i) were counted as w/y; dvoice heard no glide."
+    ]
   },
   {
     "id": "row_10",
@@ -5926,7 +5983,7 @@
         "duration": 0.864,
         "transcription": "ዟ ወዠ",
         "similarity": 0.0,
-        "mms": "jajj"
+        "mms": "jjj"
       }
     ]
   },
@@ -6128,7 +6185,7 @@
         "duration": 0.984,
         "transcription": "ቄና ይ ስትል ኝ",
         "similarity": 0.7143,
-        "mms": "ቀና ስtlln"
+        "mms": "ቀና የስtlን"
       }
     ]
   },
@@ -6182,7 +6239,7 @@
         "duration": 0.84,
         "transcription": "ደህ ና ነኝ",
         "similarity": 1.0,
-        "mms": "dhnnin"
+        "mms": "dnnin"
       }
     ]
   },
@@ -6218,7 +6275,7 @@
         "duration": 1.056,
         "transcription": "ስምሽ ማነው",
         "similarity": 0.9231,
-        "mms": "smsmነo"
+        "mms": "smsmነ"
       }
     ]
   },
@@ -6306,8 +6363,8 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 0.84,
-        "transcription": "አይገባ ኝ",
-        "similarity": 0.9091,
+        "transcription": "አይገባ ኝም",
+        "similarity": 1.0,
         "mms": "አይገባኝ"
       }
     ]
@@ -6326,7 +6383,7 @@
         "duration": 0.768,
         "transcription": "ስንት ነው",
         "similarity": 1.0,
-        "mms": "sntን"
+        "mms": "sንtን"
       }
     ]
   },
@@ -6342,8 +6399,8 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 1.056,
-        "transcription": "ውሀ ፍ ልጋ ለሁ",
-        "similarity": 0.6667,
+        "transcription": "ውሀ ፈ ልጋ ለሁ",
+        "similarity": 0.8,
         "mms": "ውሃ ፍልጋለው"
       }
     ]
