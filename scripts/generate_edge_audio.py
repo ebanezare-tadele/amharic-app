@@ -64,9 +64,9 @@ ATTEMPTS = [(VOICES[0], "-10%"), (VOICES[1], "-10%"), (VOICES[0], "-30%"), (VOIC
 # sentence), not to police speaking rate.
 # The letter floor is low because a sixth-order glyph like ህ is little
 # more than a breath once silence is trimmed.
-BANDS = {"letter": (0.05, 1.6), "anchor": (0.25, 2.8), "phrase": (0.35, 4.5)}
+BANDS = {"letter": (0.05, 1.6), "anchor": (0.25, 2.8), "phrase": (0.35, 4.5), "vocab": (0.25, 4.5)}
 
-SIMILARITY_THRESHOLD = {"row": 0.5, "anchor": 0.5, "phrase": 0.5}
+SIMILARITY_THRESHOLD = {"row": 0.5, "anchor": 0.5, "phrase": 0.5, "vocab": 0.5}
 
 _STRIP_RE = re.compile(r"[\s፣።፤፥፦፧,.!?]+")
 
@@ -381,7 +381,9 @@ async def main():
                 log(f"    {lr['letter']}: dvoice {lr.get('transcription')!r}{'✓' if lr.get('dvoice_ok') else ''} "
                     f"mms {lr.get('mms')!r}{'✓' if lr.get('mms_ok') else ''} {lr.get('error', '')}")
             results.append(r)
-        for unit, category in [(a, "anchor") for a in anchors] + [(p, "phrase") for p in phrases]:
+        words = [(a, "anchor") for a in anchors] + [(p, "phrase") for p in phrases]
+        words += [(v, "vocab") for v in texts.get("vocab", [])]
+        for unit, category in words:
             r = await do_word(unit, category, asr, mms, args.out, tmp)
             last = r["attempts"][-1] if r["attempts"] else {}
             log(f"[{unit['id']}] {r['verdict']} expected {unit['text']!r} heard {last.get('transcription')!r} sim={last.get('similarity')} ({len(r['attempts'])} attempt(s))")

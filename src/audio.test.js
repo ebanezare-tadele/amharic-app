@@ -39,6 +39,7 @@ describe("officialKeyFromFilename", () => {
     expect(officialKeyFromFilename("letter-3.mp3")).toBeNull(); // missing order segment
     expect(officialKeyFromFilename("row-3-0.mp3")).toBeNull(); // wrong prefix
     expect(officialKeyFromFilename("")).toBeNull();
+    expect(officialKeyFromFilename("vocab-weather-0.mp3")).toBeNull(); // no such topic
   });
 });
 
@@ -52,6 +53,7 @@ describe("officialAudioUrl / officialKeyFromFilename round-trip", () => {
     "letter-0-0.mp3", "letter-33-6.mp3",
     "anchor-0.mp3", "anchor-33.mp3",
     "phrase-0.mp3", "phrase-13.mp3",
+    "vocab-time-0.mp3", "vocab-directions-17.mp3",
   ];
 
   it.each(filenames)("round-trips %s through key -> fam/order -> URL", (filename) => {
@@ -60,5 +62,19 @@ describe("officialAudioUrl / officialKeyFromFilename round-trip", () => {
     const [fam, order] = key.split(".").map(Number);
     const url = officialAudioUrl(fam, order, BASE);
     expect(url.endsWith(`/${filename}`)).toBe(true);
+  });
+});
+
+describe("vocab topics", () => {
+  it("have unique pseudo-families above the fixed WORD_FAM ids, and unique ASCII ids", async () => {
+    const { VOCAB } = await import("./vocab.js");
+    const fams = VOCAB.map((v) => v.fam);
+    expect(new Set(fams).size).toBe(fams.length);
+    fams.forEach((f) => expect(f).toBeGreaterThan(Math.max(...Object.values(WORD_FAM))));
+    VOCAB.forEach((v) => expect(v.id).toMatch(/^[a-z]+$/));
+  });
+
+  it("builds a vocab URL by topic id", () => {
+    expect(officialAudioUrl(905, 2, BASE)).toBe("/amharic-app/audio/official/vocab-colors-2.mp3");
   });
 });

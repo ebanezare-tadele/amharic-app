@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FAMS, GEEZ_NUM, ANCHORS, PHRASES } from "../content.js";
+import { VOCAB } from "../vocab.js";
 import { WORD_FAM } from "../audio.js";
 import { spellInFidel } from "../lib/transliterate.js";
 import { WordEntry } from "./Drills.jsx";
@@ -28,7 +29,7 @@ function numeralNote(value) {
    MORE
    Everything about the fidel that isn't the interactive grid
    itself: numerals, punctuation, the script's history, anchor
-   words and phrases, cross-device sync, comparing progress, and
+   words, phrases and everyday topic words, cross-device sync, comparing progress, and
    resetting. Used to live at the bottom of the Chart tab, easy to
    miss under a tab literally called "chart" -- split out so it
    reads as its own destination rather than an afterthought most
@@ -36,7 +37,8 @@ function numeralNote(value) {
    ============================================================ */
 
 // The two history/trivia sections and the two long practice lists
-// (34 anchor words, 14 phrases, each with its own record/upload row)
+// (34 anchor words, 14 phrases, each with its own record/upload row),
+// plus the everyday topic lists (src/vocab.js),
 // account for most of this tab's scroll length -- collapsed by default
 // so the tab opens short, with numerals/punctuation/sync/compare/reset
 // (all short and either reference or functional) left open since
@@ -262,6 +264,29 @@ export function More({ cards, audio, level, xp, streakDays, onReset }) {
           ))}
         </div>
       )}
+
+      {VOCAB.map((v) => (
+        <div key={v.id}>
+          <div className="rule" />
+          <SectionHeader
+            open={open[v.id]}
+            onToggle={() => toggle(v.id)}
+            title={`${v.title} (${v.words.length})`}
+          />
+          {open[v.id] && (
+            <div style={{ marginTop: 8 }} data-vocab={v.id}>
+              {v.note && (
+                <p className="note" style={{ marginBottom: 4, fontSize: 11.5 }}>
+                  {v.note}
+                </p>
+              )}
+              {v.words.map((w, i) => (
+                <WordEntry key={w[0]} text={w[0]} rom={w[1]} gloss={w[2]} fam={v.fam} order={i} audio={audio} />
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
 
       <div className="rule" />
       <div className="eyebrow" style={{ marginBottom: 8 }}>Sync across devices</div>
