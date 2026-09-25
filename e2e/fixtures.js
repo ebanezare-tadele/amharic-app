@@ -31,6 +31,14 @@ export { expect };
 // Dismisses the first-launch Spotlight tour if it's showing -- every test
 // that isn't specifically about the tour itself wants a clean Home screen.
 export async function skipTour(page) {
+  // The tour can mount a moment after the page does, so wait briefly for
+  // it rather than checking once; a page that won't show it (already
+  // dismissed) just costs the short wait.
   const skip = page.locator('button:has-text("Skip")');
-  if (await skip.count()) await skip.click();
+  try {
+    await skip.waitFor({ state: "visible", timeout: 2500 });
+  } catch {
+    return;
+  }
+  await skip.click();
 }

@@ -10,6 +10,7 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RAW, ANCHORS, PHRASES, rowText, anchorText, phraseText } from "./content.mjs";
+import { VOCAB, vocabText } from "../src/vocab.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_PATH = path.join(__dirname, "verification-texts.json");
@@ -24,6 +25,11 @@ const rows = RAW.map((fam, i) => ({
 
 const anchors = ANCHORS.map((_, i) => ({ id: `anchor_${i}`, text: anchorText(i), file: `anchor-${i}.mp3` }));
 const phrases = PHRASES.map((_, i) => ({ id: `phrase_${i}`, text: phraseText(i), file: `phrase-${i}.mp3` }));
+// The More tab's topic words -- read straight from the app's own data
+// file, so there's no second copy to drift.
+const vocab = VOCAB.flatMap((v) =>
+  v.words.map((w, i) => ({ id: `vocab_${v.id}_${i}`, text: vocabText(w), file: `vocab-${v.id}-${i}.mp3` })),
+);
 
-await writeFile(OUT_PATH, JSON.stringify({ rows, anchors, phrases }, null, 2));
-console.log(`Wrote ${rows.length} row + ${anchors.length} anchor + ${phrases.length} phrase texts to ${OUT_PATH}`);
+await writeFile(OUT_PATH, JSON.stringify({ rows, anchors, phrases, vocab }, null, 2));
+console.log(`Wrote ${rows.length} row + ${anchors.length} anchor + ${phrases.length} phrase + ${vocab.length} vocab texts to ${OUT_PATH}`);

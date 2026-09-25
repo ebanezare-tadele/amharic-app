@@ -49,3 +49,26 @@ test("More tab: typing a name renders its fidel spelling", async ({ page }) => {
   await input.fill("");
   await expect(page.locator(".gz", { hasText: "ጃ" })).toHaveCount(0);
 });
+
+test("More tab: the four topic sections start collapsed and open to their words", async ({ page }) => {
+  await page.goto("./");
+  await page.locator('button:has-text("Skip")').click().catch(() => {});
+  await page.locator(".tab", { hasText: "more" }).first().click();
+
+  for (const [title, word, gloss] of [
+    ["Date and time", "ዛሬ", "today"],
+    ["Family", "እናት", "mother"],
+    ["Colors", "ቀይ", "red"],
+    ["Directions", "ግራ", "left"],
+  ]) {
+    const header = page.locator("button", { hasText: title });
+    await expect(header).toContainText("▸");
+    await header.click();
+    await expect(header).toContainText("▾");
+    const entry = page.locator(".gz", { hasText: new RegExp(`^${word}$`) }).first();
+    await expect(entry).toBeVisible();
+    await expect(page.locator(`text=${gloss}`).first()).toBeVisible();
+    await header.click();
+    await expect(header).toContainText("▸");
+  }
+});

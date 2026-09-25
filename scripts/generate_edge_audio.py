@@ -64,9 +64,9 @@ ATTEMPTS = [(VOICES[0], "-10%"), (VOICES[1], "-10%"), (VOICES[0], "-30%"), (VOIC
 # sentence), not to police speaking rate.
 # The letter floor is low because a sixth-order glyph like ህ is little
 # more than a breath once silence is trimmed.
-BANDS = {"letter": (0.05, 1.6), "anchor": (0.25, 2.8), "phrase": (0.35, 4.5)}
+BANDS = {"letter": (0.05, 1.6), "anchor": (0.25, 2.8), "phrase": (0.35, 4.5), "vocab": (0.25, 4.5)}
 
-SIMILARITY_THRESHOLD = {"row": 0.5, "anchor": 0.5, "phrase": 0.5}
+SIMILARITY_THRESHOLD = {"row": 0.5, "anchor": 0.5, "phrase": 0.5, "vocab": 0.5}
 
 _STRIP_RE = re.compile(r"[\s፣።፤፥፦፧,.!?]+")
 
@@ -80,6 +80,10 @@ TWINS = {29: 12, 30: 12, 31: 3, 32: 13, 33: 24}
 # they sound like).
 HOMOPHONE = {}
 FAMILY = {}
+ORDER = {}  # glyph -> vowel order 0-6
+VOWEL_ROW = 13  # አ: the "consonant" is a silent carrier, so the vowel is the letter
+# Latin vowels MMS writes for each order, for the vowel row only.
+ORDER_VOWELS = {0: "aä", 1: "u", 2: "i", 3: "a", 4: "e", 5: "", 6: "o"}
 # family -> leading Latin letters that count as its consonant. MMS (below)
 # mostly writes Amharic in Latin letters ("slam" for ሰላም), with its own
 # habits: ሸ comes out as "s", ከ often as "c". Filled in main() from each
@@ -114,8 +118,9 @@ def load_tables(rows):
             HOMOPHONE[k] = "አ"
     HOMOPHONE["ኣ"] = "አ"
     for i, row in enumerate(rows):
-        for c in row["letters"]:
+        for o, c in enumerate(row["letters"]):
             FAMILY[c] = TWINS.get(i, i)
+            ORDER[c] = o
         if i not in TWINS:
             LATIN[i] = LATIN_FOR.get(row["consonant"], row["consonant"])
 
@@ -125,6 +130,13 @@ def consonant_match(letter, heard):
     fam = FAMILY.get(letter)
     if not heard or fam is None:
         return False
+    if fam == VOWEL_ROW:
+        # ኡ heard as ኦ/"o" is a wrong letter, not a right consonant.
+        want = normalize(letter)
+        if any(normalize(c) == want for c in heard):
+            return True
+        latin = next((c for c in heard.lower() if "a" <= c <= "z" or c == "ä"), None)
+        return latin is not None and latin in ORDER_VOWELS[ORDER[letter]]
     if any(FAMILY.get(c) == fam for c in heard):
         return True
     latin = next((c for c in heard.lower() if "a" <= c <= "z" or c == "ä"), None)
@@ -381,7 +393,9 @@ async def main():
                 log(f"    {lr['letter']}: dvoice {lr.get('transcription')!r}{'✓' if lr.get('dvoice_ok') else ''} "
                     f"mms {lr.get('mms')!r}{'✓' if lr.get('mms_ok') else ''} {lr.get('error', '')}")
             results.append(r)
-        for unit, category in [(a, "anchor") for a in anchors] + [(p, "phrase") for p in phrases]:
+        words = [(a, "anchor") for a in anchors] + [(p, "phrase") for p in phrases]
+        words += [(v, "vocab") for v in texts.get("vocab", [])]
+        for unit, category in words:
             r = await do_word(unit, category, asr, mms, args.out, tmp)
             last = r["attempts"][-1] if r["attempts"] else {}
             log(f"[{unit['id']}] {r['verdict']} expected {unit['text']!r} heard {last.get('transcription')!r} sim={last.get('similarity')} ({len(r['attempts'])} attempt(s))")

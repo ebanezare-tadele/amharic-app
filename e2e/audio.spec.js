@@ -163,3 +163,14 @@ test("Read tab: a tapped letter's hear it goes through the shared player", async
   await page.locator("button", { hasText: "► hear it" }).first().click();
   expect((await clip).status()).toBe(200);
 });
+
+test("More tab: a topic word's hear it plays its built-in clip", async ({ page }) => {
+  await page.goto("./");
+  await skipTour(page);
+  await page.locator(".tab", { hasText: "more" }).first().click();
+  await page.locator("button", { hasText: "Colors" }).click();
+  const red = page.locator("[data-vocab=colors] > div").filter({ hasText: "red" }).first();
+  const clip = page.waitForResponse((r) => r.url().endsWith("/audio/official/vocab-colors-1.mp3"));
+  await red.locator("button", { hasText: "► hear it" }).click();
+  expect((await clip).status()).toBe(200);
+});

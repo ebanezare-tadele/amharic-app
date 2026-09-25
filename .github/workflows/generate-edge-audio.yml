@@ -18,7 +18,12 @@ on:
         description: "Only the first N rows/anchors/phrases (blank = everything)"
         type: string
         default: ""
+  # Never on the deploy branch: merging a PR there must not quietly
+  # regenerate audio people have already listened to. Run it on a work
+  # branch (or by hand from the Actions tab) and merge the result.
   push:
+    branches-ignore:
+      - claude/amharic-fidel-vite-migration-h6ibf9
     paths:
       - scripts/generate_edge_audio.py
       - scripts/test_generate_edge_audio.py

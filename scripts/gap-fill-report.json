@@ -1,0 +1,6461 @@
+[
+  {
+    "id": "letter-1-1.mp3",
+    "letter": "ሙ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ነግ",
+        "mms": "n",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ነው",
+        "mms": "m",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኖ",
+        "mms": "nu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ነው",
+        "mms": "mu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ነ",
+        "mms": "n",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ነው",
+        "mms": "mu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-1-6.mp3",
+    "letter": "ሞ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ነ",
+        "mms": "no",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ነው",
+        "mms": "m",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ነው",
+        "mms": "no",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.48,
+        "dvoice": "ነ",
+        "mms": "mo",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ነ",
+        "mms": "mo",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ነው",
+        "mms": "m",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-8-0.mp3",
+    "letter": "ወ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ወ",
+        "mms": "w",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-8-1.mp3",
+    "letter": "ዉ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "",
+        "mms": "bo",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኦ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኤ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "እ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "",
+        "mms": "bo",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "አ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-8-2.mp3",
+    "letter": "ዊ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ጐ",
+        "mms": "lll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "በይት",
+        "mms": "lel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ጔ",
+        "mms": "ly",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ነሚት",
+        "mms": "li",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ጔ",
+        "mms": "wic",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "በይት",
+        "mms": "lel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-8-3.mp3",
+    "letter": "ዋ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ና",
+        "mms": "w",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "አ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ዋ",
+        "mms": "w",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-8-4.mp3",
+    "letter": "ዌ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኤ",
+        "mms": "e",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "e",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "le",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-8-6.mp3",
+    "letter": "ዎ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ተ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኤ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "እ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ተ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ከስ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-9-0.mp3",
+    "letter": "የ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ይህ",
+        "mms": "ዬ",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-9-1.mp3",
+    "letter": "ዩ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ይው",
+        "mms": "l",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ሊው",
+        "mms": "ju",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ይየ ው",
+        "mms": "yy",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-9-2.mp3",
+    "letter": "ዪ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ሄ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኤት",
+        "mms": "il",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "it",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "lit",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "bil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-9-3.mp3",
+    "letter": "ያ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "የ",
+        "mms": "y",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-9-4.mp3",
+    "letter": "ዬ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ይ",
+        "mms": "li",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ይህ",
+        "mms": "ji",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "እን",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ይህ",
+        "mms": "i",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ይህ",
+        "mms": "li",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ይህ",
+        "mms": "ji",
+        "dvoice_ok": true,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-9-6.mp3",
+    "letter": "ዮ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "የ ው",
+        "mms": "yol",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-10-1.mp3",
+    "letter": "ዱ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ጆ",
+        "mms": "zu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ጆ",
+        "mms": "du",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ጆ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ጆ",
+        "mms": "du",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ጆ",
+        "mms": "d",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ዶ",
+        "mms": "du",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-10-2.mp3",
+    "letter": "ዲ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቴን",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ጄ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቴ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ይ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቴ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ፔ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-10-4.mp3",
+    "letter": "ዴ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ጄ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.432,
+        "dvoice": "ዴ",
+        "mms": "ጌ",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ዴ",
+        "mms": "j",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.504,
+        "dvoice": "ዴ",
+        "mms": "j",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ዴ",
+        "mms": "l",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.408,
+        "dvoice": "ዴ",
+        "mms": "ጌ",
+        "dvoice_ok": true,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-11-2.mp3",
+    "letter": "ጊ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቴ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቤ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቴ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ዪ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቴ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ሌክ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-12-1.mp3",
+    "letter": "ሁ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተት",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-13-1.mp3",
+    "letter": "ኡ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ቀ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ቆ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ጤ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ኦ",
+        "mms": "o",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ],
+    "note": "Withdrawn on review: both models heard 'o', not 'u'. In the vowel row the vowel is the letter, so a consonant match proves nothing."
+  },
+  {
+    "id": "letter-14-0.mp3",
+    "letter": "ቀ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ታ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ግራ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ከ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ግ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ካ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ጋ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-14-1.mp3",
+    "letter": "ቁ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ኰ",
+        "mms": "ku",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኰ",
+        "mms": "cl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኩ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ኰ",
+        "mms": "cl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ኰ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኰ",
+        "mms": "c",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-14-2.mp3",
+    "letter": "ቂ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኬ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቼ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቺ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኬ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኬ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቼ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-14-3.mp3",
+    "letter": "ቃ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "አ",
+        "mms": "አh",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ካ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "አ",
+        "mms": "አ",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ካ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "አ",
+        "mms": "አ",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ካ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-14-4.mp3",
+    "letter": "ቄ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቼ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኪ",
+        "mms": "lfllyl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቼ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኪን",
+        "mms": "llffryflllly",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኬ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ች",
+        "mms": "lfthlyl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-14-6.mp3",
+    "letter": "ቆ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ኰ",
+        "mms": "co",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ከ",
+        "mms": "co",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.48,
+        "dvoice": "ኰ",
+        "mms": "c",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኰ",
+        "mms": "co",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ኰ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ከ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-15-0.mp3",
+    "letter": "ጠ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ደፍ",
+        "mms": "ff",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ጋ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "አ",
+        "mms": "f",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ደ",
+        "mms": "ff",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ታ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-15-1.mp3",
+    "letter": "ጡ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቶ",
+        "mms": "to",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቶ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ቶ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቶ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቶ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቶ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-15-2.mp3",
+    "letter": "ጢ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቴ",
+        "mms": "tel",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "",
+        "mms": "lthltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ጬ",
+        "mms": "tell",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "lthrltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቴ",
+        "mms": "lllltel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ኤ",
+        "mms": "lthltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-15-3.mp3",
+    "letter": "ጣ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "አ",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ታ",
+        "mms": "5",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "በ",
+        "mms": "a",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "አ",
+        "mms": "አ",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "አ",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ታ",
+        "mms": "l5lll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-15-4.mp3",
+    "letter": "ጤ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቴ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ቴ",
+        "mms": "llhlyll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቴ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ቴ",
+        "mms": "lltfylltlll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኬ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ቼን",
+        "mms": "llllilf",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-15-6.mp3",
+    "letter": "ጦ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ከ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ተው",
+        "mms": "to",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.48,
+        "dvoice": "ተ",
+        "mms": "po",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ተው",
+        "mms": "to",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ከ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ጠው",
+        "mms": "to",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-17-6.mp3",
+    "letter": "ቾ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ቸ",
+        "mms": "to",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቶ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.48,
+        "dvoice": "ሰው",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቾ",
+        "mms": "t",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ቸ",
+        "mms": "cok",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-19-0.mp3",
+    "letter": "ኘ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኝህ",
+        "mms": "i",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ኝ",
+        "mms": "nዬ",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-19-1.mp3",
+    "letter": "ኙ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ኒ",
+        "mms": "nim",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ይም",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.48,
+        "dvoice": "ኔ ም",
+        "mms": "ni",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ኤው",
+        "mms": "lyl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ኒ",
+        "mms": "nim",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ሄው",
+        "mms": "ይil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-19-2.mp3",
+    "letter": "ኚ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ይህ",
+        "mms": "li",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኢ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ይ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ይህ",
+        "mms": "li",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-19-3.mp3",
+    "letter": "ኛ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ሚየ",
+        "mms": "nዬ",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ኒያ",
+        "mms": "nዬ",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኘ",
+        "mms": "n",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-19-4.mp3",
+    "letter": "ኜ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ዬ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "jef",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ይን",
+        "mms": "il",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ኤ",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ቴ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ኤ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-19-6.mp3",
+    "letter": "ኞ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ኒግ",
+        "mms": "ni",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "መ",
+        "mms": "le",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ኒ",
+        "mms": "ni",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "መ",
+        "mms": "lo",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ኒግ",
+        "mms": "ni",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "የ",
+        "mms": "le",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-21-0.mp3",
+    "letter": "ጨ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቻ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "fe",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ኢሰ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ተ",
+        "mms": "f",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "fif",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-21-1.mp3",
+    "letter": "ጩ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ቼ",
+        "mms": "ችok",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቾ",
+        "mms": "ች",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ቸው",
+        "mms": "coቡ",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቾ",
+        "mms": "cu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ቸ ው",
+        "mms": "ችok",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቹ",
+        "mms": "ች",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-21-2.mp3",
+    "letter": "ጪ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቼ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ች",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቺ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ች",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቼ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ች",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-21-3.mp3",
+    "letter": "ጫ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ታ",
+        "mms": "c",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ታ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ካ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-21-4.mp3",
+    "letter": "ጬ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቼ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "llfil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቼ",
+        "mms": "cef",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ች",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "llfill",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-21-6.mp3",
+    "letter": "ጮ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ቸ",
+        "mms": "tl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ቸ",
+        "mms": "tr",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቸ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-23-0.mp3",
+    "letter": "ፐ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "lllte",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ከ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "tr",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "c",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "lltel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ከ",
+        "mms": "c",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-23-1.mp3",
+    "letter": "ፑ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ፈ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "llle",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ፈ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "lllte",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ፈ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "llte",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-23-2.mp3",
+    "letter": "ፒ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ፒ",
+        "mms": "t",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ፒ",
+        "mms": "pi",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-23-3.mp3",
+    "letter": "ፓ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "p",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ካ",
+        "mms": "k",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ፈ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ካ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "pa",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ካ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-23-4.mp3",
+    "letter": "ፔ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኬ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ፔ",
+        "mms": "pi",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-23-6.mp3",
+    "letter": "ፖ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ከ",
+        "mms": "ko",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ኰ",
+        "mms": "pu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ከ",
+        "mms": "co",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ፖ",
+        "mms": "po",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-24-0.mp3",
+    "letter": "ጸ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ትራ",
+        "mms": "tret",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ሰ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-24-1.mp3",
+    "letter": "ጹ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.432,
+        "dvoice": "ሰው",
+        "mms": "su",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቶ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.504,
+        "dvoice": "ሰው",
+        "mms": "su",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቾ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ሰው",
+        "mms": "su",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቾ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-24-2.mp3",
+    "letter": "ጺ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ዲ",
+        "mms": "ltlthyltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ድ",
+        "mms": "lthltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "",
+        "mms": "ltrl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ዲ",
+        "mms": "lthlyl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "እ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-24-3.mp3",
+    "letter": "ጻ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ታ",
+        "mms": "lllt",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "lllt",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ታ",
+        "mms": "lllalll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-24-4.mp3",
+    "letter": "ጼ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ይህ",
+        "mms": "il",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤህ",
+        "mms": "lir",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ዬ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ኤህ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ይህ",
+        "mms": "lis",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ይህ",
+        "mms": "llill",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-24-6.mp3",
+    "letter": "ጾ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ሰ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "",
+        "mms": "ltlrhryltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሰን",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሱ",
+        "mms": "lflflrryltlll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ሰን",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "",
+        "mms": "lrhtltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-25-0.mp3",
+    "letter": "ዠ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ፈ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.264,
+        "dvoice": "ተ",
+        "mms": "lllelll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ሸ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "ffl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ፈ",
+        "mms": "f",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተብ",
+        "mms": "ll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-25-1.mp3",
+    "letter": "ዡ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ዴ",
+        "mms": "lell",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.264,
+        "dvoice": "ት",
+        "mms": "ltheltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ዴ",
+        "mms": "lef",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.264,
+        "dvoice": "",
+        "mms": "lthel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ደ",
+        "mms": "lell",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.24,
+        "dvoice": "ት",
+        "mms": "ltheltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-25-2.mp3",
+    "letter": "ዢ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "",
+        "mms": "lrltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ጄ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "",
+        "mms": "lhl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሽ",
+        "mms": "c",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "ltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቼ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-25-3.mp3",
+    "letter": "ዣ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ቼ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ይህ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ቼ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሊ",
+        "mms": "ዬ",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ቼ",
+        "mms": "ce",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ይ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-25-4.mp3",
+    "letter": "ዤ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቼ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቴ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቼ",
+        "mms": "ki",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "e",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኬ",
+        "mms": "tif",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቤ",
+        "mms": "bil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-25-6.mp3",
+    "letter": "ዦ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ጌ",
+        "mms": "it",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሂ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ጌ",
+        "mms": "it",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-26-0.mp3",
+    "letter": "ኸ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ሄ",
+        "mms": "hi",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ቤት",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ሄ",
+        "mms": "hi",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ቤት",
+        "mms": "fill",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ቴ",
+        "mms": "hi",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ቤስ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-26-1.mp3",
+    "letter": "ኹ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ከ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "lrlll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቴ",
+        "mms": "tl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "",
+        "mms": "llrfrlll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ከ",
+        "mms": "ke",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "",
+        "mms": "llfll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-26-2.mp3",
+    "letter": "ኺ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "iy",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "it",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ኤ",
+        "mms": "if",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-26-3.mp3",
+    "letter": "ኻ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ቴ",
+        "mms": "lfel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "llte",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ቴያ",
+        "mms": "fel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ቴር",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ቴ",
+        "mms": "llflfell",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ገ",
+        "mms": "llte",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-26-4.mp3",
+    "letter": "ኼ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ቴ",
+        "mms": "hi",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ፔስ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ሼ",
+        "mms": "hi",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ፌስ",
+        "mms": "ci",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ሂ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ፔስ",
+        "mms": "ti",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-26-6.mp3",
+    "letter": "ኾ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ከስ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "እ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ኦ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ኤ",
+        "mms": "u",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ከ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-27-0.mp3",
+    "letter": "ቨ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "lllelll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ፈ",
+        "mms": "fe",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ዘ",
+        "mms": "lfllell",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ሰ",
+        "mms": "llfel",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "lllhelll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "llfelf",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-27-1.mp3",
+    "letter": "ቩ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.264,
+        "dvoice": "ቢ",
+        "mms": "llryll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ተ",
+        "mms": "le",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.264,
+        "dvoice": "ቪያ",
+        "mms": "llyll",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ደ",
+        "mms": "le",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.24,
+        "dvoice": "ቢ",
+        "mms": "lhyltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ደ",
+        "mms": "le",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-27-2.mp3",
+    "letter": "ቪ",
+    "verdict": "PASS",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቬ",
+        "mms": "bi",
+        "dvoice_ok": true,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ሁሌክ",
+        "mms": "jil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.456,
+        "dvoice": "ቪ",
+        "mms": "v",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-27-3.mp3",
+    "letter": "ቫ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ፊያ",
+        "mms": "fe",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ዲያ",
+        "mms": "je",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ፊያ",
+        "mms": "f",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቲያ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ፊላ",
+        "mms": "fe",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ዲ",
+        "mms": "je",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-27-4.mp3",
+    "letter": "ቬ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቴ",
+        "mms": "ጌi",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "dvoice": "ዪ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ዴ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.48,
+        "dvoice": "ጌ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ቴ",
+        "mms": "li",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ዬ",
+        "mms": "j",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-27-6.mp3",
+    "letter": "ቮ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ኰን",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ከ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኮ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ቀ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ከ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "በ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-28-0.mp3",
+    "letter": "ጰ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ተህ",
+        "mms": "w",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ባ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "አ",
+        "mms": "w",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "ዳ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "w",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ዳህ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-28-1.mp3",
+    "letter": "ጱ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ዴ",
+        "mms": "it",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኢ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኤ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ፌ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ኤ",
+        "mms": "il",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-28-2.mp3",
+    "letter": "ጲ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ዴ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ቆህ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ቤ",
+        "mms": "bi",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ኦ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ዴ",
+        "mms": "lil",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "በ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-28-3.mp3",
+    "letter": "ጳ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ባ",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "አ",
+        "mms": "a",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "ባ",
+        "mms": "a",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "አ",
+        "mms": "a",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ባ",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "አ",
+        "mms": "",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-28-4.mp3",
+    "letter": "ጴ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "",
+        "mms": "llflb",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "lflfthltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ዲ",
+        "mms": "llffrllll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.336,
+        "dvoice": "",
+        "mms": "lflfryl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ዲ",
+        "mms": "lfll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "",
+        "mms": "lthltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-28-6.mp3",
+    "letter": "ጶ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ፌ",
+        "mms": "f",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.312,
+        "dvoice": "ት",
+        "mms": "lthltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ሄ",
+        "mms": "hif",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ት",
+        "mms": "ltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ሂ",
+        "mms": "f",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "ltlthltltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-29-1.mp3",
+    "letter": "ሑ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተት",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-30-1.mp3",
+    "letter": "ኁ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ተ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተ",
+        "mms": "h",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "ተት",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-32-1.mp3",
+    "letter": "ዑ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ቀ",
+        "mms": "b",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ቆ",
+        "mms": "o",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ጤ",
+        "mms": "bu",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ኦ",
+        "mms": "o",
+        "dvoice_ok": true,
+        "mms_ok": true
+      }
+    ],
+    "note": "Withdrawn on review: both models heard 'o', not 'u'. In the vowel row the vowel is the letter, so a consonant match proves nothing."
+  },
+  {
+    "id": "letter-33-0.mp3",
+    "letter": "ፀ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ትራ",
+        "mms": "tret",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ሰ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "te",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ተ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-33-1.mp3",
+    "letter": "ፁ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.432,
+        "dvoice": "ሰው",
+        "mms": "su",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ቶ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.504,
+        "dvoice": "ሰው",
+        "mms": "su",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ቾ",
+        "mms": "tu",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.384,
+        "dvoice": "ሰው",
+        "mms": "su",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ቾ",
+        "mms": "t",
+        "dvoice_ok": false,
+        "mms_ok": true
+      }
+    ]
+  },
+  {
+    "id": "letter-33-2.mp3",
+    "letter": "ፂ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ዲ",
+        "mms": "ltlthyltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.288,
+        "dvoice": "ድ",
+        "mms": "lthltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "",
+        "mms": "ltrl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.312,
+        "dvoice": "",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ዲ",
+        "mms": "lthlyl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.264,
+        "dvoice": "እ",
+        "mms": "l",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-33-3.mp3",
+    "letter": "ፃ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ታ",
+        "mms": "lllt",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.408,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ተ",
+        "mms": "lllt",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "ሳ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ታ",
+        "mms": "lllalll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-33-4.mp3",
+    "letter": "ፄ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ይህ",
+        "mms": "il",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.336,
+        "dvoice": "ኤህ",
+        "mms": "lir",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.384,
+        "dvoice": "ዬ",
+        "mms": "i",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.36,
+        "dvoice": "ኤህ",
+        "mms": "ji",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ይህ",
+        "mms": "lis",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.312,
+        "dvoice": "ይህ",
+        "mms": "llill",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "letter-33-6.mp3",
+    "letter": "ፆ",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "dvoice": "ሰ",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.36,
+        "dvoice": "",
+        "mms": "ltlrhryltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሰን",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.432,
+        "dvoice": "ሱ",
+        "mms": "lflflrryltlll",
+        "dvoice_ok": false,
+        "mms_ok": false
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "+0%",
+        "duration": 0.36,
+        "dvoice": "ሰን",
+        "mms": "s",
+        "dvoice_ok": false,
+        "mms_ok": true
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "+0%",
+        "duration": 0.336,
+        "dvoice": "",
+        "mms": "lrhtltl",
+        "dvoice_ok": false,
+        "mms_ok": false
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_0",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-0.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ዛሬ",
+        "similarity": 1.0,
+        "mms": "zri"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_1",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-1.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.48,
+        "transcription": "ነገ",
+        "similarity": 1.0,
+        "mms": "neጌe"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_2",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-2.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.648,
+        "transcription": "ትናንት",
+        "similarity": 1.0,
+        "mms": "ትናንት"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_3",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-3.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.456,
+        "transcription": "ጠን",
+        "similarity": 0.5,
+        "mms": "ቀn"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_4",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-4.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.696,
+        "transcription": "ሳምንት",
+        "similarity": 1.0,
+        "mms": "ሳምንት"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_5",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-5.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.408,
+        "transcription": "ወር",
+        "similarity": 1.0,
+        "mms": "wr"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_6",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-6.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "አመት",
+        "similarity": 1.0,
+        "mms": "amet"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_7",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-7.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.6,
+        "transcription": "ሳት",
+        "similarity": 0.4,
+        "mms": "st"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "ሳት",
+        "similarity": 0.4,
+        "mms": "sat"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.72,
+        "transcription": "ሳት",
+        "similarity": 0.4,
+        "mms": "sat"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.744,
+        "transcription": "ሰአት",
+        "similarity": 1.0,
+        "mms": "st"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_8",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-8.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.576,
+        "transcription": "ደጊ",
+        "similarity": 0.4,
+        "mms": "tekih"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "ደቂክ",
+        "similarity": 0.6667,
+        "mms": "lekic"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_9",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-9.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "አዋት",
+        "similarity": 0.6667,
+        "mms": "ft"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_10",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-10.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "ቀዝር",
+        "similarity": 0.6667,
+        "mms": "katr"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_11",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-11.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 1.08,
+        "transcription": "ክሳት በኋላ",
+        "similarity": 0.6154,
+        "mms": "ከሳት በኋለ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_12",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-12.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.576,
+        "transcription": "መሽት",
+        "similarity": 0.6667,
+        "mms": "mst"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_13",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-13.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "ሌሊት",
+        "similarity": 1.0,
+        "mms": "lelit"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_14",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-14.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.6,
+        "transcription": "ሰኘ",
+        "similarity": 0.5,
+        "mms": "seno"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_15",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-15.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.744,
+        "transcription": "ማክሰኝ",
+        "similarity": 0.75,
+        "mms": "mxsin"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_16",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-16.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ረቡ",
+        "similarity": 0.8,
+        "mms": "rb"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_17",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-17.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.6,
+        "transcription": "ሀሙስ",
+        "similarity": 1.0,
+        "mms": "halms"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_18",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-18.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "አርብ",
+        "similarity": 1.0,
+        "mms": "አrb"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_19",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-19.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.648,
+        "transcription": "ቅዳሜ",
+        "similarity": 1.0,
+        "mms": "ክዳሜ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_20",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-20.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "እሆል",
+        "similarity": 0.3333,
+        "mms": "እll"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "እሁድ",
+        "similarity": 1.0,
+        "mms": "hd"
+      }
+    ]
+  },
+  {
+    "id": "vocab_time_21",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-time-21.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 1.056,
+        "transcription": "ስኝ ሳት ነው",
+        "similarity": 0.5714,
+        "mms": "sinstno"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_0",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-0.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "ቤት ሰ ም",
+        "similarity": 0.5,
+        "mms": "bitseb"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_1",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-1.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "እናት",
+        "similarity": 1.0,
+        "mms": "እናት"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_2",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-2.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "አባት",
+        "similarity": 1.0,
+        "mms": "abt"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_3",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-3.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.6,
+        "transcription": "ወንድም",
+        "similarity": 1.0,
+        "mms": "ወንድም"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_4",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-4.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "እህት",
+        "similarity": 1.0,
+        "mms": "t"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_5",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-5.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.672,
+        "transcription": "ልጆች",
+        "similarity": 1.0,
+        "mms": "lijolc"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_6",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-6.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.744,
+        "transcription": "ወንድ ልጅ",
+        "similarity": 1.0,
+        "mms": "wantlek"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_7",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-7.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.744,
+        "transcription": "ሴት ልጅ",
+        "similarity": 1.0,
+        "mms": "sitlጅ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_8",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-8.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "አየት",
+        "similarity": 0.6667,
+        "mms": "yt"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_9",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-9.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "አጐስት",
+        "similarity": 0.5714,
+        "mms": "aጉt"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_10",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-10.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "አግስት",
+        "similarity": 0.75,
+        "mms": "akt"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_11",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-11.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.912,
+        "transcription": "የ አ ጐት ልጅ",
+        "similarity": 0.8333,
+        "mms": "የአጎት ልጅ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_12",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-12.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.432,
+        "transcription": "ቋል",
+        "similarity": 0.5,
+        "mms": "bl"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_13",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-13.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ሚስት",
+        "similarity": 1.0,
+        "mms": "mist"
+      }
+    ]
+  },
+  {
+    "id": "vocab_family_14",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-family-14.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.576,
+        "transcription": "ዘመድ",
+        "similarity": 1.0,
+        "mms": "zemel"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_0",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-0.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "ቀለም",
+        "similarity": 1.0,
+        "mms": "ቀለም"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_1",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-1.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.48,
+        "transcription": "ቀይ",
+        "similarity": 1.0,
+        "mms": "ቀai"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_2",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-2.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.696,
+        "transcription": "ሰማያ ዊ",
+        "similarity": 1.0,
+        "mms": "smajwi"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_3",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-3.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.84,
+        "transcription": "አረን ጓዴ",
+        "similarity": 1.0,
+        "mms": "አረንጓዴ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_4",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.48,
+        "transcription": "ቤን ጃ",
+        "similarity": 0.0,
+        "mms": "bit"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.48,
+        "transcription": "ቢሳ",
+        "similarity": 0.5,
+        "mms": "bis"
+      }
+    ],
+    "note": "Withdrawn on review: both models heard 's' for ጫ."
+  },
+  {
+    "id": "vocab_colors_5",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-5.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.912,
+        "transcription": "በልቱ ከናመ",
+        "similarity": 0.3333,
+        "mms": "brtkanam"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.96,
+        "transcription": "በርስቱ ከናማ",
+        "similarity": 0.6154,
+        "mms": "ብርቱ ከናማ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_6",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-6.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.672,
+        "transcription": "ሀ ምራዊ",
+        "similarity": 1.0,
+        "mms": "hmrj"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_7",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-7.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.48,
+        "transcription": "ሮዝ",
+        "similarity": 1.0,
+        "mms": "ros"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_8",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ቡናማ።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.576,
+        "transcription": "ጉና መ",
+        "similarity": 0.3333,
+        "mms": "bunam"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.648,
+        "transcription": "ጉና",
+        "similarity": 0.4,
+        "mms": "ጉn"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.696,
+        "transcription": "ጉና መ",
+        "similarity": 0.3333,
+        "mms": "bnam"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.792,
+        "transcription": "ጐና ዋ",
+        "similarity": 0.3333,
+        "mms": "bllam"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_9",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ጥቁር።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "ች ኮ",
+        "similarity": 0.0,
+        "mms": "tcr"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "ተ ኮር",
+        "similarity": 0.3333,
+        "mms": "tኩr"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.648,
+        "transcription": "ት ኮ",
+        "similarity": 0.0,
+        "mms": "tkr"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.648,
+        "transcription": "ተ ኮር",
+        "similarity": 0.3333,
+        "mms": "tcr"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_10",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-colors-10.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "መጅ",
+        "similarity": 0.0,
+        "mms": "nec"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "ነች",
+        "similarity": 0.5,
+        "mms": "nec"
+      }
+    ]
+  },
+  {
+    "id": "vocab_colors_11",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.576,
+        "transcription": "ግራች",
+        "similarity": 0.6667,
+        "mms": "gras"
+      }
+    ],
+    "note": "Withdrawn on review: MMS heard 's' for ጫ, and the word shares ቢጫ's problem."
+  },
+  {
+    "id": "vocab_directions_0",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-0.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.384,
+        "transcription": "ላይ",
+        "similarity": 1.0,
+        "mms": "li"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_1",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-1.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "ታች",
+        "similarity": 1.0,
+        "mms": "taች"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_2",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-2.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.456,
+        "transcription": "ገራ",
+        "similarity": 0.5,
+        "mms": "ግr"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_3",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.504,
+        "transcription": "ተኝ",
+        "similarity": 0.5,
+        "mms": "cen"
+      }
+    ],
+    "note": "Withdrawn on review: neither model heard ቀ (dvoice ተ, MMS 'c')."
+  },
+  {
+    "id": "vocab_directions_4",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-4.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.432,
+        "transcription": "ፊት",
+        "similarity": 1.0,
+        "mms": "fit"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_5",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-5.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.456,
+        "transcription": "ፋለ",
+        "similarity": 0.0,
+        "mms": "hl"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.456,
+        "transcription": "ኋለ",
+        "similarity": 0.5,
+        "mms": "hl"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_6",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-6.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.72,
+        "transcription": "ቀትታ",
+        "similarity": 0.6667,
+        "mms": "ቀትታ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_7",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ውስጥ።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ዎስት",
+        "similarity": 0.3333,
+        "mms": "bst"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ዎስ",
+        "similarity": 0.4,
+        "mms": "bs"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.624,
+        "transcription": "ዎስት",
+        "similarity": 0.3333,
+        "mms": "st"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.624,
+        "transcription": "ቦስ",
+        "similarity": 0.4,
+        "mms": "bs"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_8",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ውጭ።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ወጅ",
+        "similarity": 0.0,
+        "mms": "bc"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ኦች",
+        "similarity": 0.0,
+        "mms": "uች"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.624,
+        "transcription": "ዎጅ",
+        "similarity": 0.0,
+        "mms": "buc"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.624,
+        "transcription": "ኦች",
+        "similarity": 0.0,
+        "mms": "bች"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_9",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-9.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.672,
+        "transcription": "አጠገም",
+        "similarity": 0.75,
+        "mms": "አጠገብ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_10",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ቅርብ።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "ከረበ",
+        "similarity": 0.0,
+        "mms": "krb"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.456,
+        "transcription": "ከረበ",
+        "similarity": 0.0,
+        "mms": "ቅrb"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.672,
+        "transcription": "ከረ በ",
+        "similarity": 0.0,
+        "mms": "crb"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.528,
+        "transcription": "ከረ",
+        "similarity": 0.0,
+        "mms": "krb"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_11",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ሩቅ።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.432,
+        "transcription": "ሎክ",
+        "similarity": 0.0,
+        "mms": "ruk"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.456,
+        "transcription": "ኖክ",
+        "similarity": 0.0,
+        "mms": "bruk"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.528,
+        "transcription": "ሮግ",
+        "similarity": 0.0,
+        "mms": "rk"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.528,
+        "transcription": "ክ",
+        "similarity": 0.0,
+        "mms": "bruk"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_12",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-12.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.624,
+        "transcription": "ሰሜ ን",
+        "similarity": 1.0,
+        "mms": "smin"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_13",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-13.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.528,
+        "transcription": "ደቡ",
+        "similarity": 0.8,
+        "mms": "tb"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_14",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-14.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.552,
+        "transcription": "ምስራክ",
+        "similarity": 0.75,
+        "mms": "msrk"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_15",
+    "category": "vocab",
+    "verdict": "FAIL",
+    "expected": "ምዕራብ።",
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 0.576,
+        "transcription": "መራ",
+        "similarity": 0.3333,
+        "mms": "merab"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "duration": 0.6,
+        "transcription": "መይ ራ",
+        "similarity": 0.2857,
+        "mms": "mrp"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "duration": 0.696,
+        "transcription": "መራ",
+        "similarity": 0.3333,
+        "mms": "mrb"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "duration": 0.696,
+        "transcription": "መይ ራ",
+        "similarity": 0.2857,
+        "mms": "merap"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_16",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-16.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 1.08,
+        "transcription": "ወደ ግራት ታጠፍ",
+        "similarity": 0.9333,
+        "mms": "ወደ ግራት አጠፍ"
+      }
+    ]
+  },
+  {
+    "id": "vocab_directions_17",
+    "category": "vocab",
+    "verdict": "PASS",
+    "files": [
+      "vocab-directions-17.mp3"
+    ],
+    "attempts": [
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-10%",
+        "duration": 1.08,
+        "transcription": "ወደ ቀኝ ታጠፍ",
+        "similarity": 1.0,
+        "mms": "ወደ ቀኝ ታጠፍ"
+      }
+    ]
+  }
+]
