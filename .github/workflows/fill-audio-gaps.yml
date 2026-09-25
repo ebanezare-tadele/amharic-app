@@ -5,7 +5,12 @@ name: Fill audio gaps (adds clips, never replaces)
 # or removes a clip that's already shipped.
 on:
   workflow_dispatch:
+  # Never on the deploy branch: merging a PR there must not quietly
+  # regenerate audio people have already listened to. Run it on a work
+  # branch (or by hand from the Actions tab) and merge the result.
   push:
+    branches-ignore:
+      - claude/amharic-fidel-vite-migration-h6ibf9
     paths:
       - scripts/fill_audio_gaps.py
       - .github/workflows/fill-audio-gaps.yml
