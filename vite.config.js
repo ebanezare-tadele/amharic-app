@@ -105,10 +105,18 @@ export default defineConfig({
             // everyone refetches from the network at least once. Bump
             // this suffix again (v3, v4, ...) any time already-shipped
             // clips are regenerated/replaced under unchanged filenames.
+            // v3: the Addis AI clips were replaced by edge-tts clips that
+            // pass an Amharic speech-recognition check, same filenames.
+            //
+            // The app fetches each clip whole (src/lib/player.js) and
+            // plays it from a blob, so this sees a plain 200 it can store.
+            // Letting <audio> fetch the URL itself sends Range requests,
+            // whose 206 responses are never cached, so offline never
+            // actually worked that way.
             urlPattern: ({ url }) => url.pathname.includes('/audio/official/') && url.pathname.endsWith('.mp3'),
             handler: 'CacheFirst',
             options: {
-              cacheName: 'official-audio-v2',
+              cacheName: 'official-audio-v3',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] },
             },

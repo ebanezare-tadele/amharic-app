@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ORDERS, FAMS, ARTIC } from "../content.js";
 import { key } from "../state.js";
 import { WORD_FAM } from "../audio.js";
-import { Chant, Voice } from "./AudioWidgets.jsx";
+import { Chant, Voice, HearButton } from "./AudioWidgets.jsx";
 import { Callout } from "./Callout.jsx";
 
 /* ============================================================
@@ -36,8 +36,8 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
 
       {audio && (
         <div className="note" style={{ marginBottom: 14, fontSize: 11.5 }}>
-          Tap any letter to record your own or a relative's pronunciation — it stays on this device and
-          is what makes its ► play button appear.
+          Tap any letter to hear it. Most have a built-in clip; for any letter, you can also record your
+          own or a relative's pronunciation. It stays on this device and plays instead of the built-in one.
           {letterAudioCount > 0 && (
             <span style={{ color: "var(--verd)" }}> {letterAudioCount} letter{letterAudioCount === 1 ? "" : "s"} recorded.</span>
           )}
@@ -100,6 +100,9 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
                       <div className="note">
                         {ORDERS[sel.o].am} · order {sel.o + 1} · {ORDERS[sel.o].say}
                       </div>
+                      <div style={{ marginTop: 6 }}>
+                        <HearButton fam={sel.f} order={sel.o} audio={audio} />
+                      </div>
                     </div>
                   </div>
                   <button onClick={() => setSel(null)} style={{ color: "var(--dim)", fontSize: 18, padding: 4 }}>
@@ -115,12 +118,12 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
                   <div className="note" style={{ marginTop: 6, color: "var(--gold)" }}>{ARTIC[sel.f]}</div>
                 )}
                 <div className="rule" style={{ margin: "12px 0" }} />
-                <Chant fam={sel.f} />
+                <Chant fam={sel.f} audio={audio} />
                 <div className="rule" style={{ margin: "12px 0" }} />
                 <div className="eyebrow" style={{ marginBottom: 6 }}>Your voice</div>
                 <Callout id="cb-voice" seenIntro={seenIntro} onSeen={onSeen}>
-                  Record here — your voice, or a relative's — and it plays back everywhere this letter
-                  shows up.
+                  Record here — your voice, or a relative's — and it plays back everywhere this letter shows
+                  up, ahead of the built-in clip.
                 </Callout>
                 {audio && (
                   <Voice
