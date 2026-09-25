@@ -58,11 +58,21 @@ ATTEMPTS = [(VOICES[0], "-10%"), (VOICES[1], "-10%"), (VOICES[0], "-30%"), (VOIC
 # Trimmed-speech duration bands, seconds. Generous on purpose: they exist
 # to catch a clip that's grossly wrong (empty, or a whole invented
 # sentence), not to police speaking rate.
-BANDS = {"letter": (0.12, 1.6), "anchor": (0.25, 2.8), "phrase": (0.35, 4.5)}
+# The letter floor is low because a sixth-order glyph like ህ is little
+# more than a breath once silence is trimmed.
+BANDS = {"letter": (0.05, 1.6), "anchor": (0.25, 2.8), "phrase": (0.35, 4.5)}
 
 SIMILARITY_THRESHOLD = {"row": 0.5, "anchor": 0.5, "phrase": 0.5}
 
 _STRIP_RE = re.compile(r"[\s፣።፤፥፦፧,.!?]+")
+
+# The "silent twin" families (see FAMS notes in src/content.js): modern
+# Amharic pronounces each exactly like its common counterpart, so an
+# Amharic recognizer rightly writes the common letter (ዓይን heard as
+# አይን). row index of twin -> row index of the letter it sounds like.
+TWINS = {29: 12, 30: 12, 31: 3, 32: 13, 33: 24}
+# Filled in main() from the exported rows: twin glyph -> common glyph.
+HOMOPHONE = {}
 
 
 def log(msg):
@@ -70,7 +80,8 @@ def log(msg):
 
 
 def normalize(text):
-    return _STRIP_RE.sub("", text or "").strip()
+    text = _STRIP_RE.sub("", text or "").strip()
+    return "".join(HOMOPHONE.get(c, c) for c in text)
 
 
 def similarity(a, b):
@@ -194,7 +205,9 @@ async def do_row(row, asr, out_dir, tmp):
         entry = {"voice": voice, "rate": rate, "letters": []}
         ok = True
         for letter, final in zip(row["letters"], finals):
-            dur, err = await make_clip(letter, voice, rate, "letter", final, tmp)
+            # Azure returns no audio at all for some rare twin glyphs
+            # (ኆ, ሢ), so twins are spoken via the letter they sound like.
+            dur, err = await make_clip(HOMOPHONE.get(letter, letter), voice, rate, "letter", final, tmp)
             lr = {"letter": letter, "duration": dur}
             if err:
                 lr["error"] = err
@@ -227,11 +240,14 @@ async def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--texts", type=Path, default=Path("scripts/verification-texts.json"))
     ap.add_argument("--out", type=Path, default=Path("scripts/official-audio-out"))
+    ap.add_argument("--report", type=Path, default=None, help="also write report.json here")
     ap.add_argument("--pilot", type=int, default=None, help="only the first N rows/anchors/phrases")
     args = ap.parse_args()
 
     texts = json.loads(args.texts.read_text())
     rows, anchors, phrases = texts["rows"], texts["anchors"], texts["phrases"]
+    for twin, common in TWINS.items():
+        HOMOPHONE.update(zip(rows[twin]["letters"], rows[common]["letters"]))
     if args.pilot:
         rows, anchors, phrases = rows[: args.pilot], anchors[: args.pilot], phrases[: args.pilot]
 
@@ -253,7 +269,10 @@ async def main():
 
     manifest = sorted(f for r in results if r["verdict"] == "PASS" for f in r["files"])
     (args.out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    (args.out / "report.json").write_text(json.dumps(results, indent=2, ensure_ascii=False) + "\n")
+    report = json.dumps(results, indent=2, ensure_ascii=False) + "\n"
+    (args.out / "report.json").write_text(report)
+    if args.report:
+        args.report.write_text(report)
 
     by_cat = {}
     for r in results:

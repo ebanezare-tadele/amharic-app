@@ -53,6 +53,7 @@ jobs:
         run: |
           python3 scripts/generate_edge_audio.py \
             --out scripts/official-audio-out \
+            --report scripts/edge-audio-report.json \
             ${{ inputs.pilot != '' && inputs.pilot != null && format('--pilot {0}', inputs.pilot) || '' }}
       - uses: actions/upload-artifact@v4
         if: always()
@@ -71,7 +72,7 @@ jobs:
           cp scripts/official-audio-out/manifest.json public/audio/official/manifest.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A public/audio/official
+          git add -A public/audio/official scripts/edge-audio-report.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
