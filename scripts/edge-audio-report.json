@@ -952,8 +952,15 @@
   {
     "id": "row_12",
     "category": "row",
-    "verdict": "FAIL",
-    "expected": "ሀ፣ ሁ፣ ሂ፣ ሃ፣ ሄ፣ ህ፣ ሆ።",
+    "verdict": "PASS",
+    "files": [
+      "letter-12-0.mp3",
+      "letter-12-1.mp3",
+      "letter-12-2.mp3",
+      "letter-12-3.mp3",
+      "letter-12-4.mp3",
+      "letter-12-6.mp3"
+    ],
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -961,23 +968,28 @@
         "letters": [
           {
             "letter": "ሀ",
-            "duration": 0.336
+            "duration": 0.336,
+            "transcription": "ፈ"
           },
           {
             "letter": "ሁ",
-            "duration": 0.288
+            "duration": 0.288,
+            "transcription": "ተ"
           },
           {
             "letter": "ሂ",
-            "duration": 0.336
+            "duration": 0.336,
+            "transcription": "ቴ"
           },
           {
             "letter": "ሃ",
-            "duration": 0.312
+            "duration": 0.312,
+            "transcription": "ተ"
           },
           {
             "letter": "ሄ",
-            "duration": 0.36
+            "duration": 0.36,
+            "transcription": "ሄ"
           },
           {
             "letter": "ህ",
@@ -986,114 +998,12 @@
           },
           {
             "letter": "ሆ",
-            "duration": 0.312
+            "duration": 0.312,
+            "transcription": "ተ"
           }
-        ]
-      },
-      {
-        "voice": "am-ET-AmehaNeural",
-        "rate": "-10%",
-        "letters": [
-          {
-            "letter": "ሀ",
-            "duration": 0.288
-          },
-          {
-            "letter": "ሁ",
-            "duration": 0.288
-          },
-          {
-            "letter": "ሂ",
-            "duration": 0.336
-          },
-          {
-            "letter": "ሃ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ሄ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ህ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ሆ",
-            "duration": 0.312
-          }
-        ]
-      },
-      {
-        "voice": "am-ET-MekdesNeural",
-        "rate": "-30%",
-        "letters": [
-          {
-            "letter": "ሀ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ሁ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ሂ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ሃ",
-            "duration": 0.36
-          },
-          {
-            "letter": "ሄ",
-            "duration": 0.408
-          },
-          {
-            "letter": "ህ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ሆ",
-            "duration": 0.36
-          }
-        ]
-      },
-      {
-        "voice": "am-ET-AmehaNeural",
-        "rate": "-30%",
-        "letters": [
-          {
-            "letter": "ሀ",
-            "duration": 0.336
-          },
-          {
-            "letter": "ሁ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ሂ",
-            "duration": 0.408
-          },
-          {
-            "letter": "ሃ",
-            "duration": 0.36
-          },
-          {
-            "letter": "ሄ",
-            "duration": 0.432
-          },
-          {
-            "letter": "ህ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ሆ",
-            "duration": 0.36
-          }
-        ]
+        ],
+        "transcription": "ሀ ሁ ቺ ሀ ሂ ኮ",
+        "similarity": 0.5
       }
     ]
   },
@@ -3504,8 +3414,15 @@
   {
     "id": "row_29",
     "category": "row",
-    "verdict": "FAIL",
-    "expected": "ሐ፣ ሑ፣ ሒ፣ ሓ፣ ሔ፣ ሕ፣ ሖ።",
+    "verdict": "PASS",
+    "files": [
+      "letter-29-0.mp3",
+      "letter-29-1.mp3",
+      "letter-29-2.mp3",
+      "letter-29-3.mp3",
+      "letter-29-4.mp3",
+      "letter-29-6.mp3"
+    ],
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -3513,23 +3430,28 @@
         "letters": [
           {
             "letter": "ሐ",
-            "duration": 0.336
+            "duration": 0.336,
+            "transcription": "ፈ"
           },
           {
             "letter": "ሑ",
-            "duration": 0.288
+            "duration": 0.288,
+            "transcription": "ተ"
           },
           {
             "letter": "ሒ",
-            "duration": 0.336
+            "duration": 0.336,
+            "transcription": "ቴ"
           },
           {
             "letter": "ሓ",
-            "duration": 0.312
+            "duration": 0.312,
+            "transcription": "ተ"
           },
           {
             "letter": "ሔ",
-            "duration": 0.36
+            "duration": 0.36,
+            "transcription": "ሄ"
           },
           {
             "letter": "ሕ",
@@ -3538,122 +3460,27 @@
           },
           {
             "letter": "ሖ",
-            "duration": 0.312
+            "duration": 0.312,
+            "transcription": "ተ"
           }
-        ]
-      },
-      {
-        "voice": "am-ET-AmehaNeural",
-        "rate": "-10%",
-        "letters": [
-          {
-            "letter": "ሐ",
-            "duration": 0.288
-          },
-          {
-            "letter": "ሑ",
-            "duration": 0.288
-          },
-          {
-            "letter": "ሒ",
-            "duration": 0.336
-          },
-          {
-            "letter": "ሓ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ሔ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ሕ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ሖ",
-            "duration": 0.312
-          }
-        ]
-      },
-      {
-        "voice": "am-ET-MekdesNeural",
-        "rate": "-30%",
-        "letters": [
-          {
-            "letter": "ሐ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ሑ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ሒ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ሓ",
-            "duration": 0.36
-          },
-          {
-            "letter": "ሔ",
-            "duration": 0.408
-          },
-          {
-            "letter": "ሕ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ሖ",
-            "duration": 0.36
-          }
-        ]
-      },
-      {
-        "voice": "am-ET-AmehaNeural",
-        "rate": "-30%",
-        "letters": [
-          {
-            "letter": "ሐ",
-            "duration": 0.336
-          },
-          {
-            "letter": "ሑ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ሒ",
-            "duration": 0.408
-          },
-          {
-            "letter": "ሓ",
-            "duration": 0.36
-          },
-          {
-            "letter": "ሔ",
-            "duration": 0.432
-          },
-          {
-            "letter": "ሕ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ሖ",
-            "duration": 0.36
-          }
-        ]
+        ],
+        "transcription": "ሀ ሁ ቺ ሀ ሂ ኮ",
+        "similarity": 0.5
       }
     ]
   },
   {
     "id": "row_30",
     "category": "row",
-    "verdict": "FAIL",
-    "expected": "ኀ፣ ኁ፣ ኂ፣ ኃ፣ ኄ፣ ኅ፣ ኆ።",
+    "verdict": "PASS",
+    "files": [
+      "letter-30-0.mp3",
+      "letter-30-1.mp3",
+      "letter-30-2.mp3",
+      "letter-30-3.mp3",
+      "letter-30-4.mp3",
+      "letter-30-6.mp3"
+    ],
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -3661,23 +3488,28 @@
         "letters": [
           {
             "letter": "ኀ",
-            "duration": 0.336
+            "duration": 0.336,
+            "transcription": "ፈ"
           },
           {
             "letter": "ኁ",
-            "duration": 0.288
+            "duration": 0.288,
+            "transcription": "ተ"
           },
           {
             "letter": "ኂ",
-            "duration": 0.336
+            "duration": 0.336,
+            "transcription": "ቴ"
           },
           {
             "letter": "ኃ",
-            "duration": 0.312
+            "duration": 0.312,
+            "transcription": "ተ"
           },
           {
             "letter": "ኄ",
-            "duration": 0.36
+            "duration": 0.36,
+            "transcription": "ሄ"
           },
           {
             "letter": "ኅ",
@@ -3686,114 +3518,12 @@
           },
           {
             "letter": "ኆ",
-            "duration": 0.312
+            "duration": 0.312,
+            "transcription": "ተ"
           }
-        ]
-      },
-      {
-        "voice": "am-ET-AmehaNeural",
-        "rate": "-10%",
-        "letters": [
-          {
-            "letter": "ኀ",
-            "duration": 0.288
-          },
-          {
-            "letter": "ኁ",
-            "duration": 0.288
-          },
-          {
-            "letter": "ኂ",
-            "duration": 0.336
-          },
-          {
-            "letter": "ኃ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ኄ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ኅ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ኆ",
-            "duration": 0.312
-          }
-        ]
-      },
-      {
-        "voice": "am-ET-MekdesNeural",
-        "rate": "-30%",
-        "letters": [
-          {
-            "letter": "ኀ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ኁ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ኂ",
-            "duration": 0.384
-          },
-          {
-            "letter": "ኃ",
-            "duration": 0.36
-          },
-          {
-            "letter": "ኄ",
-            "duration": 0.408
-          },
-          {
-            "letter": "ኅ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ኆ",
-            "duration": 0.36
-          }
-        ]
-      },
-      {
-        "voice": "am-ET-AmehaNeural",
-        "rate": "-30%",
-        "letters": [
-          {
-            "letter": "ኀ",
-            "duration": 0.336
-          },
-          {
-            "letter": "ኁ",
-            "duration": 0.312
-          },
-          {
-            "letter": "ኂ",
-            "duration": 0.408
-          },
-          {
-            "letter": "ኃ",
-            "duration": 0.36
-          },
-          {
-            "letter": "ኄ",
-            "duration": 0.432
-          },
-          {
-            "letter": "ኅ",
-            "duration": null,
-            "error": "duration Nones outside 0.05-1.6s"
-          },
-          {
-            "letter": "ኆ",
-            "duration": 0.36
-          }
-        ]
+        ],
+        "transcription": "ሀ ሁ ቺ ሀ ሂ ኮ",
+        "similarity": 0.5
       }
     ]
   },
@@ -4760,9 +4490,9 @@
       {
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
-        "duration": 1.008,
-        "transcription": "ቄን ይ ስትል ኝ",
-        "similarity": 0.5714
+        "duration": 0.984,
+        "transcription": "ቄናይ ስትል ኝ",
+        "similarity": 0.7143
       }
     ]
   },
@@ -4794,7 +4524,7 @@
       {
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
-        "duration": 1.056,
+        "duration": 1.032,
         "transcription": "እንደምን አደ ሽ",
         "similarity": 0.9412
       }
@@ -4863,7 +4593,7 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 0.984,
-        "transcription": "አመሰ ግ ን አለ ሁ",
+        "transcription": "አመሰ ግን አለ ሁ",
         "similarity": 0.8
       }
     ]
@@ -4931,8 +4661,8 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 0.84,
-        "transcription": "አይገባ ኝ",
-        "similarity": 0.9091
+        "transcription": "አይገባ ኝም",
+        "similarity": 1.0
       }
     ]
   },
@@ -4965,8 +4695,8 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 1.056,
-        "transcription": "ውሀ ፈ ልጋ ለሁ",
-        "similarity": 0.8
+        "transcription": "ውሀ ፍ ልጋ ለሁ",
+        "similarity": 0.6667
       }
     ]
   }
