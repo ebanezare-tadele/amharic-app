@@ -667,14 +667,7 @@
   {
     "id": "row_8",
     "category": "row",
-    "verdict": "PASS",
-    "files": [
-      "letter-8-0.mp3",
-      "letter-8-1.mp3",
-      "letter-8-3.mp3",
-      "letter-8-5.mp3",
-      "letter-8-6.mp3"
-    ],
+    "verdict": "FAIL",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -944,20 +937,14 @@
           "ዌ"
         ]
       }
-    ]
+    ],
+    "expected": "ወ፣ ዉ፣ ዊ፣ ዋ፣ ዌ፣ ው፣ ዎ።",
+    "note": "Withdrawn after the run: passed only because MMS vowels (o/e/i) were counted as w/y; dvoice heard no glide."
   },
   {
     "id": "row_9",
     "category": "row",
-    "verdict": "PASS",
-    "files": [
-      "letter-9-0.mp3",
-      "letter-9-1.mp3",
-      "letter-9-2.mp3",
-      "letter-9-3.mp3",
-      "letter-9-5.mp3",
-      "letter-9-6.mp3"
-    ],
+    "verdict": "FAIL",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -1160,7 +1147,9 @@
           "ዬ"
         ]
       }
-    ]
+    ],
+    "expected": "የ፣ ዩ፣ ዪ፣ ያ፣ ዬ፣ ይ፣ ዮ።",
+    "note": "Withdrawn after the run: passed only because MMS vowels (o/e/i) were counted as w/y; dvoice heard no glide."
   },
   {
     "id": "row_10",

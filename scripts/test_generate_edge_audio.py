@@ -25,6 +25,8 @@ CASES = [
     ("ዔ", "e", True), ("ዓ", "l", False),
     ("ጸ", "ts", True), ("ፀ", "ሱ", False),
     ("ለ", None, False), ("ለ", "", False),
+    ("ው", "o", False), ("ዊ", "li", False), ("ዋ", "w", True),  # w needs a real w
+    ("ይ", "i", False), ("ዩ", "yy", True),  # y needs a real y
 ]
 failures = [(l, h, exp) for l, h, exp in CASES if g.consonant_match(l, h) != exp]
 

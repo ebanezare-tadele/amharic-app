@@ -85,7 +85,9 @@ FAMILY = {}
 # habits: ሸ comes out as "s", ከ often as "c". Filled in main() from each
 # row's romanized consonant.
 LATIN = {}
-LATIN_FOR = {"k": "kc", "w": "wuo", "y": "yi", "'": "aeiouä", "q": "qk", "t'": "t", "sh": "s", "ch": "c",
+# w and y must be heard as w/y: accepting a bare "u"/"o"/"i" let the ወ
+# and የ rows through on vowels alone while dvoice heard no glide at all.
+LATIN_FOR = {"k": "kc", "'": "aeiouä", "q": "qk", "t'": "t", "sh": "s", "ch": "c",
              "ch'": "c", "ny": "n", "ts'": "ts", "zh": "zj", "kh": "hk", "p'": "p"}
 
 
