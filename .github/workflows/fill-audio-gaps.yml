@@ -1,0 +1,60 @@
+name: Fill audio gaps (adds clips, never replaces)
+
+# Tries the letters and words that have no built-in clip yet, and adds
+# only those that pass -- see scripts/fill_audio_gaps.py. Never changes
+# or removes a clip that's already shipped.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/fill_audio_gaps.py
+      - .github/workflows/fill-audio-gaps.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fill-audio-gaps-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      # Same pins as generate-edge-audio.yml.
+      - name: Install edge-tts + speechbrain + torch (CPU)
+        run: pip install --quiet edge-tts "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch "torchaudio<2.9" --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - name: Export the exact texts every clip is supposed to say
+        run: node scripts/export-verification-texts.mjs
+      - name: Test the scoring helpers
+        run: python3 scripts/test_generate_edge_audio.py
+      - name: Fill gaps
+        run: python3 scripts/fill_audio_gaps.py
+      - name: Commit added clips
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Guard the promise above: no already-shipped clip may change.
+          if git diff --name-only --diff-filter=MD -- public/audio/official | grep '\.mp3$'; then
+            echo "An existing clip was modified or removed -- refusing to commit."
+            exit 1
+          fi
+          git add -A public/audio/official scripts/gap-fill-report.json
+          if git diff --cached --quiet; then
+            echo "Nothing new passed."
+            exit 0
+          fi
+          ADDED=$(git diff --cached --name-only --diff-filter=A -- public/audio/official | grep -c '\.mp3$' || true)
+          git commit -m "Fill audio gaps: add $ADDED clips that passed both recognizers"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
