@@ -1,0 +1,37 @@
+name: Verify audio content (MMS, second opinion)
+
+# Independent cross-check of the shipped clips with facebook/mms-1b-all's
+# Amharic adapter -- see scripts/verify_audio_mms.py. Read-only: writes a
+# report, changes nothing.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/verify_audio_mms.py
+      - .github/workflows/verify-audio-mms.yml
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install transformers + torch (CPU)
+        run: pip install --quiet transformers torch numpy --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - name: Export the exact texts every clip is supposed to say
+        run: node scripts/export-verification-texts.mjs
+      - name: Transcribe every shipped clip with MMS
+        run: python3 scripts/verify_audio_mms.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audio-verification-report-mms
+          path: scripts/verification-report-mms.json
+          retention-days: 14
