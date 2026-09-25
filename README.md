@@ -359,16 +359,27 @@ before it ships:
    The transcript must be similar enough to the expected text. Words
    and phrases are checked one at a time. A lone syllable is too little
    signal for any ASR model, so each letter row is checked as its seven
-   clips joined with short pauses. The row also has to pass a second check: heard one at
-   a time, at least half its letters must come back with the right
-   consonant. A lone syllable is too noisy for vowels to count, but
-   this stops a row that barely clears the joined-row bar while its
-   letters are heard as other consonants.
+   clips joined with short pauses, and must also have at least half its
+   letters, heard one at a time, come back with the right consonant.
+   [facebook/mms-1b-all](https://huggingface.co/facebook/mms-1b-all)'s
+   Amharic adapter gives a second opinion from a different team and
+   training set: a row also qualifies if MMS hears the right consonant
+   in at least two thirds of its letters. Either way, each letter must
+   then be heard with its own consonant by at least one of the two
+   models, or it's left out. (The sixth order, a bare consonant, is too
+   short for either model to read alone, so it ships with its row.)
 
 A unit that fails is retried with the other voice, then more slowly. If
 it never passes, it's left out of `manifest.json`, and the app never
 offers it. The per-unit transcripts, similarity scores and attempts are
 in `report.json` in the run's `amharic-audio-edge` artifact.
+
+Clips are fetched whole and played from memory through one shared
+audio element (`src/lib/player.js`). That keeps playback working on
+iPhone (Safari only lets an element start inside a tap, per element),
+means a new sound always stops the previous one, and lets the service
+worker cache each clip for offline use (see the `official-audio-v3`
+rule in `vite.config.js`).
 
 The workflow commits whatever passed straight into
 `public/audio/official/`. It runs on **Actions → Generate official audio

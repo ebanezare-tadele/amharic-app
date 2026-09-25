@@ -36,6 +36,9 @@ describe("official-audio cache versioning", () => {
     const name = extractCacheName(/audio\/official\/.*\.mp3/);
     expect(name).not.toBeNull();
     expect(name).not.toBe("official-audio");
+    // v2 held the Addis AI clips that later failed the Amharic ASR check
+    // and were replaced by edge-tts clips under the same filenames.
+    expect(name).not.toBe("official-audio-v2");
   });
 
   it("the official-audio mp3 cache name is versioned (ends in -vN)", () => {

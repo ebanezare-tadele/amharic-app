@@ -80,6 +80,13 @@ TWINS = {29: 12, 30: 12, 31: 3, 32: 13, 33: 24}
 # they sound like).
 HOMOPHONE = {}
 FAMILY = {}
+# family -> leading Latin letters that count as its consonant. MMS (below)
+# mostly writes Amharic in Latin letters ("slam" for ሰላም), with its own
+# habits: ሸ comes out as "s", ከ often as "c". Filled in main() from each
+# row's romanized consonant.
+LATIN = {}
+LATIN_FOR = {"k": "kc", "w": "wuo", "y": "yi", "'": "aeiouä", "q": "qk", "t'": "t", "sh": "s", "ch": "c",
+             "ch'": "c", "ny": "n", "ts'": "ts", "zh": "zj", "kh": "hk", "p'": "p"}
 
 
 def log(msg):
@@ -93,6 +100,33 @@ def normalize(text):
 
 def similarity(a, b):
     return difflib.SequenceMatcher(None, normalize(a), normalize(b)).ratio()
+
+
+def load_tables(rows):
+    """Fill HOMOPHONE, FAMILY and LATIN from the exported rows."""
+    for twin, common in TWINS.items():
+        HOMOPHONE.update(zip(rows[twin]["letters"], rows[common]["letters"]))
+    # Within the አ row, first and fourth order are the same sound ("a").
+    for k, v in list(HOMOPHONE.items()):
+        if v == "ኣ":
+            HOMOPHONE[k] = "አ"
+    HOMOPHONE["ኣ"] = "አ"
+    for i, row in enumerate(rows):
+        for c in row["letters"]:
+            FAMILY[c] = TWINS.get(i, i)
+        if i not in TWINS:
+            LATIN[i] = LATIN_FOR.get(row["consonant"], row["consonant"])
+
+
+def consonant_match(letter, heard):
+    """Did an ASR transcript of one letter's clip get its consonant right?"""
+    fam = FAMILY.get(letter)
+    if not heard or fam is None:
+        return False
+    if any(FAMILY.get(c) == fam for c in heard):
+        return True
+    latin = next((c for c in heard.lower() if "a" <= c <= "z" or c == "ä"), None)
+    return latin is not None and latin in LATIN.get(fam, "")
 
 
 def run(cmd):
@@ -137,6 +171,37 @@ def join_with_pauses(srcs, dst, pause=0.35):
     labels = "".join(f"[a{i}]" for i in range(len(srcs)))
     args += ["-filter_complex", f"{chains}{labels}concat=n={len(srcs)}:v=0:a=1[out]", "-map", "[out]", str(dst)]
     return run(args).returncode == 0
+
+
+class MmsAsr:
+    """facebook/mms-1b-all with its Amharic adapter: a second recognizer from
+    a different team, architecture and training set than dvoice-amharic."""
+
+    def __init__(self, source="facebook/mms-1b-all", lang="amh"):
+        import torch
+        from transformers import AutoProcessor, Wav2Vec2ForCTC
+
+        log(f"Loading {source} ({lang} adapter)...")
+        self.torch = torch
+        self.processor = AutoProcessor.from_pretrained(source, target_lang=lang)
+        self.model = Wav2Vec2ForCTC.from_pretrained(source, target_lang=lang, ignore_mismatched_sizes=True)
+        self.model.eval()
+
+    def transcribe(self, audio_path, tmp):
+        import numpy as np
+
+        raw = tmp / (audio_path.stem + ".mms.f32")
+        if run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(audio_path), "-ac", "1", "-ar", "16000",
+                "-f", "f32le", str(raw)]).returncode != 0:
+            return None
+        audio = np.fromfile(raw, dtype=np.float32)
+        # A lone syllable gets a little silence either side; CTC models do
+        # poorly with no context frames at all.
+        audio = np.concatenate([np.zeros(4000, np.float32), audio, np.zeros(4000, np.float32)])
+        inputs = self.processor(audio, sampling_rate=16000, return_tensors="pt")
+        with self.torch.no_grad():
+            logits = self.model(**inputs).logits
+        return self.processor.decode(self.torch.argmax(logits, dim=-1)[0]).strip()
 
 
 async def synthesize(text, voice, rate, out_path):
@@ -185,7 +250,7 @@ async def make_clip(text, voice, rate, category, final_path, tmp):
     return dur, None
 
 
-async def do_word(unit, category, asr, out_dir, tmp):
+async def do_word(unit, category, asr, mms, out_dir, tmp):
     final = out_dir / unit["file"]
     tried = []
     for voice, rate in ATTEMPTS:
@@ -197,7 +262,9 @@ async def do_word(unit, category, asr, out_dir, tmp):
             continue
         heard = asr.transcribe(final, tmp)
         sim = similarity(heard, unit["text"])
-        entry.update({"transcription": heard, "similarity": round(sim, 4)})
+        # Recorded for review only: MMS mostly writes Latin letters, so it
+        # can't be scored against the Amharic text directly.
+        entry.update({"transcription": heard, "similarity": round(sim, 4), "mms": mms.transcribe(final, tmp)})
         tried.append(entry)
         if sim >= SIMILARITY_THRESHOLD[category]:
             return {"id": unit["id"], "category": category, "verdict": "PASS", "files": [unit["file"]], "attempts": tried}
@@ -205,7 +272,7 @@ async def do_word(unit, category, asr, out_dir, tmp):
     return {"id": unit["id"], "category": category, "verdict": "FAIL", "expected": unit["text"], "attempts": tried}
 
 
-async def do_row(row, asr, out_dir, tmp):
+async def do_row(row, asr, mms, out_dir, tmp):
     finals = [out_dir / f for f in row["letterFiles"]]
     tried = []
     for voice, rate in ATTEMPTS:
@@ -231,7 +298,11 @@ async def do_row(row, asr, out_dir, tmp):
         # report; the pass/fail decision is on the joined row.
         for lr in entry["letters"]:
             if "error" not in lr:
-                lr["transcription"] = asr.transcribe(finals[row["letters"].index(lr["letter"])], tmp)
+                clip = finals[row["letters"].index(lr["letter"])]
+                lr["transcription"] = asr.transcribe(clip, tmp)
+                lr["mms"] = mms.transcribe(clip, tmp)
+                lr["dvoice_ok"] = consonant_match(lr["letter"], lr["transcription"])
+                lr["mms_ok"] = consonant_match(lr["letter"], lr["mms"])
         joined = tmp / f"{row['id']}.joined.wav"
         if not join_with_pauses([f for _, f in good], joined):
             entry["error"] = "ffmpeg join failed"
@@ -240,22 +311,38 @@ async def do_row(row, asr, out_dir, tmp):
         expected = "፣ ".join(l for l, _ in good) + "።"
         heard = asr.transcribe(joined, tmp)
         sim = similarity(heard, expected)
-        # Second, independent signal: heard alone, at least half the
-        # letters must come back with the right consonant. A lone
-        # syllable is noisy for ASR (vowels especially), so this checks
-        # only the consonant, but it stops a row that scrapes past the
-        # joined-row bar while its letters are heard as other consonants.
-        heard_letters = [lr for lr in entry["letters"] if lr.get("transcription")]
-        consonant_hits = sum(
-            any(FAMILY.get(c) == FAMILY.get(lr["letter"]) for c in lr["transcription"]) for lr in heard_letters
-        )
-        consonant_ok = consonant_hits * 2 >= len(heard_letters) > 0
+        # The row as a whole must be recognizably right, by either model:
+        #  - dvoice: the joined row reads close to the expected text, and
+        #    at least half the letters, heard alone, have the right
+        #    consonant (stops a row scraping past the joined-row bar while
+        #    its letters are heard as other consonants);
+        #  - or MMS: at least two thirds of the letters, heard alone, have
+        #    the right consonant. (MMS writes mostly Latin letters, so a
+        #    joined-row text comparison doesn't apply to it.)
+        heard_dv = [lr for lr in entry["letters"] if lr.get("transcription")]
+        heard_mms = [lr for lr in entry["letters"] if lr.get("mms")]
+        dv_hits = sum(lr["dvoice_ok"] for lr in heard_dv)
+        mms_hits = sum(lr["mms_ok"] for lr in heard_mms)
+        dvoice_row = sim >= SIMILARITY_THRESHOLD["row"] and dv_hits * 2 >= len(heard_dv) > 0
+        mms_row = mms_hits * 3 >= 2 * len(heard_mms) > 0
         entry.update({"transcription": heard, "similarity": round(sim, 4),
-                      "consonant_hits": f"{consonant_hits}/{len(heard_letters)}"})
+                      "consonant_hits": f"{dv_hits}/{len(heard_dv)}", "mms_consonant_hits": f"{mms_hits}/{len(heard_mms)}"})
         tried.append(entry)
-        if sim >= SIMILARITY_THRESHOLD["row"] and consonant_ok:
-            files = [f.name for _, f in good]
-            return {"id": row["id"], "category": "row", "verdict": "PASS", "files": files, "attempts": tried}
+        if dvoice_row or mms_row:
+            # Then each letter must be confirmed on its own clip by at
+            # least one model; one both models hear as a different
+            # consonant stays out. The sixth order (a bare consonant, or
+            # a very short ɨ) is exempt: neither model can read it alone,
+            # so it ships on the strength of its row.
+            ship, dropped = [], []
+            for lr, (letter, f) in zip([lr for lr in entry["letters"] if "error" not in lr], good):
+                if row["letters"].index(letter) == 5 or lr["dvoice_ok"] or lr["mms_ok"]:
+                    ship.append(f.name)
+                else:
+                    dropped.append(letter)
+                    f.unlink(missing_ok=True)
+            entry["dropped"] = dropped
+            return {"id": row["id"], "category": "row", "verdict": "PASS", "files": ship, "attempts": tried}
     for f in finals:
         f.unlink(missing_ok=True)
     return {"id": row["id"], "category": "row", "verdict": "FAIL", "expected": row["text"], "attempts": tried}
@@ -271,26 +358,29 @@ async def main():
 
     texts = json.loads(args.texts.read_text())
     rows, anchors, phrases = texts["rows"], texts["anchors"], texts["phrases"]
-    for twin, common in TWINS.items():
-        HOMOPHONE.update(zip(rows[twin]["letters"], rows[common]["letters"]))
-    for i, row in enumerate(rows):
-        for c in row["letters"]:
-            FAMILY[c] = TWINS.get(i, i)
+    load_tables(rows)
     if args.pilot:
         rows, anchors, phrases = rows[: args.pilot], anchors[: args.pilot], phrases[: args.pilot]
 
     args.out.mkdir(parents=True, exist_ok=True)
     asr = Asr()
+    mms = MmsAsr()
     results = []
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         for row in rows:
-            r = await do_row(row, asr, args.out, tmp)
+            r = await do_row(row, asr, mms, args.out, tmp)
             last = r["attempts"][-1] if r["attempts"] else {}
-            log(f"[{row['id']}] {r['verdict']} expected {row['text']!r} heard {last.get('transcription')!r} sim={last.get('similarity')} ({len(r['attempts'])} attempt(s))")
+            log(f"[{row['id']}] {r['verdict']} expected {row['text']!r} heard {last.get('transcription')!r} "
+                f"sim={last.get('similarity')} dvoice-consonants={last.get('consonant_hits')} "
+                f"mms-consonants={last.get('mms_consonant_hits')} dropped={last.get('dropped', [])} "
+                f"({len(r['attempts'])} attempt(s))")
+            for lr in last.get("letters", []):
+                log(f"    {lr['letter']}: dvoice {lr.get('transcription')!r}{'✓' if lr.get('dvoice_ok') else ''} "
+                    f"mms {lr.get('mms')!r}{'✓' if lr.get('mms_ok') else ''} {lr.get('error', '')}")
             results.append(r)
         for unit, category in [(a, "anchor") for a in anchors] + [(p, "phrase") for p in phrases]:
-            r = await do_word(unit, category, asr, args.out, tmp)
+            r = await do_word(unit, category, asr, mms, args.out, tmp)
             last = r["attempts"][-1] if r["attempts"] else {}
             log(f"[{unit['id']}] {r['verdict']} expected {unit['text']!r} heard {last.get('transcription')!r} sim={last.get('similarity')} ({len(r['attempts'])} attempt(s))")
             results.append(r)

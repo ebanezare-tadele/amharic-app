@@ -21,6 +21,7 @@ on:
   push:
     paths:
       - scripts/generate_edge_audio.py
+      - scripts/test_generate_edge_audio.py
       - .github/workflows/generate-edge-audio.yml
 
 permissions:
@@ -49,6 +50,8 @@ jobs:
         run: pip install --quiet edge-tts "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch "torchaudio<2.9" --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
       - name: Export the exact texts every clip is supposed to say
         run: node scripts/export-verification-texts.mjs
+      - name: Test the scoring helpers
+        run: python3 scripts/test_generate_edge_audio.py
       - name: Generate + verify
         run: |
           python3 scripts/generate_edge_audio.py \

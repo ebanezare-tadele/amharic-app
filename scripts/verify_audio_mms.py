@@ -28,39 +28,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 import generate_edge_audio as g  # noqa: E402  (shared normalize/similarity/ffmpeg helpers)
 
 
-class MmsAsr:
-    def __init__(self, source="facebook/mms-1b-all", lang="amh"):
-        import torch
-        from transformers import AutoProcessor, Wav2Vec2ForCTC
-
-        g.log(f"Loading {source} ({lang} adapter)...")
-        self.torch = torch
-        self.processor = AutoProcessor.from_pretrained(source, target_lang=lang)
-        self.model = Wav2Vec2ForCTC.from_pretrained(source, target_lang=lang, ignore_mismatched_sizes=True)
-        self.model.eval()
-
-    def transcribe(self, audio_path, tmp):
-        import numpy as np
-
-        raw = tmp / (audio_path.stem + ".mms.f32")
-        r = g.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(audio_path), "-ac", "1", "-ar", "16000",
-                   "-f", "f32le", str(raw)])
-        if r.returncode != 0:
-            return None
-        audio = np.fromfile(raw, dtype=np.float32)
-        # Very short clips (a single syllable) get a little silence either
-        # side; CTC models do poorly with no context frames at all.
-        audio = np.concatenate([np.zeros(4000, np.float32), audio, np.zeros(4000, np.float32)])
-        inputs = self.processor(audio, sampling_rate=16000, return_tensors="pt")
-        with self.torch.no_grad():
-            logits = self.model(**inputs).logits
-        ids = self.torch.argmax(logits, dim=-1)[0]
-        return self.processor.decode(ids).strip()
-
-
 def consonant_hits(letters, transcripts):
     heard = [(l, t) for l, t in zip(letters, transcripts) if t]
-    hits = sum(any(g.FAMILY.get(c) == g.FAMILY.get(l) for c in t) for l, t in heard)
+    hits = sum(g.consonant_match(l, t) for l, t in heard)
     return hits, len(heard)
 
 
@@ -73,14 +43,10 @@ def main():
 
     texts = json.loads(args.texts.read_text())
     rows = texts["rows"]
-    for twin, common in g.TWINS.items():
-        g.HOMOPHONE.update(zip(rows[twin]["letters"], rows[common]["letters"]))
-    for i, row in enumerate(rows):
-        for c in row["letters"]:
-            g.FAMILY[c] = g.TWINS.get(i, i)
+    g.load_tables(rows)
 
     shipped = set(json.loads((args.clips_dir / "manifest.json").read_text()))
-    asr = MmsAsr()
+    asr = g.MmsAsr()
     results = []
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
