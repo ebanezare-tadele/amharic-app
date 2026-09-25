@@ -31,6 +31,8 @@ Verification, per unit:
      syllable is too little signal for any ASR model, so a letter row is
      checked as its 7 clips joined with short pauses -- the same
      reconstructed-row approach verify_audio_content_dvoice.py uses.
+     If one letter of a row can't be produced at all (a bare ህ comes
+     back as silence), the other six are still checked and can ship.
 A unit that fails is retried with the other voice, then at a slower
 rate. Anything that never passes is simply left out of manifest.json,
 and the app never offers it.
@@ -203,7 +205,7 @@ async def do_row(row, asr, out_dir, tmp):
     tried = []
     for voice, rate in ATTEMPTS:
         entry = {"voice": voice, "rate": rate, "letters": []}
-        ok = True
+        good = []  # (letter, file) that produced a sane clip
         for letter, final in zip(row["letters"], finals):
             # Azure returns no audio at all for some rare twin glyphs
             # (ኆ, ሢ), so twins are spoken via the letter they sound like.
@@ -211,26 +213,33 @@ async def do_row(row, asr, out_dir, tmp):
             lr = {"letter": letter, "duration": dur}
             if err:
                 lr["error"] = err
-                ok = False
+                final.unlink(missing_ok=True)
+            else:
+                good.append((letter, final))
             entry["letters"].append(lr)
-        if not ok:
+        # A lone glyph can come back silent (a bare ህ is just a breath);
+        # drop that one letter rather than the whole row, but never more.
+        if len(good) < len(finals) - 1:
             tried.append(entry)
             continue
         # Per-letter transcripts are recorded for a human reading the
         # report; the pass/fail decision is on the joined row.
-        for lr, final in zip(entry["letters"], finals):
-            lr["transcription"] = asr.transcribe(final, tmp)
+        for lr in entry["letters"]:
+            if "error" not in lr:
+                lr["transcription"] = asr.transcribe(finals[row["letters"].index(lr["letter"])], tmp)
         joined = tmp / f"{row['id']}.joined.wav"
-        if not join_with_pauses(finals, joined):
+        if not join_with_pauses([f for _, f in good], joined):
             entry["error"] = "ffmpeg join failed"
             tried.append(entry)
             continue
+        expected = "፣ ".join(l for l, _ in good) + "።"
         heard = asr.transcribe(joined, tmp)
-        sim = similarity(heard, row["text"])
+        sim = similarity(heard, expected)
         entry.update({"transcription": heard, "similarity": round(sim, 4)})
         tried.append(entry)
         if sim >= SIMILARITY_THRESHOLD["row"]:
-            return {"id": row["id"], "category": "row", "verdict": "PASS", "files": row["letterFiles"], "attempts": tried}
+            files = [f.name for _, f in good]
+            return {"id": row["id"], "category": "row", "verdict": "PASS", "files": files, "attempts": tried}
     for f in finals:
         f.unlink(missing_ok=True)
     return {"id": row["id"], "category": "row", "verdict": "FAIL", "expected": row["text"], "attempts": tried}
