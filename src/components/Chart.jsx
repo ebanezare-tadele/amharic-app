@@ -36,8 +36,8 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
 
       {audio && (
         <div className="note" style={{ marginBottom: 14, fontSize: 11.5 }}>
-          Tap any letter (or an anchor word/phrase further down) to record your own or a relative's
-          pronunciation — it stays on this device and is what makes its "hear it" button appear.
+          Tap any letter to hear it. Most have a built-in clip; for any letter, you can also record your
+          own or a relative's pronunciation. It stays on this device and plays instead of the built-in one.
           {letterAudioCount > 0 && (
             <span style={{ color: "var(--verd)" }}> {letterAudioCount} letter{letterAudioCount === 1 ? "" : "s"} recorded.</span>
           )}
@@ -100,6 +100,9 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
                       <div className="note">
                         {ORDERS[sel.o].am} · order {sel.o + 1} · {ORDERS[sel.o].say}
                       </div>
+                      <div style={{ marginTop: 6 }}>
+                        <HearButton fam={sel.f} order={sel.o} audio={audio} />
+                      </div>
                     </div>
                   </div>
                   <button onClick={() => setSel(null)} style={{ color: "var(--dim)", fontSize: 18, padding: 4 }}>
@@ -130,9 +133,6 @@ export function Chart({ cards, unlockedFams, audio, seenIntro, onSeen }) {
                     onSaved={audio.onSaved}
                   />
                 )}
-                <div style={{ marginTop: 8 }}>
-                  <HearButton fam={sel.f} order={sel.o} audio={audio} />
-                </div>
               </div>
             )}
           </div>

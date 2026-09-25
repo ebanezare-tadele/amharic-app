@@ -323,7 +323,7 @@ export function Chant({ fam, audio, compact }) {
       {!compact && (
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8, flexWrap: "wrap" }}>
           <button className="speaker" onClick={play}>► chant the row</button>
-          {canHear && <button className="speaker" onClick={playSound}>► hear it</button>}
+          {canHear && <button className="speaker" onClick={playSound}>► hear the row</button>}
           <button className="speaker" onClick={() => setTempo(tempo === 620 ? 900 : tempo === 900 ? 400 : 620)}>
             {tempo === 620 ? "steady" : tempo === 900 ? "slow" : "fast"}
           </button>
@@ -332,7 +332,7 @@ export function Chant({ fam, audio, compact }) {
       {compact && (
         <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8 }}>
           <button className="speaker" onClick={play}>► chant the row</button>
-          {canHear && <button className="speaker" onClick={playSound}>► hear it</button>}
+          {canHear && <button className="speaker" onClick={playSound}>► hear the row</button>}
         </div>
       )}
     </div>

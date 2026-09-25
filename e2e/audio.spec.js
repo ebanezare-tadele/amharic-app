@@ -55,8 +55,7 @@ test("the row's hear it plays all seven verified letters, in order, one at a tim
     };
   });
 
-  // The Chant's hear it (the row), not the single-letter one below it.
-  await page.locator("button", { hasText: "► chant the row" }).locator("xpath=..").locator("button", { hasText: "► hear it" }).click();
+  await page.locator("button", { hasText: "► hear the row" }).click();
 
   const expected = [0, 1, 2, 3, 4, 5, 6].flatMap((o) => [`fetch:letter-0-${o}.mp3`, "play", "ended"]);
   await expect.poll(() => page.evaluate(() => window.__events), { timeout: 20000 }).toEqual(expected);
@@ -78,7 +77,7 @@ test("starting another sound stops the row that's playing", async ({ page }) => 
     };
   });
 
-  const row = page.locator("button", { hasText: "► chant the row" }).locator("xpath=..").locator("button", { hasText: "► hear it" });
+  const row = page.locator("button", { hasText: "► hear the row" });
   await row.click();
   await expect.poll(() => page.evaluate(() => window.__plays.length)).toBeGreaterThan(0);
 
@@ -110,7 +109,7 @@ test("a clip played once still plays after going offline", async ({ page, contex
       };
     });
   await played();
-  await page.locator(".card button", { hasText: "► hear it" }).last().click();
+  await page.locator(".card button", { hasText: "► hear it" }).first().click();
   await expect.poll(() => page.evaluate(() => window.__ok), { timeout: 10000 }).toBe(true);
   await expect
     .poll(() => page.evaluate(async () => (await (await caches.open("official-audio-v3")).keys()).map((r) => r.url.split("/").pop())))
@@ -122,6 +121,6 @@ test("a clip played once still plays after going offline", async ({ page, contex
   await page.locator(".tab", { hasText: "chart" }).first().click();
   await page.locator(".cc").first().click();
   await played();
-  await page.locator(".card button", { hasText: "► hear it" }).last().click();
+  await page.locator(".card button", { hasText: "► hear it" }).first().click();
   await expect.poll(() => page.evaluate(() => window.__ok), { timeout: 10000 }).toBe(true);
 });
