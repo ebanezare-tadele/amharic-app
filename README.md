@@ -359,7 +359,11 @@ before it ships:
    The transcript must be similar enough to the expected text. Words
    and phrases are checked one at a time. A lone syllable is too little
    signal for any ASR model, so each letter row is checked as its seven
-   clips joined with short pauses.
+   clips joined with short pauses. The row also has to pass a second check: heard one at
+   a time, at least half its letters must come back with the right
+   consonant. A lone syllable is too noisy for vowels to count, but
+   this stops a row that barely clears the joined-row bar while its
+   letters are heard as other consonants.
 
 A unit that fails is retried with the other voice, then more slowly. If
 it never passes, it's left out of `manifest.json`, and the app never

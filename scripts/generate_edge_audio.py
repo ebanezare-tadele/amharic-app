@@ -31,6 +31,8 @@ Verification, per unit:
      syllable is too little signal for any ASR model, so a letter row is
      checked as its 7 clips joined with short pauses -- the same
      reconstructed-row approach verify_audio_content_dvoice.py uses.
+     The letters must also be recognized one at a time with the right
+     consonant, for at least half the row.
      If one letter of a row can't be produced at all (a bare ህ comes
      back as silence), the other six are still checked and can ship.
 A unit that fails is retried with the other voice, then at a slower
@@ -73,8 +75,11 @@ _STRIP_RE = re.compile(r"[\s፣።፤፥፦፧,.!?]+")
 # Amharic recognizer rightly writes the common letter (ዓይን heard as
 # አይን). row index of twin -> row index of the letter it sounds like.
 TWINS = {29: 12, 30: 12, 31: 3, 32: 13, 33: 24}
-# Filled in main() from the exported rows: twin glyph -> common glyph.
+# Filled in main() from the exported rows: twin glyph -> common glyph,
+# and every glyph -> its consonant family (twins folded into the family
+# they sound like).
 HOMOPHONE = {}
+FAMILY = {}
 
 
 def log(msg):
@@ -235,9 +240,20 @@ async def do_row(row, asr, out_dir, tmp):
         expected = "፣ ".join(l for l, _ in good) + "።"
         heard = asr.transcribe(joined, tmp)
         sim = similarity(heard, expected)
-        entry.update({"transcription": heard, "similarity": round(sim, 4)})
+        # Second, independent signal: heard alone, at least half the
+        # letters must come back with the right consonant. A lone
+        # syllable is noisy for ASR (vowels especially), so this checks
+        # only the consonant, but it stops a row that scrapes past the
+        # joined-row bar while its letters are heard as other consonants.
+        heard_letters = [lr for lr in entry["letters"] if lr.get("transcription")]
+        consonant_hits = sum(
+            any(FAMILY.get(c) == FAMILY.get(lr["letter"]) for c in lr["transcription"]) for lr in heard_letters
+        )
+        consonant_ok = consonant_hits * 2 >= len(heard_letters) > 0
+        entry.update({"transcription": heard, "similarity": round(sim, 4),
+                      "consonant_hits": f"{consonant_hits}/{len(heard_letters)}"})
         tried.append(entry)
-        if sim >= SIMILARITY_THRESHOLD["row"]:
+        if sim >= SIMILARITY_THRESHOLD["row"] and consonant_ok:
             files = [f.name for _, f in good]
             return {"id": row["id"], "category": "row", "verdict": "PASS", "files": files, "attempts": tried}
     for f in finals:
@@ -257,6 +273,9 @@ async def main():
     rows, anchors, phrases = texts["rows"], texts["anchors"], texts["phrases"]
     for twin, common in TWINS.items():
         HOMOPHONE.update(zip(rows[twin]["letters"], rows[common]["letters"]))
+    for i, row in enumerate(rows):
+        for c in row["letters"]:
+            FAMILY[c] = TWINS.get(i, i)
     if args.pilot:
         rows, anchors, phrases = rows[: args.pilot], anchors[: args.pilot], phrases[: args.pilot]
 
