@@ -342,96 +342,45 @@ produced and verified one for that exact letter/word/phrase, else the
 iOS Safari never does). If none of those is available, the button
 doesn't render at all rather than playing something that might be wrong.
 
-### Why the official clips are trustworthy this time
+### Where the official clips come from
 
-An earlier version of this baked in a cloud-generated clip for every
-letter/word/phrase by asking a text-to-speech API to read each one in
-isolation — a single bare glyph, on its own. That failed repeatedly and
-was pulled entirely (see git history around "Remove unreliable
-cloud-generated audio" if you want the full postmortem). The root cause:
-sentence-level TTS models are trained on continuous speech, not isolated
-syllables, so a bare glyph with no sentence context is out-of-distribution
-input — the model would sometimes pad or hallucinate it into a longer,
-unrelated utterance. Measured directly: even after adding trailing
-punctuation (the vendor's documented mitigation), ~1 in 5 letter/word
-clips still came back 5–13 seconds long for input that should've produced
-under 2 seconds of speech. A file-size-based QA pass caught only the most
-extreme cases, because it could only measure duration, not content — a
-wrong word at a plausible length sailed straight through it.
+`scripts/generate_edge_audio.py`, run by
+`.github/workflows/generate-edge-audio.yml`, renders every letter
+(one glyph per call), anchor word and phrase with Microsoft's neural
+Amharic voices (`am-ET-MekdesNeural`, falling back to
+`am-ET-AmehaNeural`) through [edge-tts](https://github.com/rany2/edge-tts):
+free, no API key, no repo secret. Each clip then has to pass two checks
+before it ships:
 
-**`scripts/generate-official-audio.mjs` fixes that architecturally, and
-verifies with signals that don't require any model to understand
-Amharic at all:**
+1. **Duration.** The trimmed clip must fall inside a sane band for its
+   category. A padded or invented utterance fails here whatever it says.
+2. **Content.** [aioxlabs/dvoice-amharic](https://huggingface.co/aioxlabs/dvoice-amharic),
+   a speech-recognition model trained on Amharic, transcribes the clip.
+   The transcript must be similar enough to the expected text. Words
+   and phrases are checked one at a time. A lone syllable is too little
+   signal for any ASR model, so each letter row is checked as its seven
+   clips joined with short pauses.
 
-1. **Never ask for an isolated glyph.** A family's 7 letters are
-   generated as one clip: the whole row recited naturally, e.g.
-   `ለ፣ ሉ፣ ሊ፣ ላ፣ ሌ፣ ል፣ ሎ።` — which is literally how the fidel is
-   traditionally chanted aloud, not an isolated syllable. That's a
-   completely normal, in-distribution utterance for the model. Anchor
-   words and phrases were already natural-shaped input and are
-   unchanged.
-2. **A real, measured duration check, not a file-size proxy.** Every
-   clip gets its exact duration measured with `ffprobe` (already on the
-   Actions runner — no install needed) and checked against a per-category
-   sane band. Out-of-band clips get discarded and regenerated with a
-   fresh idempotency key (up to 4 attempts); if one never lands in band,
-   it simply isn't shipped rather than shipped with a caveat.
-   
-   A content-verification layer (transcribing every clip with
-   [faster-whisper](https://github.com/SYSTRAN/faster-whisper) and
-   comparing it to the expected text) was tried here and reverted — not
-   because verifying content is a bad idea in principle, but because
-   faster-whisper's available checkpoints turned out to have no real
-   Amharic support: real smoke tests produced transcriptions in random
-   unrelated scripts (Telugu, Bengali, Kazakh Cyrillic, Burmese) and even
-   plain English words ("Quit", "flix"), changing on every attempt
-   against the *same* audio — the signature of a model hallucinating on
-   input it has no grip on, not a language it's merely weak at. The
-   clips it rejected all had normal, in-band durations, meaning the
-   underlying audio was plausibly fine the whole time and the
-   verification layer was the thing sabotaging it. If this gets
-   revisited, it needs a speech-recognition model with real Amharic
-   training data behind it, not just a bigger generic multilingual
-   checkpoint (bigger made it slower without making it more correct).
-3. **Isolate letters mechanically, from a real acoustic signal.** Once a
-   row clip's duration checks out, `ffmpeg`'s `silencedetect` filter
-   finds the pauses between the 7 comma-separated syllables — a real,
-   measurable signal (commas produce audible pauses in TTS output), not
-   a claim about what was said — and slices the row into the 7
-   individual `letter-{fam}-{order}.mp3` files the app actually plays.
-   If the gap count doesn't roughly match what's expected, that row is
-   rejected and regenerated rather than sliced on a guess. Nothing here
-   requires understanding Amharic, so nothing here can hallucinate a
-   wrong language.
+A unit that fails is retried with the other voice, then more slowly. If
+it never passes, it's left out of `manifest.json`, and the app never
+offers it. The per-unit transcripts, similarity scores and attempts are
+in `report.json` in the run's `amharic-audio-edge` artifact.
 
-**What ships, and what the app trusts:** the generation run writes
-`manifest.json` alongside the clips, listing only what actually passed
-verification. The app fetches that manifest once on load and only offers
-the official-clip tier for entries actually listed in it (see
-`officialKeyFromFilename` / the manifest fetch in `AmharicFidel` in
-`src/App.jsx`) — an unverified clip is simply absent, not shipped with a
-shrug. `public/audio/official/` isn't committed to the repo; it's
-produced by the workflow below and only lands there when someone
-downloads the artifact and copies it in after checking the run's own
-report (failed/flagged counts) themselves.
+The workflow commits whatever passed straight into
+`public/audio/official/`. It runs on **Actions → Generate official audio
+(edge-tts + Amharic ASR check) → Run workflow** (set `pilot` to a small
+number for a quick trial that commits nothing), and on any push that
+changes the generator.
 
-**Running the generation** (`.github/workflows/generate-audio.yml`,
-**Actions → Generate official audio (one-time) → Run workflow**): just
-Node + `apt-get install ffmpeg` for `ffmpeg`/`ffprobe` (not reliably
-preinstalled on the runner image — a real run failed with `spawn
-ffprobe ENOENT` before that step was added), no other dependency, run
-against the `ADDIS_API_KEY` repo secret. Tick **smoke_test** on the
-workflow's "Run workflow" dialog to run just 3 jobs
-(1 row, 1 anchor, 1 phrase) first — worth doing after touching the
-script, since it exercises the whole pipeline (generation, verification,
-slicing, manifest) for a couple of minutes and a few cents instead of
-finding a bug only after the full ~82-job batch. The full run is much
-cheaper than the original all-isolated-letters version: 34 row clips
-instead of 238 isolated letters, plus 34 anchor words and 14 phrases —
-82 generation calls total, not 286. Uploads the clips + `manifest.json`
-as a downloadable build artifact (`amharic-audio`) — never auto-deployed;
-check the run's own failed/flagged report first, then copy
-`official-audio-out/*` into `public/audio/official/` and deploy normally.
+**Why not the earlier clips:** they came from Addis AI's TTS
+(`scripts/generate-official-audio.mjs`, kept for history). Running the
+dvoice-amharic check against them showed short inputs coming back as
+long, unrelated utterances (for example, "ልጅ" heard as "ቆቸ መጀስተ", and
+"ሰላም" heard as a twelve-word sentence), while longer phrases passed.
+That pattern means a generative model is hallucinating on short input.
+Those clips were deleted. Azure's neural voices render the input text
+and can't invent a sentence, and the ASR check confirms that on every
+clip rather than taking it on trust.
 
 ## Updates apply automatically — no re-saving to the home screen
 
@@ -513,8 +462,9 @@ to.
   everything to this device's own `localStorage`.
 - `src/lib/progressSync.js` — the optional cross-device sync client (see
   "Syncing progress across devices" above).
-- `scripts/generate-official-audio.mjs` — generates the baked-in
-  pronunciation clips (see "Hearing pronunciation" above): orchestrates
+- `scripts/generate_edge_audio.py` — generates and verifies the baked-in
+  pronunciation clips (see "Hearing pronunciation" above).
+- `scripts/generate-official-audio.mjs` — the retired Addis AI generator (see "Hearing pronunciation" above): orchestrates
   Addis AI generation/retries, ffprobe duration checks, and ffmpeg
   silence-gap slicing, all in one file (no other script/dependency).
 - `scripts/gen-icons.mjs` + `scripts/icon-template.html` — icon generator.

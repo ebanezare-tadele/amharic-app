@@ -17,6 +17,7 @@ const OUT_PATH = path.join(__dirname, "verification-texts.json");
 const rows = RAW.map((fam, i) => ({
   id: `row_${i}`,
   text: rowText(i),
+  letters: Array.from(fam[0]),
   letterFiles: Array.from({ length: fam[0].length }, (_, o) => `letter-${i}-${o}.mp3`),
 }));
 

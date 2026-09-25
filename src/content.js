@@ -162,8 +162,13 @@ export const WORDS = [
 // a string key. So words reuse the exact same storage unchanged, filed
 // under pseudo-family ids safely outside the real 0-33 range: "order"
 // is then just the word's index in its own list (ANCHORS or PHRASES).
-// WORD_FAM lives in src/audio.js so it's unit-testable without pulling
-// in React — see src/audio.test.js.
+// officialAudioUrl/officialKeyFromFilename/WORD_FAM live in src/audio.js
+// so they're unit-testable without pulling in React — see
+// src/audio.test.js. Verified by duration plus an Amharic-trained
+// speech-recognition check (see scripts/generate_edge_audio.py); not every
+// letter/word/phrase necessarily has one — only what actually passed
+// verification ships — so the app checks manifest.json rather than
+// assuming a file exists (see the manifest fetch in AmharicFidel).
 
 export const PHRASES = [
   ["ሰላም", "selam", "Hello. Literally: peace."],

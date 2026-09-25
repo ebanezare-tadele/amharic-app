@@ -1,0 +1,82 @@
+name: Generate official audio (edge-tts + Amharic ASR check)
+
+# Renders every letter, anchor word and phrase with Microsoft's neural
+# Amharic voices (edge-tts: free, no API key, no repo secret), checks
+# each one with an Amharic-trained speech-recognition model, and commits
+# ONLY what passed into public/audio/official/ (plus manifest.json, which
+# is the app's list of what it's allowed to play). See the docstring atop
+# scripts/generate_edge_audio.py for why this replaced the Addis AI
+# pipeline and how the checks work.
+#
+# Runs on manual dispatch, and on a push that changes the generator
+# itself. Its own commit is pushed with GITHUB_TOKEN, which never
+# re-triggers workflows, so this can't loop.
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: "Only the first N rows/anchors/phrases (blank = everything)"
+        type: string
+        default: ""
+  push:
+    paths:
+      - scripts/generate_edge_audio.py
+      - .github/workflows/generate-edge-audio.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-edge-audio-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      # Same pins as verify-audio-content-dvoice.yml, each learned from a
+      # real failed run -- see that workflow's comments for the reasons.
+      - name: Install edge-tts + speechbrain + torch (CPU)
+        run: pip install --quiet edge-tts "speechbrain==0.5.16" "huggingface_hub<1.0" requests transformers torch "torchaudio<2.9" --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - name: Export the exact texts every clip is supposed to say
+        run: node scripts/export-verification-texts.mjs
+      - name: Generate + verify
+        run: |
+          python3 scripts/generate_edge_audio.py \
+            --out scripts/official-audio-out \
+            ${{ inputs.pilot != '' && inputs.pilot != null && format('--pilot {0}', inputs.pilot) || '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: amharic-audio-edge
+          path: scripts/official-audio-out
+          retention-days: 14
+      - name: Commit verified clips into public/audio/official
+        if: ${{ inputs.pilot == '' || inputs.pilot == null }}
+        run: |
+          set -e
+          test -f scripts/official-audio-out/manifest.json
+          mkdir -p public/audio/official
+          rm -f public/audio/official/*.mp3
+          cp scripts/official-audio-out/*.mp3 public/audio/official/ 2>/dev/null || true
+          cp scripts/official-audio-out/manifest.json public/audio/official/manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A public/audio/official
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('scripts/official-audio-out/manifest.json')).length)")
+          git commit -m "Add official audio clips from edge-tts ($COUNT verified by Amharic ASR)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
