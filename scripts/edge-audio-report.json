@@ -54,7 +54,8 @@
           }
         ],
         "transcription": "ለ ሉ ሊ ላ ሊ ል ሎ",
-        "similarity": 0.8571
+        "similarity": 0.8571,
+        "consonant_hits": "6/7"
       }
     ]
   },
@@ -113,7 +114,8 @@
           }
         ],
         "transcription": "መፍ ሙ ሚ ማ ሚ  ሞ",
-        "similarity": 0.7143
+        "similarity": 0.7143,
+        "consonant_hits": "4/7"
       }
     ]
   },
@@ -172,7 +174,8 @@
           }
         ],
         "transcription": "እረ ሎ እሪ ራ ሪ እር ሮ",
-        "similarity": 0.5882
+        "similarity": 0.5882,
+        "consonant_hits": "6/7"
       }
     ]
   },
@@ -231,7 +234,8 @@
           }
         ],
         "transcription": "ሰ ሱ ሲ ሳ ሲ ስ ሱ",
-        "similarity": 0.7143
+        "similarity": 0.7143,
+        "consonant_hits": "6/6"
       }
     ]
   },
@@ -290,7 +294,8 @@
           }
         ],
         "transcription": "በ ቡ ቢ ባ ቢ ብ ቦ",
-        "similarity": 0.8571
+        "similarity": 0.8571,
+        "consonant_hits": "6/7"
       }
     ]
   },
@@ -349,7 +354,8 @@
           }
         ],
         "transcription": "ተ ቶ ቺ ታ ቺ ት ቶ",
-        "similarity": 0.5714
+        "similarity": 0.5714,
+        "consonant_hits": "4/6"
       }
     ]
   },
@@ -408,7 +414,8 @@
           }
         ],
         "transcription": "ነፍ ኑኖ ኒኚ ና ኔ ን ኖ",
-        "similarity": 0.8235
+        "similarity": 0.8235,
+        "consonant_hits": "6/7"
       }
     ]
   },
@@ -467,7 +474,52 @@
           }
         ],
         "transcription": "ከ ኮ ኲ ካ  ክ ኮ",
-        "similarity": 0.6154
+        "similarity": 0.6154,
+        "consonant_hits": "1/6"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "letters": [
+          {
+            "letter": "ከ",
+            "duration": 0.36,
+            "transcription": "ተ"
+          },
+          {
+            "letter": "ኩ",
+            "duration": 0.312,
+            "transcription": "ኩ"
+          },
+          {
+            "letter": "ኪ",
+            "duration": 0.384,
+            "transcription": "ኬ"
+          },
+          {
+            "letter": "ካ",
+            "duration": 0.36,
+            "transcription": "ካ"
+          },
+          {
+            "letter": "ኬ",
+            "duration": 0.36,
+            "transcription": "ኬ"
+          },
+          {
+            "letter": "ክ",
+            "duration": 0.24,
+            "transcription": ""
+          },
+          {
+            "letter": "ኮ",
+            "duration": 0.384,
+            "transcription": "ኰ"
+          }
+        ],
+        "transcription": "ከ ኩ ቺ ካ ቺ ክ ኮ",
+        "similarity": 0.7143,
+        "consonant_hits": "4/6"
       }
     ]
   },
@@ -518,7 +570,8 @@
           }
         ],
         "transcription": "ወፍ ኦ ዌ ጓ ኤ ኦ ኦ",
-        "similarity": 0.2667
+        "similarity": 0.2667,
+        "consonant_hits": "1/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -561,7 +614,8 @@
           }
         ],
         "transcription": "ኦ ኦ ሊ ቋ ኤ ኦ ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -604,7 +658,8 @@
           }
         ],
         "transcription": "ወፍ ኦ ዊ ኋ ኤ ኦ ኦ",
-        "similarity": 0.2667
+        "similarity": 0.2667,
+        "consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -647,7 +702,8 @@
           }
         ],
         "transcription": "ኦ ኦ ሊዊ ቋ ኤ ኦ ኦ",
-        "similarity": 0.1333
+        "similarity": 0.1333,
+        "consonant_hits": "0/7"
       }
     ]
   },
@@ -698,7 +754,8 @@
           }
         ],
         "transcription": "ኤ ኢው ኢ ያ ኢ  ኤው",
-        "similarity": 0.1333
+        "similarity": 0.1333,
+        "consonant_hits": "5/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -741,7 +798,8 @@
           }
         ],
         "transcription": "የ ይው ኢህ ያ ይህ ኢህ ኤ ው",
-        "similarity": 0.2105
+        "similarity": 0.2105,
+        "consonant_hits": "3/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -784,7 +842,8 @@
           }
         ],
         "transcription": "የ ይሁ ኢ ያ ኢህ ኢ ኤው",
-        "similarity": 0.2353
+        "similarity": 0.2353,
+        "consonant_hits": "4/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -827,7 +886,8 @@
           }
         ],
         "transcription": "የ ኢው ኢህ  ህ ኢ ኢው",
-        "similarity": 0.125
+        "similarity": 0.125,
+        "consonant_hits": "3/7"
       }
     ]
   },
@@ -886,7 +946,8 @@
           }
         ],
         "transcription": "ደ ዱ ዲ ዳ ዲ ድ ዶ",
-        "similarity": 0.8571
+        "similarity": 0.8571,
+        "consonant_hits": "4/7"
       }
     ]
   },
@@ -945,22 +1006,16 @@
           }
         ],
         "transcription": "ገ ጉ ዲ ጋ ዲ ግ ጐ",
-        "similarity": 0.5714
+        "similarity": 0.5714,
+        "consonant_hits": "5/7"
       }
     ]
   },
   {
     "id": "row_12",
     "category": "row",
-    "verdict": "PASS",
-    "files": [
-      "letter-12-0.mp3",
-      "letter-12-1.mp3",
-      "letter-12-2.mp3",
-      "letter-12-3.mp3",
-      "letter-12-4.mp3",
-      "letter-12-6.mp3"
-    ],
+    "verdict": "FAIL",
+    "expected": "ሀ፣ ሁ፣ ሂ፣ ሃ፣ ሄ፣ ህ፣ ሆ።",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -1003,7 +1058,140 @@
           }
         ],
         "transcription": "ሀ ሁ ቺ ሀ ሂ ኮ",
-        "similarity": 0.5
+        "similarity": 0.5,
+        "consonant_hits": "1/6"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "letters": [
+          {
+            "letter": "ሀ",
+            "duration": 0.288,
+            "transcription": "ሳ"
+          },
+          {
+            "letter": "ሁ",
+            "duration": 0.288,
+            "transcription": "ተ"
+          },
+          {
+            "letter": "ሂ",
+            "duration": 0.336,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ሃ",
+            "duration": 0.312,
+            "transcription": "ከ"
+          },
+          {
+            "letter": "ሄ",
+            "duration": 0.384,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ህ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ሆ",
+            "duration": 0.312,
+            "transcription": "ቴ"
+          }
+        ],
+        "transcription": "ሀ ኦ ቲ ሀ ኤ ኮ",
+        "similarity": 0.1667,
+        "consonant_hits": "0/6"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ሀ",
+            "duration": 0.384,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ሁ",
+            "duration": 0.312,
+            "transcription": ""
+          },
+          {
+            "letter": "ሂ",
+            "duration": 0.384,
+            "transcription": "ሄ"
+          },
+          {
+            "letter": "ሃ",
+            "duration": 0.36,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ሄ",
+            "duration": 0.408,
+            "transcription": "ሄ"
+          },
+          {
+            "letter": "ህ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ሆ",
+            "duration": 0.36,
+            "transcription": "ተ"
+          }
+        ],
+        "transcription": "ሀ ሁ ቺ ሀ  ኮ",
+        "similarity": 0.3636,
+        "consonant_hits": "2/5"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ሀ",
+            "duration": 0.336,
+            "transcription": ""
+          },
+          {
+            "letter": "ሁ",
+            "duration": 0.312,
+            "transcription": ""
+          },
+          {
+            "letter": "ሂ",
+            "duration": 0.408,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ሃ",
+            "duration": 0.36,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ሄ",
+            "duration": 0.432,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ህ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ሆ",
+            "duration": 0.36,
+            "transcription": "ኩ"
+          }
+        ],
+        "transcription": "ሀ ኡ ቲ ሀ ኢ ኮ",
+        "similarity": 0.1667,
+        "consonant_hits": "0/4"
       }
     ]
   },
@@ -1062,7 +1250,96 @@
           }
         ],
         "transcription": "አ ኡ ኢ ኡኤ ኦ",
-        "similarity": 0.7692
+        "similarity": 0.7692,
+        "consonant_hits": "3/7"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "letters": [
+          {
+            "letter": "አ",
+            "duration": 0.312,
+            "transcription": "አ"
+          },
+          {
+            "letter": "ኡ",
+            "duration": 0.336,
+            "transcription": "ቆ"
+          },
+          {
+            "letter": "ኢ",
+            "duration": 0.312,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ኣ",
+            "duration": 0.312,
+            "transcription": "ጠህ"
+          },
+          {
+            "letter": "ኤ",
+            "duration": 0.36,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "እ",
+            "duration": 0.24,
+            "transcription": "ተ"
+          },
+          {
+            "letter": "ኦ",
+            "duration": 0.312,
+            "transcription": "ፈ"
+          }
+        ],
+        "transcription": "አ ኡ ቪ ኦ ኤት ኦ",
+        "similarity": 0.4286,
+        "consonant_hits": "2/7"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "አ",
+            "duration": 0.336,
+            "transcription": "ባ"
+          },
+          {
+            "letter": "ኡ",
+            "duration": 0.384,
+            "transcription": "ጤ"
+          },
+          {
+            "letter": "ኢ",
+            "duration": 0.384,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ኣ",
+            "duration": 0.408,
+            "transcription": "ኦ"
+          },
+          {
+            "letter": "ኤ",
+            "duration": 0.408,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "እ",
+            "duration": 0.264,
+            "transcription": "ተን"
+          },
+          {
+            "letter": "ኦ",
+            "duration": 0.408,
+            "transcription": ""
+          }
+        ],
+        "transcription": "አ ኡኢ ኡኤድኦ",
+        "similarity": 0.7143,
+        "consonant_hits": "3/6"
       }
     ]
   },
@@ -1113,7 +1390,8 @@
           }
         ],
         "transcription": "ካ ኮ  አ ኪ ክ ኮ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1156,7 +1434,8 @@
           }
         ],
         "transcription": "ከ ኦ ቲ አ ቲ ክ ኮ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -1199,7 +1478,8 @@
           }
         ],
         "transcription": "ከ ኮ ቺ አ ቺ ክ ኮ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1242,7 +1522,8 @@
           }
         ],
         "transcription": "ከ ኮ ቲ አ ቲ ክ ኮ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       }
     ]
   },
@@ -1293,7 +1574,8 @@
           }
         ],
         "transcription": "ኤ ቱ ትህ አ ቴ ትህ ኮ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "1/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1336,7 +1618,8 @@
           }
         ],
         "transcription": "ጋ ቱ ት አ ዲ ት ጦ",
-        "similarity": 0.1429
+        "similarity": 0.1429,
+        "consonant_hits": "0/5"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -1379,7 +1662,8 @@
           }
         ],
         "transcription": "ኤ ቱ ት አ ቴ ትህ ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "1/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1422,7 +1706,8 @@
           }
         ],
         "transcription": "ተ ቱ ት አ ጂ ት ቶ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       }
     ]
   },
@@ -1481,7 +1766,8 @@
           }
         ],
         "transcription": "ሸ ሱ ሺሽ ሻ ሂ ሽ ሱ",
-        "similarity": 0.4
+        "similarity": 0.4,
+        "consonant_hits": "5/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1524,7 +1810,8 @@
           }
         ],
         "transcription": "ሸ ሹ ሺ ሻ ሺ ሽ ሱ",
-        "similarity": 0.7143
+        "similarity": 0.7143,
+        "consonant_hits": "6/6"
       }
     ]
   },
@@ -1583,7 +1870,8 @@
           }
         ],
         "transcription": "ች ቾ ቺ ቻ ቺ ች ቶ",
-        "similarity": 0.2857
+        "similarity": 0.2857,
+        "consonant_hits": "4/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1626,7 +1914,8 @@
           }
         ],
         "transcription": "ች ቹ ቼ ቻ ቼ ች ቶ",
-        "similarity": 0.5714
+        "similarity": 0.5714,
+        "consonant_hits": "5/6"
       }
     ]
   },
@@ -1685,7 +1974,8 @@
           }
         ],
         "transcription": "ቼ ጅው ጂ ቻ ች ች ጅው",
-        "similarity": 0.125
+        "similarity": 0.125,
+        "consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1728,7 +2018,8 @@
           }
         ],
         "transcription": "ጀ ጅ ጄ ጃ ጄች ጆ",
-        "similarity": 0.5714
+        "similarity": 0.5714,
+        "consonant_hits": "6/6"
       }
     ]
   },
@@ -1779,7 +2070,8 @@
           }
         ],
         "transcription": "ኘ ኒ ኢህ ያ ኤህ ኒ ኒ",
-        "similarity": 0.125
+        "similarity": 0.125,
+        "consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1822,7 +2114,8 @@
           }
         ],
         "transcription": "ኛ ይሁ ኢህ ኛ ኢህ ኢ ይሁ",
-        "similarity": 0.1111
+        "similarity": 0.1111,
+        "consonant_hits": "1/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -1865,7 +2158,8 @@
           }
         ],
         "transcription": "ኘ ኒ ም ኢ ሚያ ኤ ኒን ኒ",
-        "similarity": 0.1176
+        "similarity": 0.1176,
+        "consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -1908,7 +2202,8 @@
           }
         ],
         "transcription": "ሚያ ይው ኢ ኚ ኢ ኢይ ሚው",
-        "similarity": 0.1111
+        "similarity": 0.1111,
+        "consonant_hits": "1/7"
       }
     ]
   },
@@ -1967,7 +2262,8 @@
           }
         ],
         "transcription": "ዘ ዙ ዚህ ዛ ዜ ስ ዞ",
-        "similarity": 0.8
+        "similarity": 0.8,
+        "consonant_hits": "6/6"
       }
     ]
   },
@@ -2018,7 +2314,8 @@
           }
         ],
         "transcription": "ቻ ች ቺ ታ ቺ ች ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2061,7 +2358,8 @@
           }
         ],
         "transcription": "ከ ቹ ጂ ካ ት ች ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -2104,7 +2402,8 @@
           }
         ],
         "transcription": "ተ ቾ ቺ ታ ቺ ች ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2147,7 +2446,8 @@
           }
         ],
         "transcription": "ከ ቹ ጂ ካ ት ች ተ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       }
     ]
   },
@@ -2198,7 +2498,8 @@
           }
         ],
         "transcription": "ሰ ፎ ሲ ፋ ሲ ት ፎ",
-        "similarity": 0.1429
+        "similarity": 0.1429,
+        "consonant_hits": "2/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2241,7 +2542,8 @@
           }
         ],
         "transcription": "ሰ ፎ ቪ ሳ ቪ ፍ ኩ",
-        "similarity": 0.1429
+        "similarity": 0.1429,
+        "consonant_hits": "1/6"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -2284,7 +2586,8 @@
           }
         ],
         "transcription": "ሰ ፎ ሲ ፋ ሲ ት ፎ",
-        "similarity": 0.1429
+        "similarity": 0.1429,
+        "consonant_hits": "2/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2327,7 +2630,8 @@
           }
         ],
         "transcription": "ሰ ፉ ቪ ሳ ቪፍ ሁ",
-        "similarity": 0.2857
+        "similarity": 0.2857,
+        "consonant_hits": "1/6"
       }
     ]
   },
@@ -2378,7 +2682,8 @@
           }
         ],
         "transcription": "ት ኸ ፒ ሀ ቲፕ ኮ",
-        "similarity": 0.2857
+        "similarity": 0.2857,
+        "consonant_hits": "1/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2421,7 +2726,8 @@
           }
         ],
         "transcription": "ከ ተ ፒ ካ ፒፕ ፖ",
-        "similarity": 0.4286
+        "similarity": 0.4286,
+        "consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -2464,7 +2770,8 @@
           }
         ],
         "transcription": "ት ኸ ፒ ሀ ፒፕ ኮ",
-        "similarity": 0.2857
+        "similarity": 0.2857,
+        "consonant_hits": "1/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2507,7 +2814,8 @@
           }
         ],
         "transcription": "ከተ ፒ አ ፒፕ ፖ",
-        "similarity": 0.4286
+        "similarity": 0.4286,
+        "consonant_hits": "3/7"
       }
     ]
   },
@@ -2558,7 +2866,8 @@
           }
         ],
         "transcription": "ሳ ሱውግ ሳ ዬ ንስ ሳ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2601,7 +2910,8 @@
           }
         ],
         "transcription": "ተ ሱ ክ ታ ይህ ት ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -2644,7 +2954,8 @@
           }
         ],
         "transcription": "ሳ ስውግ ሳ ኤ ስ ሰ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2687,7 +2998,8 @@
           }
         ],
         "transcription": "ተ ሱክ ታ ኢህት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       }
     ]
   },
@@ -2738,7 +3050,8 @@
           }
         ],
         "transcription": "ህ በችቼ ዲች ህን",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2781,7 +3094,8 @@
           }
         ],
         "transcription": "አት ጂ ኤ ኤ  ኤ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -2824,7 +3138,8 @@
           }
         ],
         "transcription": "ህ ደሽ ቼ ቲ ይህን",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2867,7 +3182,8 @@
           }
         ],
         "transcription": "ፈት ቺ ኤ ኤ ኤ ኤ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       }
     ]
   },
@@ -2918,7 +3234,8 @@
           }
         ],
         "transcription": "ኢ  ኢ ክ ሂ ኸ ኦ",
-        "similarity": 0.1538
+        "similarity": 0.1538,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -2961,7 +3278,8 @@
           }
         ],
         "transcription": "ብት ኤ ተ ፒት ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -3004,7 +3322,8 @@
           }
         ],
         "transcription": "ት ኢ ት ሂ ህ ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3047,7 +3366,8 @@
           }
         ],
         "transcription": "ብት ኤ እ ሂብ ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       }
     ]
   },
@@ -3098,7 +3418,8 @@
           }
         ],
         "transcription": "ቪ ካ ዲ ኢ ሆ",
-        "similarity": 0.1667
+        "similarity": 0.1667,
+        "consonant_hits": "1/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3141,7 +3462,8 @@
           }
         ],
         "transcription": "ፈ በ ይህ ገ  ኤ ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -3184,7 +3506,8 @@
           }
         ],
         "transcription": "አ ቪ ፊያ ዲ ኢ ኦ",
-        "similarity": 0.1429
+        "similarity": 0.1429,
+        "consonant_hits": "2/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3227,7 +3550,8 @@
           }
         ],
         "transcription": "ፈ እ ዪህ እ ዪ ኤ ኦ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       }
     ]
   },
@@ -3278,7 +3602,8 @@
           }
         ],
         "transcription": "ኦ ኢ ኤ አ ት ኤ ህ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3321,7 +3646,8 @@
           }
         ],
         "transcription": "አ ዲ ኦ አ ት ተ ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -3364,7 +3690,8 @@
           }
         ],
         "transcription": "ኦ ኢ ኤ አት ኤ ህ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3407,22 +3734,16 @@
           }
         ],
         "transcription": "አ ዲ ኦ አ ክ ተ ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       }
     ]
   },
   {
     "id": "row_29",
     "category": "row",
-    "verdict": "PASS",
-    "files": [
-      "letter-29-0.mp3",
-      "letter-29-1.mp3",
-      "letter-29-2.mp3",
-      "letter-29-3.mp3",
-      "letter-29-4.mp3",
-      "letter-29-6.mp3"
-    ],
+    "verdict": "FAIL",
+    "expected": "ሐ፣ ሑ፣ ሒ፣ ሓ፣ ሔ፣ ሕ፣ ሖ።",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -3465,22 +3786,148 @@
           }
         ],
         "transcription": "ሀ ሁ ቺ ሀ ሂ ኮ",
-        "similarity": 0.5
+        "similarity": 0.5,
+        "consonant_hits": "1/6"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "letters": [
+          {
+            "letter": "ሐ",
+            "duration": 0.288,
+            "transcription": "ሳ"
+          },
+          {
+            "letter": "ሑ",
+            "duration": 0.288,
+            "transcription": "ተ"
+          },
+          {
+            "letter": "ሒ",
+            "duration": 0.336,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ሓ",
+            "duration": 0.312,
+            "transcription": "ከ"
+          },
+          {
+            "letter": "ሔ",
+            "duration": 0.384,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ሕ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ሖ",
+            "duration": 0.312,
+            "transcription": "ቴ"
+          }
+        ],
+        "transcription": "ሀ ኦ ቲ ሀ ኤ ኮ",
+        "similarity": 0.1667,
+        "consonant_hits": "0/6"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ሐ",
+            "duration": 0.384,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ሑ",
+            "duration": 0.312,
+            "transcription": ""
+          },
+          {
+            "letter": "ሒ",
+            "duration": 0.384,
+            "transcription": "ሄ"
+          },
+          {
+            "letter": "ሓ",
+            "duration": 0.36,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ሔ",
+            "duration": 0.408,
+            "transcription": "ሄ"
+          },
+          {
+            "letter": "ሕ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ሖ",
+            "duration": 0.36,
+            "transcription": "ተ"
+          }
+        ],
+        "transcription": "ሀ ሁ ቺ ሀ  ኮ",
+        "similarity": 0.3636,
+        "consonant_hits": "2/5"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ሐ",
+            "duration": 0.336,
+            "transcription": ""
+          },
+          {
+            "letter": "ሑ",
+            "duration": 0.312,
+            "transcription": ""
+          },
+          {
+            "letter": "ሒ",
+            "duration": 0.408,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ሓ",
+            "duration": 0.36,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ሔ",
+            "duration": 0.432,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ሕ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ሖ",
+            "duration": 0.36,
+            "transcription": "ኩ"
+          }
+        ],
+        "transcription": "ሀ ኡ ቲ ሀ ኢ ኮ",
+        "similarity": 0.1667,
+        "consonant_hits": "0/4"
       }
     ]
   },
   {
     "id": "row_30",
     "category": "row",
-    "verdict": "PASS",
-    "files": [
-      "letter-30-0.mp3",
-      "letter-30-1.mp3",
-      "letter-30-2.mp3",
-      "letter-30-3.mp3",
-      "letter-30-4.mp3",
-      "letter-30-6.mp3"
-    ],
+    "verdict": "FAIL",
+    "expected": "ኀ፣ ኁ፣ ኂ፣ ኃ፣ ኄ፣ ኅ፣ ኆ።",
     "attempts": [
       {
         "voice": "am-ET-MekdesNeural",
@@ -3523,7 +3970,140 @@
           }
         ],
         "transcription": "ሀ ሁ ቺ ሀ ሂ ኮ",
-        "similarity": 0.5
+        "similarity": 0.5,
+        "consonant_hits": "1/6"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "letters": [
+          {
+            "letter": "ኀ",
+            "duration": 0.288,
+            "transcription": "ሳ"
+          },
+          {
+            "letter": "ኁ",
+            "duration": 0.288,
+            "transcription": "ተ"
+          },
+          {
+            "letter": "ኂ",
+            "duration": 0.336,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ኃ",
+            "duration": 0.312,
+            "transcription": "ከ"
+          },
+          {
+            "letter": "ኄ",
+            "duration": 0.384,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ኅ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ኆ",
+            "duration": 0.312,
+            "transcription": "ቴ"
+          }
+        ],
+        "transcription": "ሀ ኦ ቲ ሀ ኤ ኮ",
+        "similarity": 0.1667,
+        "consonant_hits": "0/6"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ኀ",
+            "duration": 0.384,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ኁ",
+            "duration": 0.312,
+            "transcription": ""
+          },
+          {
+            "letter": "ኂ",
+            "duration": 0.384,
+            "transcription": "ሄ"
+          },
+          {
+            "letter": "ኃ",
+            "duration": 0.36,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ኄ",
+            "duration": 0.408,
+            "transcription": "ሄ"
+          },
+          {
+            "letter": "ኅ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ኆ",
+            "duration": 0.36,
+            "transcription": "ተ"
+          }
+        ],
+        "transcription": "ሀ ሁ ቺ ሀ  ኮ",
+        "similarity": 0.3636,
+        "consonant_hits": "2/5"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ኀ",
+            "duration": 0.336,
+            "transcription": ""
+          },
+          {
+            "letter": "ኁ",
+            "duration": 0.312,
+            "transcription": ""
+          },
+          {
+            "letter": "ኂ",
+            "duration": 0.408,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ኃ",
+            "duration": 0.36,
+            "transcription": "ፈ"
+          },
+          {
+            "letter": "ኄ",
+            "duration": 0.432,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ኅ",
+            "duration": null,
+            "error": "duration Nones outside 0.05-1.6s"
+          },
+          {
+            "letter": "ኆ",
+            "duration": 0.36,
+            "transcription": "ኩ"
+          }
+        ],
+        "transcription": "ሀ ኡ ቲ ሀ ኢ ኮ",
+        "similarity": 0.1667,
+        "consonant_hits": "0/4"
       }
     ]
   },
@@ -3582,7 +4162,8 @@
           }
         ],
         "transcription": "ሰ ሱ ሲ ሳ ሲ ስ ሱ",
-        "similarity": 0.7143
+        "similarity": 0.7143,
+        "consonant_hits": "6/6"
       }
     ]
   },
@@ -3641,7 +4222,96 @@
           }
         ],
         "transcription": "አ ኡ ኢ ኡኤ ኦ",
-        "similarity": 0.7692
+        "similarity": 0.7692,
+        "consonant_hits": "3/7"
+      },
+      {
+        "voice": "am-ET-AmehaNeural",
+        "rate": "-10%",
+        "letters": [
+          {
+            "letter": "ዐ",
+            "duration": 0.312,
+            "transcription": "አ"
+          },
+          {
+            "letter": "ዑ",
+            "duration": 0.336,
+            "transcription": "ቆ"
+          },
+          {
+            "letter": "ዒ",
+            "duration": 0.312,
+            "transcription": "ቴ"
+          },
+          {
+            "letter": "ዓ",
+            "duration": 0.312,
+            "transcription": "ጠህ"
+          },
+          {
+            "letter": "ዔ",
+            "duration": 0.36,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ዕ",
+            "duration": 0.24,
+            "transcription": "ተ"
+          },
+          {
+            "letter": "ዖ",
+            "duration": 0.312,
+            "transcription": "ፈ"
+          }
+        ],
+        "transcription": "አ ኡ ቪ ኦ ኤት ኦ",
+        "similarity": 0.4286,
+        "consonant_hits": "2/7"
+      },
+      {
+        "voice": "am-ET-MekdesNeural",
+        "rate": "-30%",
+        "letters": [
+          {
+            "letter": "ዐ",
+            "duration": 0.336,
+            "transcription": "ባ"
+          },
+          {
+            "letter": "ዑ",
+            "duration": 0.384,
+            "transcription": "ጤ"
+          },
+          {
+            "letter": "ዒ",
+            "duration": 0.384,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ዓ",
+            "duration": 0.408,
+            "transcription": "ኦ"
+          },
+          {
+            "letter": "ዔ",
+            "duration": 0.408,
+            "transcription": "ኤ"
+          },
+          {
+            "letter": "ዕ",
+            "duration": 0.264,
+            "transcription": "ተን"
+          },
+          {
+            "letter": "ዖ",
+            "duration": 0.408,
+            "transcription": ""
+          }
+        ],
+        "transcription": "አ ኡኢ ኡኤድኦ",
+        "similarity": 0.7143,
+        "consonant_hits": "3/6"
       }
     ]
   },
@@ -3692,7 +4362,8 @@
           }
         ],
         "transcription": "ሳ ሱውግ ሳ ዬ ንስ ሳ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/7"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3735,7 +4406,8 @@
           }
         ],
         "transcription": "ተ ሱ ክ ታ ይህ ት ት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/6"
       },
       {
         "voice": "am-ET-MekdesNeural",
@@ -3778,7 +4450,8 @@
           }
         ],
         "transcription": "ሳ ስውግ ሳ ኤ ስ ሰ",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       },
       {
         "voice": "am-ET-AmehaNeural",
@@ -3821,7 +4494,8 @@
           }
         ],
         "transcription": "ተ ሱክ ታ ኢህት",
-        "similarity": 0.0
+        "similarity": 0.0,
+        "consonant_hits": "0/5"
       }
     ]
   },
@@ -4593,7 +5267,7 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 0.984,
-        "transcription": "አመሰ ግን አለ ሁ",
+        "transcription": "አመሰ ግን አለሁ",
         "similarity": 0.8
       }
     ]
@@ -4661,8 +5335,8 @@
         "voice": "am-ET-MekdesNeural",
         "rate": "-10%",
         "duration": 0.84,
-        "transcription": "አይገባ ኝም",
-        "similarity": 1.0
+        "transcription": "አይገባ ኝ",
+        "similarity": 0.9091
       }
     ]
   },
