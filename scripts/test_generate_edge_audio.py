@@ -27,6 +27,9 @@ CASES = [
     ("ለ", None, False), ("ለ", "", False),
     ("ው", "o", False), ("ዊ", "li", False), ("ዋ", "w", True),  # w needs a real w
     ("ይ", "i", False), ("ዩ", "yy", True),  # y needs a real y
+    # vowel row: the vowel is the letter (ኡ and ዑ shipped once heard as "o")
+    ("ኡ", "ኦ", False), ("ኡ", "o", False), ("ኡ", "u", True), ("ኡ", "ኡ", True),
+    ("ዑ", "ኦ", False), ("ዑ", "ኡ", True), ("አ", "a", True), ("ኣ", "አ", True), ("ኦ", "ኦ", True),
 ]
 failures = [(l, h, exp) for l, h, exp in CASES if g.consonant_match(l, h) != exp]
 

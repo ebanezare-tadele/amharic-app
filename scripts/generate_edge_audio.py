@@ -80,6 +80,10 @@ TWINS = {29: 12, 30: 12, 31: 3, 32: 13, 33: 24}
 # they sound like).
 HOMOPHONE = {}
 FAMILY = {}
+ORDER = {}  # glyph -> vowel order 0-6
+VOWEL_ROW = 13  # አ: the "consonant" is a silent carrier, so the vowel is the letter
+# Latin vowels MMS writes for each order, for the vowel row only.
+ORDER_VOWELS = {0: "aä", 1: "u", 2: "i", 3: "a", 4: "e", 5: "", 6: "o"}
 # family -> leading Latin letters that count as its consonant. MMS (below)
 # mostly writes Amharic in Latin letters ("slam" for ሰላም), with its own
 # habits: ሸ comes out as "s", ከ often as "c". Filled in main() from each
@@ -114,8 +118,9 @@ def load_tables(rows):
             HOMOPHONE[k] = "አ"
     HOMOPHONE["ኣ"] = "አ"
     for i, row in enumerate(rows):
-        for c in row["letters"]:
+        for o, c in enumerate(row["letters"]):
             FAMILY[c] = TWINS.get(i, i)
+            ORDER[c] = o
         if i not in TWINS:
             LATIN[i] = LATIN_FOR.get(row["consonant"], row["consonant"])
 
@@ -125,6 +130,13 @@ def consonant_match(letter, heard):
     fam = FAMILY.get(letter)
     if not heard or fam is None:
         return False
+    if fam == VOWEL_ROW:
+        # ኡ heard as ኦ/"o" is a wrong letter, not a right consonant.
+        want = normalize(letter)
+        if any(normalize(c) == want for c in heard):
+            return True
+        latin = next((c for c in heard.lower() if "a" <= c <= "z" or c == "ä"), None)
+        return latin is not None and latin in ORDER_VOWELS[ORDER[letter]]
     if any(FAMILY.get(c) == fam for c in heard):
         return True
     latin = next((c for c in heard.lower() if "a" <= c <= "z" or c == "ä"), None)
