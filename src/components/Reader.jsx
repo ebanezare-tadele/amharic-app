@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { CHAR_MAP, CATS, SENTENCES, FAMS, ORDERS } from "../content.js";
-import { getClip } from "../lib/clipStorage.js";
+import { HearButton } from "./AudioWidgets.jsx";
 
 /* ============================================================
    READER
@@ -136,19 +136,9 @@ export function Reader({ known, audio }) {
                   {FAMS[CHAR_MAP[tap.c].fam].chars[0]} + {ORDERS[CHAR_MAP[tap.c].order].v} mark ·{" "}
                   {ORDERS[CHAR_MAP[tap.c].order].am}
                 </div>
-                {audio && audio.have.has(`${CHAR_MAP[tap.c].fam}.${CHAR_MAP[tap.c].order}`) && (
-                  <button
-                    className="speaker"
-                    style={{ marginTop: 6, borderColor: "var(--verd)", color: "#8FD9B4" }}
-                    onClick={async () => {
-                      const f = CHAR_MAP[tap.c].fam, o = CHAR_MAP[tap.c].order;
-                      const u = await getClip(f, o);
-                      if (u) new Audio(u).play().catch(() => {});
-                    }}
-                  >
-                    ► play
-                  </button>
-                )}
+                <div style={{ marginTop: 6 }}>
+                  <HearButton fam={CHAR_MAP[tap.c].fam} order={CHAR_MAP[tap.c].order} audio={audio} />
+                </div>
               </div>
             </div>
           </div>

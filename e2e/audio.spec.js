@@ -124,3 +124,42 @@ test("a clip played once still plays after going offline", async ({ page, contex
   await page.locator(".card button", { hasText: "► hear it" }).first().click();
   await expect.poll(() => page.evaluate(() => window.__ok), { timeout: 10000 }).toBe(true);
 });
+
+test("tapping hear it again replays the same clip, fetching it only once", async ({ page }) => {
+  await page.goto("./");
+  await skipTour(page);
+  await page.locator(".tab", { hasText: "chart" }).first().click();
+  await page.locator(".cc").first().click();
+  await page.evaluate(() => {
+    window.__ended = 0;
+    window.__fetches = 0;
+    const origFetch = window.fetch;
+    window.fetch = (url, ...r) => {
+      if (String(url).endsWith("letter-0-0.mp3")) window.__fetches++;
+      return origFetch(url, ...r);
+    };
+    const orig = window.Audio;
+    window.Audio = function (...a) {
+      const el = new orig(...a);
+      el.addEventListener("ended", () => el.src.startsWith("blob:") && window.__ended++);
+      return el;
+    };
+  });
+  const hear = page.locator(".card button", { hasText: "► hear it" }).first();
+  await hear.click();
+  await expect.poll(() => page.evaluate(() => window.__ended)).toBe(1);
+  await hear.click();
+  await expect.poll(() => page.evaluate(() => window.__ended)).toBe(2);
+  expect(await page.evaluate(() => window.__fetches)).toBe(1);
+});
+
+test("Read tab: a tapped letter's hear it goes through the shared player", async ({ page }) => {
+  await page.goto("./");
+  await skipTour(page);
+  await page.locator(".tab", { hasText: "read" }).first().click();
+  // Any letter from the ለ/መ/ረ/ሰ/በ/ተ/ነ rows, all of which ship clips.
+  await page.locator(".gz", { hasText: /^[ለ-ሎመ-ሞረ-ሮሰ-ሶበ-ቦተ-ቶነ-ኖ]$/ }).first().click();
+  const clip = page.waitForResponse((r) => /\/audio\/official\/letter-[0-6]-\d\.mp3$/.test(r.url()));
+  await page.locator("button", { hasText: "► hear it" }).first().click();
+  expect((await clip).status()).toBe(200);
+});
